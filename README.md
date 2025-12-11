@@ -17,3 +17,13 @@ This project demonstrates the application of design patterns to refactor an exis
 5. **Factory Pattern** - Centralized object creation
 
 ### **Layered Architecture**
+
+# UML Diagram Generator for Parking Management System
+
+This script generates various UML diagrams for the Parking Management System.
+
+## Installation
+
+1. Install required Python packages:
+```bash
+pip install -r scripts/requirements-uml.txt
