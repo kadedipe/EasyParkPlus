@@ -1,0 +1,445 @@
+openapi: 3.0.3
+info:
+  title: Parking Management System API
+  description: |
+    REST API for managing parking operations, including vehicle entry/exit,
+    slot management, billing, and real-time monitoring.
+  version: 1.5.0
+  contact:
+    name: API Support
+    email: support@parking-system.com
+    url: https://docs.parking-system.com
+  license:
+    name: Proprietary
+    url: https://parking-system.com/terms
+servers:
+  - url: https://api.parking-system.com/v1
+    description: Production server
+  - url: https://api.sandbox.parking-system.com/v1
+    description: Sandbox server
+  - url: http://localhost:8000/v1
+    description: Local development server
+
+externalDocs:
+  description: API Documentation
+  url: https://docs.parking-system.com/api
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Parking Lots
+    description: Parking lot management
+  - name: Parking Sessions
+    description: Vehicle entry, exit, and session management
+  - name: Slots
+    description: Parking slot management
+  - name: Payments
+    description: Payment processing and invoices
+  - name: Customers
+    description: Customer account management
+  - name: Reports
+    description: Analytics and reporting
+  - name: Webhooks
+    description: Real-time event notifications
+
+paths:
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login user
+      description: Authenticate user and obtain JWT token
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid request
+        '401':
+          description: Invalid credentials
+        '429':
+          description: Too many login attempts
+
+  /parking-lots:
+    get:
+      tags: [Parking Lots]
+      summary: List parking lots
+      description: Retrieve a list of parking lots with filtering and pagination
+      operationId: listParkingLots
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortOrder'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLotsListResponse'
+        '401':
+          description: Unauthorized
+        '429':
+          description: Rate limit exceeded
+
+    post:
+      tags: [Parking Lots]
+      summary: Create parking lot
+      description: Create a new parking lot
+      operationId: createParkingLot
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateParkingLotRequest'
+      responses:
+        '201':
+          description: Parking lot created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLotResponse'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+        '409':
+          description: Parking lot already exists
+
+  /parking-lots/{lot_id}:
+    get:
+      tags: [Parking Lots]
+      summary: Get parking lot details
+      description: Retrieve detailed information about a specific parking lot
+      operationId: getParkingLot
+      parameters:
+        - name: lot_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Parking lot ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLotDetailResponse'
+        '404':
+          description: Parking lot not found
+
+    put:
+      tags: [Parking Lots]
+      summary: Update parking lot
+      description: Update an existing parking lot
+      operationId: updateParkingLot
+      parameters:
+        - name: lot_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateParkingLotRequest'
+      responses:
+        '200':
+          description: Parking lot updated
+        '404':
+          description: Parking lot not found
+
+    delete:
+      tags: [Parking Lots]
+      summary: Delete parking lot
+      description: Delete a parking lot
+      operationId: deleteParkingLot
+      parameters:
+        - name: lot_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Parking lot deleted
+        '404':
+          description: Parking lot not found
+
+  /parking-sessions/check-in:
+    post:
+      tags: [Parking Sessions]
+      summary: Check vehicle in
+      description: Register a vehicle entry
+      operationId: checkInVehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequest'
+      responses:
+        '201':
+          description: Vehicle checked in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          description: Invalid request
+        '409':
+          description: No available slots
+
+  /parking-sessions/{session_id}/check-out:
+    post:
+      tags: [Parking Sessions]
+      summary: Check vehicle out
+      description: Register a vehicle exit and calculate charges
+      operationId: checkOutVehicle
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckOutRequest'
+      responses:
+        '200':
+          description: Vehicle checked out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckOutResponse'
+        '404':
+          description: Session not found
+        '409':
+          description: Session already completed
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    limit:
+      name: limit
+      in: query
+      description: Items per page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    sortBy:
+      name: sort_by
+      in: query
+      description: Sort field
+      required: false
+      schema:
+        type: string
+        enum: [created_at, updated_at, name, capacity]
+    sortOrder:
+      name: sort_order
+      in: query
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+
+  schemas:
+    # Authentication schemas
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: securePassword123!
+        remember_me:
+          type: boolean
+          default: false
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            expires_in:
+              type: integer
+              example: 3600
+            token_type:
+              type: string
+              example: Bearer
+            user:
+              $ref: '#/components/schemas/User'
+
+    # Parking Lot schemas
+    ParkingLot:
+      type: object
+      properties:
+        id:
+          type: string
+          example: lot_123456789
+        name:
+          type: string
+          example: Downtown Parking
+        address:
+          $ref: '#/components/schemas/Address'
+        total_slots:
+          type: integer
+          example: 500
+        available_slots:
+          type: integer
+          example: 150
+        hourly_rate:
+          type: number
+          format: float
+          example: 5.0
+        status:
+          type: string
+          enum: [active, inactive, maintenance]
+          example: active
+
+    CreateParkingLotRequest:
+      type: object
+      required: [name, address, total_slots]
+      properties:
+        name:
+          type: string
+          example: New Parking Facility
+        address:
+          $ref: '#/components/schemas/Address'
+        total_slots:
+          type: integer
+          minimum: 1
+          example: 300
+        hourly_rate:
+          type: number
+          format: float
+          minimum: 0
+          example: 4.5
+
+    ParkingLotsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            parking_lots:
+              type: array
+              items:
+                $ref: '#/components/schemas/ParkingLot'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+
+    # Common schemas
+    Address:
+      type: object
+      required: [street, city, state, postal_code, country]
+      properties:
+        street:
+          type: string
+          example: 123 Main St
+        city:
+          type: string
+          example: New York
+        state:
+          type: string
+          example: NY
+        postal_code:
+          type: string
+          example: 10001
+        country:
+          type: string
+          example: USA
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 100
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total_pages:
+          type: integer
+          example: 5
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: INVALID_REQUEST
+            message:
+              type: string
+              example: Invalid request parameters
+            details:
+              type: object
+        timestamp:
+          type: string
+          format: date-time
