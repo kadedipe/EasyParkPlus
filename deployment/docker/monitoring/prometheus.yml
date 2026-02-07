@@ -38,3 +38,62 @@ scrape_configs:
   - job_name: 'redis'
     static_configs:
       - targets: ['redis-exporter:9121']
+
+  # Notification Service metrics
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3002']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '(.*):.*'
+        replacement: '$1'
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+
+  # Payment Service metrics
+  - job_name: 'payment-service'
+    static_configs:
+      - targets: ['payment-service:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '(.*):.*'
+        replacement: '$1'
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+
+  # Parking API metrics
+  - job_name: 'parking-api'
+    static_configs:
+      - targets: ['parking-api:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '(.*):.*'
+        replacement: '$1'
+    
+  # Payment Service metrics
+  - job_name: 'payment-service'
+    static_configs:
+      - targets: ['payment-service:3001']
+    metrics_path: '/metrics'
+    
+  # Notification Service metrics
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3002']
+    metrics_path: '/metrics'
