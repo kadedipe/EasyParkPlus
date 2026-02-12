@@ -1,0 +1,56 @@
+Copyright © 2024 Parking Management System. All rights reserved.
+
+text
+
+---
+
+## **37. .env.example**
+
+```bash
+# Parking Management System - Environment Configuration
+# Copy this file to .env and update with your values
+
+# Kubernetes Configuration
+CLUSTER_NAME=parking-management-cluster
+REGION=us-central1
+PROJECT_ID=parking-management-prod
+
+# Database Configuration
+POSTGRES_PASSWORD=P@rkingDB2024!Secure
+POSTGRES_REPLICATION_PASSWORD=ReplP@ss2024!
+POSTGRES_READONLY_PASSWORD=ReadOnly2024!
+REDIS_PASSWORD=R3d!sC@che2024
+REDIS_SENTINEL_PASSWORD=S3nt!nel2024
+KONG_PG_PASSWORD=KongDB2024!Secure
+
+# API Keys
+PARKING_API_KEY=pk_live_abcdef123456789
+STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET
+TWILIO_ACCOUNT_SID=AC123456789abcdef
+TWILIO_AUTH_TOKEN=auth_token_123456789
+SENDGRID_API_KEY=SG.abcdefghijklmnop
+
+# AWS Configuration (optional)
+AWS_ACCESS_KEY_ID=AKIA123456789
+AWS_SECRET_ACCESS_KEY=aws_secret_key_123456789
+AWS_REGION=us-east-1
+
+# Monitoring
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=Gr@fana2024!Admin
+PROMETHEUS_ADMIN_PASSWORD=Pr0m3th3us2024!
+ALERTMANAGER_PASSWORD=AlertM@nager2024!
+
+# SSL/TLS
+LETSENCRYPT_EMAIL=admin@parking.example.com
+
+# Feature Flags
+ENABLE_PAYMENT_GATEWAY=true
+ENABLE_NOTIFICATIONS=true
+ENABLE_ANALYTICS=true
+ENABLE_CACHE=true
+
+# Logging
+LOG_LEVEL=info
+LOG_FORMAT=json
