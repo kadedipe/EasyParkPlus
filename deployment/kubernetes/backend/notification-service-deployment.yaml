@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+    service: notifications
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        component: backend
+        service: notifications
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: notification-service
+        image: parking-management/notification-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8082
+          name: metrics
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secret
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 1000
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      serviceAccountName: notification-service-sa
+      nodeSelector:
+        workload-type: backend
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+spec:
+  selector:
+    app: notification-service
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: metrics
+    port: 8082
+    targetPort: 8082
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: notification-service-sa
+  namespace: parking-system

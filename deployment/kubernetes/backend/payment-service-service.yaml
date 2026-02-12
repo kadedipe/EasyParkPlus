@@ -1,0 +1,1157 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-service-config
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: backend
+    tier: microservice
+    service-type: payment-processing
+    version: "1.0.0"
+    managed-by: kubectl
+    security-tier: critical
+    compliance: pci-dss
+  annotations:
+    description: "Payment processing microservice for parking system"
+    built-with: "nodejs"
+    repository: "parking-management/payment-service"
+    pci-dss-scope: "in-scope"
+    data-classification: "sensitive"
+data:
+  # Application Configuration
+  APP_NAME: "Payment Processing Service"
+  APP_ENV: "production"
+  APP_PORT: "3000"
+  APP_VERSION: "1.0.0"
+  APP_TIMEZONE: "UTC"
+  API_PREFIX: "/api/v1/payments"
+  API_DOCS_PATH: "/api-docs"
+  API_DOCS_ENABLED: "false"
+  NODE_ENV: "production"
+  
+  # Service Discovery
+  SERVICE_NAME: "payment-service"
+  SERVICE_HOST: "payment-service.parking-system.svc.cluster.local"
+  SERVICE_PORT: "3000"
+  
+  # Database Configuration - Primary
+  DB_HOST: "pgpool.parking-system.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "payment_db"
+  DB_SCHEMA: "payments"
+  DB_SSL_MODE: "require"
+  DB_MAX_POOL_SIZE: "20"
+  DB_MIN_POOL_SIZE: "5"
+  DB_IDLE_TIMEOUT: "30000"
+  DB_CONNECTION_TIMEOUT: "30000"
+  DB_STATEMENT_TIMEOUT: "10000"
+  
+  # Read Replica Configuration
+  DB_READER_HOST: "postgres-reader-service.parking-system.svc.cluster.local"
+  DB_READER_PORT: "5432"
+  DB_READER_NAME: "payment_db"
+  READ_REPLICA_ENABLED: "true"
+  
+  # Redis Cache Configuration
+  REDIS_HOST: "redis-master-service.parking-system.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_DB: "8"
+  REDIS_CACHE_DB: "9"
+  REDIS_TIMEOUT: "3000"
+  REDIS_MAX_RETRIES: "3"
+  REDIS_RETRY_STRATEGY: "exponential"
+  REDIS_POOL_SIZE: "10"
+  
+  # Cache Configuration
+  CACHE_ENABLED: "true"
+  CACHE_TTL_PAYMENT_METHODS: "300"
+  CACHE_TTL_PRICING: "600"
+  CACHE_TTL_INVOICES: "1800"
+  CACHE_TTL_TRANSACTIONS: "120"
+  CACHE_PREFIX: "payment_service"
+  CACHE_NULL_VALUES: "false"
+  
+  # Payment Processing Configuration
+  CURRENCY: "USD"
+  CURRENCY_SYMBOL: "$"
+  TAX_RATE: "8.5"
+  MINIMUM_PAYMENT_AMOUNT: "0.50"
+  MAXIMUM_PAYMENT_AMOUNT: "5000.00"
+  PAYMENT_TIMEOUT_SECONDS: "300"
+  PAYMENT_CONFIRMATION_TIMEOUT: "30"
+  PAYMENT_METHODS_ENABLED: "credit_card,debit_card,digital_wallet,bank_transfer,crypto"
+  
+  # Credit Card Processing
+  CARD_PROCESSOR: "stripe"
+  CARD_PROCESSING_FEE_PERCENTAGE: "2.9"
+  CARD_PROCESSING_FEE_FIXED: "0.30"
+  CARD_VERIFICATION_ENABLED: "true"
+  CARD_AVS_VERIFICATION: "true"
+  CARD_CVV_VERIFICATION: "true"
+  CARD_3DS_ENABLED: "true"
+  CARD_3DS_TIMEOUT: "180"
+  CARD_TOKENIZATION_ENABLED: "true"
+  
+  # Digital Wallet Configuration
+  DIGITAL_WALLET_ENABLED: "true"
+  DIGITAL_WALLET_PROVIDERS: "apple_pay,google_pay,paypal"
+  APPLE_PAY_MERCHANT_ID: "merchant.parking.system"
+  APPLE_PAY_CERTIFICATE_EXPIRY_DAYS: "365"
+  GOOGLE_PAY_MERCHANT_ID: "BCR2DN4TXHVKV3V2"
+  PAYPAL_PAYMENT_TIMEOUT: "180"
+  
+  # Bank Transfer Configuration
+  BANK_TRANSFER_ENABLED: "true"
+  BANK_TRANSFER_PROCESSING_DAYS: "3"
+  BANK_TRANSFER_VERIFICATION_REQUIRED: "true"
+  ACH_PROCESSING_ENABLED: "true"
+  ACH_SETTLEMENT_DAYS: "3"
+  WIRE_TRANSFER_MIN_AMOUNT: "1000.00"
+  
+  # Cryptocurrency Configuration
+  CRYPTO_ENABLED: "false"
+  CRYPTO_PROVIDER: "coinbase"
+  CRYPTO_CURRENCIES: "BTC,ETH,USDC"
+  CRYPTO_CONFIRMATIONS_REQUIRED: "3"
+  CRYPTO_PRICE_VOLATILITY_BUFFER: "5"
+  
+  # Subscription & Recurring Billing
+  RECURRING_BILLING_ENABLED: "true"
+  RECURRING_PROCESSING_HOUR: "3"
+  RECURRING_RETRY_COUNT: "3"
+  RECURRING_RETRY_DELAY_HOURS: "24"
+  SUBSCRIPTION_GRACE_PERIOD_DAYS: "7"
+  SUBSCRIPTION_CANCELLATION_REFUND_DAYS: "3"
+  
+  # Invoicing
+  INVOICE_AUTO_GENERATE: "true"
+  INVOICE_DUE_DAYS: "30"
+  INVOICE_LATE_FEE_PERCENTAGE: "1.5"
+  INVOICE_LATE_FEE_DAYS: "15"
+  INVOICE_PREFIX: "INV"
+  INVOICE_NUMBER_PATTERN: "INV-{YYYY}-{MM}-{SEQUENCE}"
+  INVOICE_PDF_ENABLED: "true"
+  INVOICE_EMAIL_ENABLED: "true"
+  
+  # Refund Processing
+  REFUND_AUTO_APPROVE_DAYS: "7"
+  REFUND_MAX_AMOUNT_PERCENTAGE: "100"
+  REFUND_PROCESSING_DAYS: "5"
+  REFUND_REASON_REQUIRED: "true"
+  PARTIAL_REFUND_ENABLED: "true"
+  
+  # Dispute Management
+  DISPUTE_AUTO_RESPOND: "true"
+  DISPUTE_RESPONSE_DAYS: "7"
+  DISPUTE_EVIDENCE_REQUIRED: "true"
+  DISPUTE_NOTIFICATION_ENABLED: "true"
+  CHARGEBACK_HANDLING_ENABLED: "true"
+  
+  # Payout Processing
+  PAYOUT_PROCESSING_ENABLED: "true"
+  PAYOUT_SCHEDULE: "daily"
+  PAYOUT_MINIMUM_AMOUNT: "10.00"
+  PAYOUT_PROCESSING_DAYS: "2"
+  PAYOUT_METHODS: "bank_account,paypal"
+  PAYOUT_AUTO_TRANSFER: "true"
+  
+  # Tax Configuration
+  TAX_CALCULATION_ENABLED: "true"
+  TAX_INCLUSIVE_PRICING: "false"
+  TAX_AUTO_COLLECT: "true"
+  TAX_REPORTING_ENABLED: "true"
+  VAT_ENABLED: "true"
+  VAT_NUMBER_VALIDATION: "true"
+  GST_ENABLED: "true"
+  
+  # Fraud Prevention
+  FRAUD_DETECTION_ENABLED: "true"
+  FRAUD_SCORE_THRESHOLD: "75"
+  FRAUD_VELOCITY_CHECK_ENABLED: "true"
+  FRAUD_VELOCITY_LIMIT: "10"
+  FRAUD_VELOCITY_WINDOW: "300"
+  FRAUD_IP_CHECK_ENABLED: "true"
+  FRAUD_DEVICE_FINGERPRINTING: "true"
+  SUSPICIOUS_AMOUNT_THRESHOLD: "1000.00"
+  SUSPICIOUS_FREQUENCY_THRESHOLD: "5"
+  SUSPICIOUS_FREQUENCY_WINDOW: "3600"
+  
+  # Reconciliation
+  RECONCILIATION_ENABLED: "true"
+  RECONCILIATION_SCHEDULE: "0 */6 * * *"
+  RECONCILIATION_TOLERANCE: "0.01"
+  RECONCILIATION_REPORT_ENABLED: "true"
+  AUTO_RECONCILE: "true"
+  
+  # Messaging Configuration
+  RABBITMQ_HOST: "rabbitmq.parking-system.svc.cluster.local"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_VHOST: "/"
+  RABBITMQ_PAYMENT_EVENTS_EXCHANGE: "payment.events"
+  RABBITMQ_PAYMENT_CREATED_QUEUE: "payment.created"
+  RABBITMQ_PAYMENT_PROCESSED_QUEUE: "payment.processed"
+  RABBITMQ_PAYMENT_FAILED_QUEUE: "payment.failed"
+  RABBITMQ_PAYMENT_REFUNDED_QUEUE: "payment.refunded"
+  RABBITMQ_INVOICE_GENERATED_QUEUE: "invoice.generated"
+  
+  # Monitoring
+  METRICS_ENABLED: "true"
+  METRICS_PATH: "/metrics"
+  HEALTH_PATH: "/health"
+  READINESS_PATH: "/ready"
+  LIVENESS_PATH: "/alive"
+  TRACING_ENABLED: "true"
+  TRACING_SAMPLE_RATE: "0.25"
+  PROFILER_ENABLED: "false"
+  
+  # Logging
+  LOG_LEVEL: "info"
+  LOG_PAYMENT_SERVICE: "debug"
+  LOG_JSON_FORMAT: "true"
+  LOG_INCLUDE_TRACE_ID: "true"
+  LOG_MAX_FILES: "30"
+  LOG_MAX_FILE_SIZE: "100m"
+  LOG_REQUEST_BODY: "false"
+  LOG_RESPONSE_BODY: "false"
+  SENSITIVE_DATA_MASKING: "true"
+  SENSITIVE_FIELDS: "card_number,cvv,password,token,secret"
+  
+  # Security
+  PCI_COMPLIANCE_MODE: "true"
+  ENCRYPT_SENSITIVE_DATA: "true"
+  TOKENIZE_PAYMENT_DATA: "true"
+  MASK_PAN: "true"
+  PAN_VISIBLE_LAST_4: "true"
+  ENCRYPTION_ALGORITHM: "aes-256-gcm"
+  SESSION_TIMEOUT: "900"
+  MAX_PAYMENT_ATTEMPTS: "3"
+  RATE_LIMIT_REQUESTS: "50"
+  RATE_LIMIT_WINDOW: "60"
+  
+  # Feature Flags
+  FEATURE_TEST_MODE: "false"
+  FEATURE_SANDBOX_MODE: "false"
+  FEATURE_PAYMENT_LINK: "true"
+  FEATURE_PAYMENT_REQUEST: "true"
+  FEATURE_SPLIT_PAYMENT: "true"
+  FEATURE_DEPOSIT_HOLD: "true"
+  FEATURE_ESCROW: "false"
+  FEATURE_LOYALTY_POINTS: "true"
+  FEATURE_CASHBACK: "true"
+  FEATURE_DISCOUNTS: "true"
+  FEATURE_COUPONS: "true"
+  FEATURE_GIFT_CARDS: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payment-service-secret
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: backend
+    tier: microservice
+    service-type: payment-processing
+    managed-by: kubectl
+    security-tier: critical
+    compliance: pci-dss
+  annotations:
+    description: "Payment service sensitive configuration"
+    pci-dss-scope: "in-scope"
+    encryption: "aes-256"
+    rotation-policy: "90-days"
+type: Opaque
+data:
+  # Database Credentials
+  DB_USER: cGF5bWVudF9zZXJ2aWNlX3VzZXI=  # payment_service_user
+  DB_PASSWORD: cGF5bWVudF9zZXJ2aWNlX3Bhc3N3b3Jk  # payment_service_password
+  DB_READER_USER: cGF5bWVudF9zZXJ2aWNlX3JlYWRlcl91c2Vy  # payment_service_reader_user
+  DB_READER_PASSWORD: cGF5bWVudF9zZXJ2aWNlX3JlYWRlcl9wYXNzd29yZA==  # payment_service_reader_password
+  
+  # Redis Credentials
+  REDIS_PASSWORD: cGFya2luZ3JlZGlzcGFzc3dvcmQ=  # parkingredispassword
+  
+  # Stripe Configuration
+  STRIPE_PUBLISHABLE_KEY: cGtfdGVzdF81MUdnSURZS0V4c2FtcGxl  # pk_test_51GgIDYKExsample
+  STRIPE_SECRET_KEY: c2tfdGVzdF81MUdnSURZS0V4c2FtcGxl  # sk_test_51GgIDYKExsample
+  STRIPE_WEBHOOK_SECRET: d2hzZWNfZmFtcGxlX3N0cmlwZV93ZWJob29rX3NlY3JldA==  # YOUR_STRIPE_WEBHOOK_SECRET
+  STRIPE_ACCOUNT_ID: YWNjdF9mYW1wbGVfc3RyaXBlX2FjY291bnQ=  # acct_fample_stripe_account
+  STRIPE_CLIENT_ID: Y2FfZmFtcGxlX3N0cmlwZV9jbGllbnRfaWQ=  # ca_fample_stripe_client_id
+  
+  # PayPal Configuration
+  PAYPAL_CLIENT_ID: QVpmZmFtcGxlLXBheXBhbC1jbGllbnQtaWQ=  # AZffample-paypal-client-id
+  PAYPAL_CLIENT_SECRET: RUZtZmFtcGxlLXBheXBhbC1zZWNyZXQ=  # EFmfample-paypal-secret
+  PAYPAL_WEBHOOK_ID: V0hTZmFtcGxlLXBheXBhbC13ZWJob29rLWlk  # WHSfample-paypal-webhook-id
+  
+  # Apple Pay Configuration
+  APPLE_PAY_MERCHANT_ID: bWVyY2hhbnQucGFya2luZy5zeXN0ZW0=  # merchant.parking.system
+  APPLE_PAY_CERTIFICATE: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCmZhbXBsZS1jZXJ0aWZpY2F0ZS1kYXRhCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=  # sample certificate
+  APPLE_PAY_PRIVATE_KEY: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCmZhbXBsZS1wcml2YXRlLWtleS1kYXRhCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=  # sample private key
+  
+  # Google Pay Configuration
+  GOOGLE_PAY_MERCHANT_ID: QkNSMkRONFRYSFZLVjNWMg==  # BCR2DN4TXHVKV3V2
+  GOOGLE_PAY_MERCHANT_SECRET: ZmFtcGxlLWdvb2dsZS1wYXktc2VjcmV0  # sample-google-pay-secret
+  
+  # Coinbase/Crypto Configuration
+  COINBASE_API_KEY: Y2JfZmFtcGxlX2NvaW5iYXNlX2FwaV9rZXk=  # cb_fample_coinbase_api_key
+  COINBASE_API_SECRET: ZmFtcGxlX2NvaW5iYXNlX2FwaV9zZWNyZXQ=  # sample_coinbase_api_secret
+  COINBASE_WEBHOOK_SECRET: ZmFtcGxlX2NvaW5iYXNlX3dlYmhvb2tfc2VjcmV0  # sample_coinbase_webhook_secret
+  
+  # Bank/ACH Configuration
+  BANK_PUBLIC_KEY: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KZmFtcGxlLWJhbmstcHVibGljLWtleQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0=  # sample-bank-public-key
+  BANK_PRIVATE_KEY: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCmZhbXBsZS1iYW5rLXByaXZhdGUta2V5Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=  # sample-bank-private-key
+  ACH_ORIGINATOR_ID: OTk5OTk5OTk5OQ==  # 9999999999
+  ACH_COMPANY_ID: MTIzNDU2Nzg5MA==  # 1234567890
+  
+  # RabbitMQ Credentials
+  RABBITMQ_USER: cGF5bWVudF9zZXJ2aWNlX3JhYmJpdG1xX3VzZXI=  # payment_service_rabbitmq_user
+  RABBITMQ_PASSWORD: cGF5bWVudF9zZXJ2aWNlX3JhYmJpdG1xX3Bhc3N3b3Jk  # payment_service_rabbitmq_password
+  
+  # Encryption Keys
+  ENCRYPTION_KEY: cGF5bWVudF9zZXJ2aWNlX2VuY3J5cHRpb25fa2V5XzY5NDI=  # payment_service_encryption_key_6942
+  TOKENIZATION_KEY: cGF5bWVudF9zZXJ2aWNlX3Rva2VuaXphdGlvbl9rZXlfODM3MQ==  # payment_service_tokenization_key_8371
+  HASHING_SALT: cGF5bWVudF9zZXJ2aWNlX2hhc2hpbmdfc2FsdF81Mjgz  # payment_service_hashing_salt_5283
+  
+  # API Keys
+  ADMIN_API_KEY: cGF5bWVudF9zZXJ2aWNlX2FkbWluX2FwaV9rZXlfMjAyNA==  # payment_service_admin_api_key_2024
+  SERVICE_API_KEY: cGF5bWVudF9zZXJ2aWNlX3NlcnZpY2VfYXBpX2tleV8yMDI0  # payment_service_service_api_key_2024
+  WEBHOOK_SIGNING_SECRET: cGF5bWVudF9zZXJ2aWNlX3dlYmhvb2tfc2lnbmluZ19zZWNyZXQ=  # payment_service_webhook_signing_secret
+  
+  # Fraud Detection API Keys
+  SIFT_SCIENCE_API_KEY: ZmFtcGxlX3NpZnRfc2NpZW5jZV9hcGlfa2V5  # sample_sift_science_api_key
+  MAXMIND_LICENSE_KEY: ZmFtcGxlX21heG1pbmRfbGljZW5zZV9rZXk=  # sample_maxmind_license_key
+  KUSTOMER_API_KEY: ZmFtcGxlX2t1c3RvbWVyX2FwaV9rZXk=  # sample_kustomer_api_key
+  
+  # Tax Calculation API Keys
+  AVALARA_API_KEY: ZmFtcGxlX2F2YWxhcmFfYXBpX2tleQ==  # sample_avalara_api_key
+  TAXJAR_API_KEY: ZmFtcGxlX3RheGphcl9hcGlfa2V5  # sample_taxjar_api_key
+  
+  # Email/SMTP for Invoices
+  SMTP_USER: cGF5bWVudF9zZXJ2aWNlX3NtdHBfdXNlcg==  # payment_service_smtp_user
+  SMTP_PASSWORD: cGF5bWVudF9zZXJ2aWNlX3NtdHBfcGFzc3dvcmQ=  # payment_service_smtp_password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: backend
+    tier: microservice
+    service-type: payment-processing
+    version: "1.0.0"
+    managed-by: kubectl
+    security-tier: critical
+    compliance: pci-dss
+  annotations:
+    description: "Payment processing microservice for parking system"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+    reloader.stakater.com/match: "true"
+    sidecar.jaegertracing.io/inject: "true"
+    fluentbit.io/parser: "json"
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "payment-service"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: payment-service
+      tier: microservice
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: payment-service
+        component: backend
+        tier: microservice
+        service-type: payment-processing
+        version: "1.0.0"
+        security-tier: critical
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+        checksum/config: {{ include (print $.Template.BasePath "/payment-service-config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/payment-service-secret.yaml") . | sha256sum }}
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "payment-service"
+        vault.hashicorp.com/agent-inject-secret-database: "secret/payment-service/database"
+        vault.hashicorp.com/agent-inject-secret-stripe: "secret/payment-service/stripe"
+        vault.hashicorp.com/agent-inject-template-database: |
+          {{`{{- with secret "secret/payment-service/database" -}}
+          export DB_PASSWORD="{{ .Data.data.password }}"
+          {{- end }}`}}
+    spec:
+      serviceAccountName: payment-service-sa
+      containers:
+      - name: payment-service
+        image: parking-management/payment-service:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 3001
+          name: management
+        - containerPort: 3002
+          name: grpc
+        - containerPort: 9090
+          name: metrics
+        envFrom:
+        - configMapRef:
+            name: payment-service-config
+        - secretRef:
+            name: payment-service-secret
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_PASSWORD
+        - name: NODE_OPTIONS
+          value: "--max-old-space-size=1024"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /var/log/payment-service
+        - name: config
+          mountPath: /app/config
+        - name: secrets
+          mountPath: /app/secrets
+          readOnly: true
+        - name: timezone
+          mountPath: /etc/localtime
+          readOnly: true
+        resources:
+          requests:
+            memory: "384Mi"
+            cpu: "300m"
+          limits:
+            memory: "768Mi"
+            cpu: "600m"
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: 3001
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          failureThreshold: 24
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                node /app/graceful-shutdown.js
+                sleep 15
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+      
+      - name: fluentbit
+        image: fluent/fluent-bit:2.1
+        volumeMounts:
+        - name: logs
+          mountPath: /var/log/payment-service
+          readOnly: true
+        - name: fluentbit-config
+          mountPath: /fluent-bit/etc/
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        securityContext:
+          runAsUser: 0
+          runAsNonRoot: false
+      
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: payment-service-config
+          defaultMode: 0644
+      - name: secrets
+        emptyDir:
+          medium: Memory
+      - name: fluentbit-config
+        configMap:
+          name: fluentbit-config
+          defaultMode: 0644
+      - name: timezone
+        hostPath:
+          path: /usr/share/zoneinfo/UTC
+          type: File
+      
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - payment-service
+            topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - payment-service
+              topologyKey: topology.kubernetes.io/zone
+      
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: payment-service
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: payment-service
+      
+      nodeSelector:
+        workload-type: payment
+        security-tier: critical
+      
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "payment"
+        effect: "NoSchedule"
+      - key: "pci-dss"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: backend
+    tier: microservice
+    service-type: payment-processing
+    version: "1.0.0"
+    managed-by: kubectl
+    security-tier: critical
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+    description: "Payment processing microservice"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:region:account:certificate/payment-cert"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+spec:
+  selector:
+    app: payment-service
+    tier: microservice
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 3000
+    protocol: TCP
+  - name: management
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  - name: grpc
+    port: 50053
+    targetPort: 3002
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service-headless
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: backend
+    tier: microservice
+    service-type: payment-processing
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  selector:
+    app: payment-service
+    tier: microservice
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+  - name: grpc
+    port: 3002
+    targetPort: 3002
+  clusterIP: None
+  publishNotReadyAddresses: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payment-service-sa
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: backend
+    tier: microservice
+    security-tier: critical
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::account-id:role/payment-service-role"
+    vault.hashicorp.com/role: "payment-service"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: payment-service
+  namespace: parking-system
+  labels:
+    security-tier: critical
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+  resourceNames: ["payment-service-secret", "postgres-secret", "redis-secret"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: payment-service
+  namespace: parking-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: payment-service
+subjects:
+- kind: ServiceAccount
+  name: payment-service-sa
+  namespace: parking-system
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: payment-service-hpa
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: payment-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: 150
+  - type: Pods
+    pods:
+      metric:
+        name: payment_processing_rate
+      target:
+        type: AverageValue
+        averageValue: 50
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: payment-service-pdb
+  namespace: parking-system
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: payment-service
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-service-network-policy
+  namespace: parking-system
+  labels:
+    security-tier: critical
+spec:
+  podSelector:
+    matchLabels:
+      app: payment-service
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: parking-api
+    - podSelector:
+        matchLabels:
+          app: booking-service
+    - podSelector:
+        matchLabels:
+          app: user-service
+    - namespaceSelector:
+        matchLabels:
+          name: parking-monitoring
+      podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 3001
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to:
+    - podSelector:
+        matchLabels:
+          app: pgpool
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - podSelector:
+        matchLabels:
+          app: rabbitmq
+    ports:
+    - protocol: TCP
+      port: 5672
+    - protocol: TCP
+      port: 15672
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: payment-reconciliation
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: reconciliation
+spec:
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: reconciliation
+            image: parking-management/payment-service:1.0.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              node /app/scripts/reconciliation.js
+            envFrom:
+            - configMapRef:
+                name: payment-service-config
+            - secretRef:
+                name: payment-service-secret
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "400m"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: payment-invoice-generation
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: invoicing
+spec:
+  schedule: "0 1 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: invoice-generator
+            image: parking-management/payment-service:1.0.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              node /app/scripts/generate-invoices.js
+            envFrom:
+            - configMapRef:
+                name: payment-service-config
+            - secretRef:
+                name: payment-service-secret
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "400m"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: payment-subscription-processor
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: subscriptions
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: subscription-processor
+            image: parking-management/payment-service:1.0.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              node /app/scripts/process-subscriptions.js
+            envFrom:
+            - configMapRef:
+                name: payment-service-config
+            - secretRef:
+                name: payment-service-secret
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "400m"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: payment-payout-processor
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: payouts
+spec:
+  schedule: "0 5 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: payout-processor
+            image: parking-management/payment-service:1.0.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              node /app/scripts/process-payouts.js
+            envFrom:
+            - configMapRef:
+                name: payment-service-config
+            - secretRef:
+                name: payment-service-secret
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "400m"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentbit-config
+  namespace: parking-system
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush        1
+        Log_Level    info
+        Parsers_File parsers.conf
+    
+    [INPUT]
+        Name        tail
+        Path        /var/log/payment-service/*.log
+        Parser      json
+        Tag         payment-service
+        Mem_Buf_Limit 5MB
+        Skip_Long_Lines On
+    
+    [FILTER]
+        Name        modify
+        Match       payment-service
+        Remove      card_number
+        Remove      cvv
+        Remove      password
+        Remove      token
+        Remove      secret
+    
+    [OUTPUT]
+        Name        stdout
+        Match       *
+        Format      json_lines
+    
+    [OUTPUT]
+        Name        es
+        Match       payment-service
+        Host        elasticsearch.logging.svc.cluster.local
+        Port        9200
+        Index       payment-service-logs
+        Type        _doc
+        Generate_ID On
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: payment-service-audit-pvc
+  namespace: parking-system
+  labels:
+    app: payment-service
+    component: audit
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: payment-service-psp
+  namespace: parking-system
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'runtime/default'
+    apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  runAsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 65535
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 65535
+  readOnlyRootFilesystem: true

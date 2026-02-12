@@ -1,0 +1,265 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parking-api
+  namespace: parking-system
+  labels:
+    app: parking-api
+    component: backend
+    service: parking
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: parking-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: parking-api
+        component: backend
+        service: parking
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "parking-api"
+    spec:
+      containers:
+      - name: parking-api
+        image: parking-management/parking-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8081
+          name: grpc
+        - containerPort: 8082
+          name: metrics
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secret
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /cache
+        - name: vault-secrets
+          mountPath: /vault/secrets
+          readOnly: true
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 12
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 10"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 1000
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.2
+        command:
+        - "/cloud_sql_proxy"
+        - "-instances=parking-management:us-central1:parking-db=tcp:5432"
+        - "-credential_file=/secrets/cloudsql/credentials.json"
+        securityContext:
+          runAsNonRoot: true
+        volumeMounts:
+        - name: cloudsql-instance-credentials
+          mountPath: /secrets/cloudsql
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: cache
+        emptyDir:
+          medium: Memory
+          sizeLimit: 256Mi
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+          optional: true
+      - name: vault-secrets
+        emptyDir:
+          medium: Memory
+      serviceAccountName: parking-api-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - parking-api
+              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        workload-type: backend
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "backend"
+        effect: "NoSchedule"
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: parking-api-service
+  namespace: parking-system
+  labels:
+    app: parking-api
+    component: backend
+spec:
+  selector:
+    app: parking-api
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: grpc
+    port: 8081
+    targetPort: 8081
+  - name: metrics
+    port: 8082
+    targetPort: 8082
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: parking-api-sa
+  namespace: parking-system
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/parking-api-role
+    vault.hashicorp.com/auth-path: auth/kubernetes
+    vault.hashicorp.com/namespace: parking
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: parking-api-hpa
+  namespace: parking-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: parking-api
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: 100
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: parking-api-pdb
+  namespace: parking-system
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: parking-api
