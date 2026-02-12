@@ -1,0 +1,213 @@
+# Parking Management System Kubernetes Makefile
+.PHONY: help deploy deploy-all deploy-monitoring deploy-app undeploy status logs clean
+
+SHELL := /bin/bash
+NAMESPACE ?= parking-system
+MONITORING_NAMESPACE ?= parking-monitoring
+KUBECTL := kubectl
+KUSTOMIZE := kustomize
+HELM := helm
+
+# Colors
+RED = \033[0;31m
+GREEN = \033[0;32m
+YELLOW = \033[1;33m
+BLUE = \033[0;34m
+NC = \033[0m
+
+help: ## Display this help
+	@printf "${BLUE}Parking Management System Kubernetes Commands${NC}\n"
+	@printf "${YELLOW}Usage:${NC} make [target]\n\n"
+	@printf "${GREEN}Available targets:${NC}\n"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  ${GREEN}%-20s${NC} %s\n", $$1, $$2}'
+
+deploy-all: deploy-cluster deploy-ingress deploy-cert-manager deploy-prometheus deploy-loki deploy-app ## Deploy everything
+
+deploy-cluster: ## Create GKE cluster
+	@printf "${YELLOW}Creating GKE cluster...${NC}\n"
+	@gcloud container clusters create parking-management-cluster \
+		--region=us-central1 \
+		--project=parking-management-prod \
+		--num-nodes=3 \
+		--machine-type=e2-standard-4 \
+		--enable-autoscaling \
+		--min-nodes=3 \
+		--max-nodes=10 \
+		--enable-vertical-pod-autoscaling
+	@$(MAKE) get-credentials
+
+get-credentials: ## Get cluster credentials
+	@printf "${YELLOW}Getting cluster credentials...${NC}\n"
+	@gcloud container clusters get-credentials parking-management-cluster \
+		--region=us-central1 \
+		--project=parking-management-prod
+
+deploy-ingress: ## Deploy NGINX Ingress Controller
+	@printf "${YELLOW}Deploying NGINX Ingress Controller...${NC}\n"
+	@$(HELM) repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true
+	@$(HELM) repo update
+	@$(HELM) upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+		--namespace ingress-nginx \
+		--create-namespace \
+		--set controller.service.type=LoadBalancer \
+		--set controller.autoscaling.enabled=true
+
+deploy-cert-manager: ## Deploy Cert Manager
+	@printf "${YELLOW}Deploying Cert Manager...${NC}\n"
+	@$(HELM) repo add jetstack https://charts.jetstack.io || true
+	@$(HELM) repo update
+	@$(HELM) upgrade --install cert-manager jetstack/cert-manager \
+		--namespace cert-manager \
+		--create-namespace \
+		--set installCRDs=true
+
+deploy-prometheus: ## Deploy Prometheus Stack
+	@printf "${YELLOW}Deploying Prometheus Stack...${NC}\n"
+	@$(HELM) repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
+	@$(HELM) repo update
+	@$(HELM) upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+		--namespace $(MONITORING_NAMESPACE) \
+		--create-namespace \
+		--set grafana.enabled=true \
+		--set grafana.adminPassword=admin \
+		--set prometheus.prometheusSpec.retention=30d
+
+deploy-loki: ## Deploy Loki logging stack
+	@printf "${YELLOW}Deploying Loki...${NC}\n"
+	@$(HELM) repo add grafana https://grafana.github.io/helm-charts || true
+	@$(HELM) repo update
+	@$(HELM) upgrade --install loki grafana/loki-stack \
+		--namespace $(MONITORING_NAMESPACE) \
+		--set grafana.enabled=false \
+		--set prometheus.enabled=false \
+		--set promtail.enabled=true
+
+deploy-app: ## Deploy application using Kustomize
+	@printf "${YELLOW}Deploying application...${NC}\n"
+	@$(KUSTOMIZE) build . | $(KUBECTL) apply -f -
+	@$(MAKE) wait
+
+deploy-namespaces: ## Create namespaces
+	@printf "${YELLOW}Creating namespaces...${NC}\n"
+	@$(KUBECTL) create namespace $(NAMESPACE) --dry-run=client -o yaml | $(KUBECTL) apply -f -
+	@$(KUBECTL) create namespace $(MONITORING_NAMESPACE) --dry-run=client -o yaml | $(KUBECTL) apply -f -
+
+deploy-secrets: ## Deploy secrets
+	@printf "${YELLOW}Deploying secrets...${NC}\n"
+	@$(KUBECTL) apply -f secrets/ -n $(NAMESPACE)
+
+deploy-configmaps: ## Deploy configmaps
+	@printf "${YELLOW}Deploying configmaps...${NC}\n`
+	@$(KUBECTL) apply -f configmaps/ -n $(NAMESPACE)
+
+deploy-storage: ## Deploy persistent volumes
+	@printf "${YELLOW}Deploying storage...${NC}\n`
+	@$(KUBECTL) apply -f storage/ -n $(NAMESPACE)
+
+deploy-databases: ## Deploy databases
+	@printf "${YELLOW}Deploying databases...${NC}\n`
+	@$(KUBECTL) apply -f databases/ -n $(NAMESPACE)
+
+deploy-backend: ## Deploy backend services
+	@printf "${YELLOW}Deploying backend services...${NC}\n`
+	@$(KUBECTL) apply -f backend/ -n $(NAMESPACE)
+
+deploy-gateway: ## Deploy API gateway
+	@printf "${YELLOW}Deploying API gateway...${NC}\n`
+	@$(KUBECTL) apply -f gateway/ -n $(NAMESPACE)
+
+deploy-monitoring: ## Deploy monitoring stack
+	@printf "${YELLOW}Deploying monitoring...${NC}\n`
+	@$(KUBECTL) apply -f monitoring/ -n $(MONITORING_NAMESPACE)
+
+deploy-network-policies: ## Deploy network policies
+	@printf "${YELLOW}Deploying network policies...${NC}\n`
+	@$(KUBECTL) apply -f network-policies/ -n $(NAMESPACE)
+
+deploy-hpa: ## Deploy horizontal pod autoscalers
+	@printf "${YELLOW}Deploying HPA...${NC}\n`
+	@$(KUBECTL) apply -f hpa/ -n $(NAMESPACE)
+
+wait: ## Wait for deployments to be ready
+	@printf "${YELLOW}Waiting for deployments to be ready...${NC}\n`
+	@$(KUBECTL) wait --for=condition=available --timeout=300s deployment --all -n $(NAMESPACE)
+	@$(KUBECTL) wait --for=condition=ready --timeout=300s pod -l app -n $(NAMESPACE)
+
+status: ## Show deployment status
+	@printf "${BLUE}=== Deployments ===${NC}\n`
+	@$(KUBECTL) get deployments -n $(NAMESPACE)
+	@printf "\n${BLUE}=== Services ===${NC}\n`
+	@$(KUBECTL) get services -n $(NAMESPACE)
+	@printf "\n${BLUE}=== Pods ===${NC}\n`
+	@$(KUBECTL) get pods -n $(NAMESPACE)
+	@printf "\n${BLUE}=== PVCs ===${NC}\n`
+	@$(KUBECTL) get pvc -n $(NAMESPACE)
+	@printf "\n${BLUE}=== HPA ===${NC}\n`
+	@$(KUBECTL) get hpa -n $(NAMESPACE)
+
+logs: ## Show logs from all pods
+	@printf "${YELLOW}Fetching logs...${NC}\n`
+	@for pod in $$($(KUBECTL) get pods -n $(NAMESPACE) -o jsonpath='{.items[*].metadata.name}'); do \
+		echo "${BLUE}=== $$pod ===${NC}"; \
+		$(KUBECTL) logs -n $(NAMESPACE) $$pod --tail=50; \
+	done
+
+restart: ## Restart all deployments
+	@printf "${YELLOW}Restarting deployments...${NC}\n`
+	@$(KUBECTL) rollout restart deployment -n $(NAMESPACE)
+	@$(MAKE) wait
+
+scale-up: ## Scale up all deployments
+	@printf "${YELLOW}Scaling up...${NC}\n`
+	@$(KUBECTL) scale deployment -n $(NAMESPACE) --replicas=5 --all
+
+scale-down: ## Scale down all deployments
+	@printf "${YELLOW}Scaling down...${NC}\n`
+	@$(KUBECTL) scale deployment -n $(NAMESPACE) --replicas=1 --all
+
+clean: ## Delete all resources
+	@printf "${RED}WARNING: This will delete all resources. Continue? [y/N]${NC} "
+	@read -r ans; \
+	if [ "$$ans" = "y" ]; then \
+		$(KUBECTL) delete namespace $(NAMESPACE) --ignore-not-found; \
+		$(KUBECTL) delete namespace $(MONITORING_NAMESPACE) --ignore-not-found; \
+		$(HELM) uninstall prometheus -n $(MONITORING_NAMESPACE) || true; \
+		$(HELM) uninstall loki -n $(MONITORING_NAMESPACE) || true; \
+		$(HELM) uninstall ingress-nginx -n ingress-nginx || true; \
+		$(HELM) uninstall cert-manager -n cert-manager || true; \
+		printf "${GREEN}✓ Cleanup completed${NC}\n"; \
+	fi
+
+delete-cluster: ## Delete GKE cluster
+	@printf "${RED}WARNING: This will delete the GKE cluster. Continue? [y/N]${NC} "
+	@read -r ans; \
+	if [ "$$ans" = "y" ]; then \
+		gcloud container clusters delete parking-management-cluster \
+			--region=us-central1 \
+			--project=parking-management-prod \
+			--quiet; \
+		printf "${GREEN}✓ Cluster deleted${NC}\n"; \
+	fi
+
+port-forward-grafana: ## Port forward Grafana
+	@$(KUBECTL) port-forward -n $(MONITORING_NAMESPACE) service/grafana 3000:3000
+
+port-forward-prometheus: ## Port forward Prometheus
+	@$(KUBECTL) port-forward -n $(MONITORING_NAMESPACE) service/prometheus 9090:9090
+
+port-forward-kong: ## Port forward Kong
+	@$(KUBECTL) port-forward -n $(NAMESPACE) service/kong-proxy 8000:8000
+
+test: ## Run basic connectivity tests
+	@printf "${YELLOW}Running tests...${NC}\n`
+	@$(KUBECTL) run test-pod --image=busybox:1.35 --rm -it --restart=Never -- \
+		sh -c 'nslookup kubernetes.default && wget -O- http://kong-proxy.parking-system:8000/status'
+	@printf "${GREEN}✓ Tests completed${NC}\n`
+
+dashboard: ## Enable Kubernetes dashboard
+	@printf "${YELLOW}Enabling Kubernetes dashboard...${NC}\n`
+	@$(KUBECTL) apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+	@$(KUBECTL) create clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:kubernetes-dashboard -n kubernetes-dashboard || true
+	@printf "${GREEN}✓ Dashboard enabled. Run 'kubectl proxy' and open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/${NC}\n`
+
+.DEFAULT_GOAL := help
