@@ -1,0 +1,909 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: database
+    type: primary
+    version: "14"
+    managed-by: kubectl
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9187"
+    prometheus.io/path: "/metrics"
+    description: "PostgreSQL primary database service for parking management system"
+spec:
+  selector:
+    app: postgres
+    statefulset.kubernetes.io/pod-name: postgres-0
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+  - name: metrics
+    port: 9187
+    targetPort: 9187
+    protocol: TCP
+  type: ClusterIP
+  clusterIP: None
+  sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-replica-service
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: database
+    type: replica
+    version: "14"
+    managed-by: kubectl
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9187"
+    prometheus.io/path: "/metrics"
+    description: "PostgreSQL replica database service for read operations"
+spec:
+  selector:
+    app: postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+  - name: metrics
+    port: 9187
+    targetPort: 9187
+    protocol: TCP
+  type: ClusterIP
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-headless
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: database
+    version: "14"
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  selector:
+    app: postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  - name: metrics
+    port: 9187
+    targetPort: 9187
+  clusterIP: None
+  publishNotReadyAddresses: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-reader-service
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: database
+    role: reader
+    version: "14"
+  annotations:
+    description: "Service for read-only PostgreSQL connections"
+spec:
+  selector:
+    app: postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  - name: metrics
+    port: 9187
+    targetPort: 9187
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-writer-service
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: database
+    role: writer
+    version: "14"
+  annotations:
+    description: "Service for write PostgreSQL connections"
+spec:
+  selector:
+    statefulset.kubernetes.io/pod-name: postgres-0
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  - name: metrics
+    port: 9187
+    targetPort: 9187
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-exporter
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: exporter
+spec:
+  selector:
+    app: postgres
+  ports:
+  - name: metrics
+    port: 9187
+    targetPort: 9187
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: postgres-external
+  namespace: parking-system
+  annotations:
+    description: "External PostgreSQL endpoint for backup/DR"
+subsets:
+- addresses:
+  - ip: 10.0.0.1  # Replace with actual external IP
+  ports:
+  - port: 5432
+    name: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-external
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: external
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  type: ClusterIP
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgpool
+  namespace: parking-system
+  labels:
+    app: pgpool
+    component: connection-pool
+spec:
+  selector:
+    app: pgpool
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  - name: pcp
+    port: 9898
+    targetPort: 9898
+  - name: watchdog
+    port: 9000
+    targetPort: 9000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-network-policy
+  namespace: parking-system
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          component: backend
+    - podSelector:
+        matchLabels:
+          app: kong
+    - namespaceSelector:
+        matchLabels:
+          name: parking-monitoring
+      podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 5432
+    - protocol: TCP
+      port: 9187
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+    - protocol: TCP
+      port: 9187
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgpool-config
+  namespace: parking-system
+data:
+  pgpool.conf: |
+    # Pgpool-II configuration for PostgreSQL connection pooling
+    listen_addresses = '*'
+    port = 5432
+    socket_dir = '/var/run/pgpool'
+    pcp_listen_addresses = '*'
+    pcp_port = 9898
+    pcp_socket_dir = '/var/run/pgpool'
+    
+    # Backend settings
+    backend_hostname0 = 'postgres-0.postgres-headless.parking-system.svc.cluster.local'
+    backend_port0 = 5432
+    backend_weight0 = 1
+    backend_data_directory0 = '/var/lib/postgresql/data/pgdata'
+    backend_flag0 = 'ALLOW_TO_FAILOVER'
+    
+    backend_hostname1 = 'postgres-1.postgres-headless.parking-system.svc.cluster.local'
+    backend_port1 = 5432
+    backend_weight1 = 1
+    backend_data_directory1 = '/var/lib/postgresql/data/pgdata'
+    backend_flag1 = 'ALLOW_TO_FAILOVER'
+    
+    # Authentication
+    enable_pool_hba = on
+    pool_passwd = 'pool_passwd'
+    authentication_timeout = 60
+    
+    # Connection pooling
+    num_init_children = 100
+    max_pool = 4
+    child_life_time = 300
+    child_max_connections = 0
+    connection_life_time = 0
+    client_idle_limit = 0
+    
+    # Load balancing
+    load_balance_mode = on
+    ignore_leading_white_space = on
+    read_only_function_list = 'pg_is_in_recovery,get_role'
+    
+    # Replication mode
+    replication_mode = off
+    replicate_select = off
+    insert_lock = on
+    
+    # Master slave mode
+    master_slave_mode = on
+    master_slave_sub_mode = 'stream'
+    
+    # Health check
+    health_check_period = 10
+    health_check_timeout = 20
+    health_check_user = 'pgpool_health'
+    health_check_password = ''
+    health_check_max_retries = 3
+    health_check_retry_delay = 1
+    connect_timeout = 10000
+    
+    # Failover and failback
+    failover_command = '/usr/local/bin/failover.sh %d %h %p %D %m %M %H %P %r %R %d %N %S'
+    failback_command = ''
+    follow_primary_command = '/usr/local/bin/follow_primary.sh %d %h %p %D %m %M %H %P %r %R'
+    failover_on_backend_error = off
+    
+    # Watchdog settings
+    use_watchdog = on
+    wd_hostname = 'pgpool-0.pgpool-headless.parking-system.svc.cluster.local'
+    wd_port = 9000
+    wd_priority = 1
+    wd_authkey = ''
+    wd_ipc_socket_dir = '/var/run/pgpool'
+    
+    # Watchdog lifecheck
+    wd_lifecheck_method = 'heartbeat'
+    wd_interval = 10
+    wd_heartbeat_keepalive = 2
+    wd_heartbeat_deadtime = 30
+    wd_heartbeat_port = 9694
+    
+    # Watchdog escalation
+    delegate_IP = '10.96.0.100'  # Virtual IP for service
+    if_cmd_path = '/sbin'
+    if_up_cmd = 'ip addr add $_IP_$/24 dev eth0 label eth0:0'
+    if_down_cmd = 'ip addr del $_IP_$/24 dev eth0'
+    arping_cmd = 'arping -U $_IP_$ -w 1 -I eth0'
+    
+    # Logging
+    log_destination = 'stderr'
+    logging_collector = on
+    log_directory = '/var/log/pgpool'
+    log_filename = 'pgpool-%Y-%m-%d.log'
+    log_truncate_on_rotation = on
+    log_rotation_age = 1d
+    log_rotation_size = 10MB
+    log_min_messages = 'warning'
+    log_statement = off
+    log_per_node_statement = off
+    log_hostname = off
+    
+    # Memory settings
+    memory_cache_enabled = on
+    memqcache_method = 'shmem'
+    memqcache_memcached_host = ''
+    memqcache_memcached_port = 11211
+    memqcache_total_size = 67108864
+    memqcache_max_num_cache = 1000000
+    memqcache_expire = 0
+    memqcache_auto_cache_invalidation = on
+    memqcache_maxcache = 409600
+    memqcache_cache_block_size = 1048576
+    memqcache_oiddir = '/var/log/pgpool/oiddir'
+  
+  pool_hba.conf: |
+    local   all         all                               trust
+    host    all         all         127.0.0.1/32          trust
+    host    all         all         ::1/128               trust
+    host    all         all         10.96.0.0/12          md5
+    host    replication all         10.96.0.0/12          md5
+  
+  failover.sh: |
+    #!/bin/bash
+    # PostgreSQL failover script for Pgpool-II
+    failed_node_id=$1
+    failed_host_name=$2
+    failed_port=$3
+    failed_db_directory=$4
+    new_primary_id=$5
+    new_primary_host_name=$6
+    new_primary_port=$7
+    new_primary_db_directory=$8
+    trigger_file=$9
+    
+    echo "Failover triggered at $(date)"
+    echo "Failed node: $failed_node_id - $failed_host_name:$failed_port"
+    echo "New primary: $new_primary_id - $new_primary_host_name:$new_primary_port"
+    
+    # Promote the new primary
+    if [ $new_primary_id -ne -1 ]; then
+      echo "Promoting standby $new_primary_host_name to primary"
+      kubectl exec postgres-$new_primary_id -n parking-system -- pg_ctl promote -D $new_primary_db_directory
+    fi
+    
+    # Update application configuration to point to new primary
+    kubectl set env deployment/parking-api -n parking-system \
+      PRIMARY_DATABASE_HOST=postgres-$new_primary_id.postgres-headless.parking-system.svc.cluster.local
+    
+    exit 0
+  
+  follow_primary.sh: |
+    #!/bin/bash
+    # Follow primary script for Pgpool-II
+    node_id=$1
+    host_name=$2
+    port=$3
+    db_directory=$4
+    primary_node_id=$5
+    primary_host_name=$6
+    primary_port=$7
+    primary_db_directory=$8
+    
+    echo "Follow primary triggered at $(date)"
+    echo "Node: $node_id - $host_name:$port"
+    echo "Primary: $primary_node_id - $primary_host_name:$primary_port"
+    
+    # Rebuild standby from primary
+    kubectl exec postgres-$node_id -n parking-system -- \
+      pg_basebackup -h postgres-$primary_node_id.postgres-headless.parking-system.svc.cluster.local \
+      -D $db_directory -U replicator -v -P --wal-method=stream
+    
+    # Start PostgreSQL as standby
+    kubectl exec postgres-$node_id -n parking-system -- \
+      touch /tmp/pg_failover_trigger
+    
+    exit 0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgpool
+  namespace: parking-system
+  labels:
+    app: pgpool
+    component: connection-pool
+    version: "4.4"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pgpool
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: pgpool
+        component: connection-pool
+        version: "4.4"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9898"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: pgpool
+        image: pgpool/pgpool:4.4-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+        - containerPort: 9898
+          name: pcp
+        - containerPort: 9000
+          name: watchdog
+        - containerPort: 9694
+          name: heartbeat
+        - containerPort: 9898
+          name: metrics
+        env:
+        - name: PGPOOL_CONFIG_FILE
+          value: /etc/pgpool/pgpool.conf
+        - name: PCPPASSFILE
+          value: /etc/pgpool/pcppass
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: REPLICATION_USERNAME
+          value: replicator
+        - name: REPLICATION_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_REPLICATION_PASSWORD
+        - name: HEALTH_CHECK_USERNAME
+          value: pgpool_health
+        - name: HEALTH_CHECK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_REPLICATION_PASSWORD
+        volumeMounts:
+        - name: pgpool-config
+          mountPath: /etc/pgpool
+        - name: pgpool-scripts
+          mountPath: /usr/local/bin
+        - name: pgpool-socket
+          mountPath: /var/run/pgpool
+        - name: pgpool-log
+          mountPath: /var/log/pgpool
+        - name: pgpool-oiddir
+          mountPath: /var/log/pgpool/oiddir
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        livenessProbe:
+          exec:
+            command:
+            - /usr/bin/pcp_node_info
+            - -h
+            - localhost
+            - -p
+            - "9898"
+            - -U
+            - pgpool_health
+            - -w
+            - "0"
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /usr/bin/pcp_node_info
+            - -h
+            - localhost
+            - -p
+            - "9898"
+            - -U
+            - pgpool_health
+            - -w
+            - "0"
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "pgpool -f /etc/pgpool/pgpool.conf -m fast stop"]
+        securityContext:
+          runAsUser: 70
+          runAsGroup: 70
+          runAsNonRoot: true
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_ADMIN
+            - NET_RAW
+      volumes:
+      - name: pgpool-config
+        configMap:
+          name: pgpool-config
+          defaultMode: 0644
+      - name: pgpool-scripts
+        configMap:
+          name: pgpool-config
+          defaultMode: 0755
+          items:
+          - key: failover.sh
+            path: failover.sh
+          - key: follow_primary.sh
+            path: follow_primary.sh
+      - name: pgpool-socket
+        emptyDir: {}
+      - name: pgpool-log
+        emptyDir: {}
+      - name: pgpool-oiddir
+        emptyDir: {}
+      serviceAccountName: pgpool-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - pgpool
+              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        workload-type: database
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgpool-headless
+  namespace: parking-system
+  labels:
+    app: pgpool
+    component: connection-pool
+spec:
+  selector:
+    app: pgpool
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  - name: pcp
+    port: 9898
+    targetPort: 9898
+  - name: watchdog
+    port: 9000
+    targetPort: 9000
+  clusterIP: None
+  publishNotReadyAddresses: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pgpool-sa
+  namespace: parking-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pgpool
+  namespace: parking-system
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/exec", "services", "endpoints"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pgpool
+  namespace: parking-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pgpool
+subjects:
+- kind: ServiceAccount
+  name: pgpool-sa
+  namespace: parking-system
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pgpool-hpa
+  namespace: parking-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pgpool
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pgpool-pdb
+  namespace: parking-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: pgpool
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-backup
+  namespace: parking-system
+  labels:
+    app: postgres
+    component: backup
+spec:
+  selector:
+    app: postgres-backup
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-backup
+  namespace: parking-system
+  labels:
+    app: postgres-backup
+    component: backup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-backup
+  template:
+    metadata:
+      labels:
+        app: postgres-backup
+        component: backup
+    spec:
+      containers:
+      - name: wal-g
+        image: wal-g/wal-g:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mkdir -p /backups/wal_archive
+          while true; do
+            wal-g backup-push /var/lib/postgresql/data
+            sleep 3600
+          done
+        env:
+        - name: WALG_S3_PREFIX
+          value: s3://parking-db-backups/postgres
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_REGION
+          value: us-east-1
+        - name: PGHOST
+          value: postgres-service.parking-system
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          value: parking_db
+        - name: PGUSER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: backup-storage
+          mountPath: /backups
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+          readOnly: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+      volumes:
+      - name: backup-storage
+        persistentVolumeClaim:
+          claimName: postgres-backup-pvc
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-data-pvc
+          readOnly: true
+      serviceAccountName: postgres-backup-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres-backup-sa
+  namespace: parking-system
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-vacuum
+  namespace: parking-system
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: vacuum
+            image: postgres:14-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              PGPASSWORD=$POSTGRES_PASSWORD vacuumdb -h postgres-service -U $POSTGRES_USER -d parking_db -v -z -f
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-analyze
+  namespace: parking-system
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: analyze
+            image: postgres:14-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres-service -U $POSTGRES_USER -d parking_db -c "ANALYZE;"
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-monitoring
+  namespace: parking-monitoring
+  labels:
+    app: postgres
+    component: monitoring
+spec:
+  type: ExternalName
+  externalName: postgres-service.parking-system.svc.cluster.local
+  ports:
+  - port: 9187
+    name: metrics
