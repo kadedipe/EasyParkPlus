@@ -1,0 +1,1353 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-service-config
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+    tier: microservice
+    service-type: notification-delivery
+    version: "1.0.0"
+    managed-by: kubectl
+    compliance: gdpr
+  annotations:
+    description: "Notification delivery microservice for parking system"
+    built-with: "python"
+    repository: "parking-management/notification-service"
+    gdpr-scope: "in-scope"
+    data-classification: "sensitive"
+data:
+  # Application Configuration
+  APP_NAME: "Notification Delivery Service"
+  APP_ENV: "production"
+  APP_PORT: "8000"
+  APP_VERSION: "1.0.0"
+  APP_TIMEZONE: "UTC"
+  API_PREFIX: "/api/v1/notifications"
+  API_DOCS_PATH: "/docs"
+  API_DOCS_ENABLED: "false"
+  PYTHONUNBUFFERED: "1"
+  PYTHONPATH: "/app"
+  
+  # Service Discovery
+  SERVICE_NAME: "notification-service"
+  SERVICE_HOST: "notification-service.parking-system.svc.cluster.local"
+  SERVICE_PORT: "8000"
+  
+  # Database Configuration
+  DB_HOST: "pgpool.parking-system.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "notification_db"
+  DB_SCHEMA: "notifications"
+  DB_SSL_MODE: "require"
+  DB_MAX_POOL_SIZE: "15"
+  DB_MIN_POOL_SIZE: "3"
+  DB_IDLE_TIMEOUT: "30000"
+  DB_CONNECTION_TIMEOUT: "15000"
+  DB_STATEMENT_TIMEOUT: "5000"
+  
+  # Read Replica Configuration
+  DB_READER_HOST: "postgres-reader-service.parking-system.svc.cluster.local"
+  DB_READER_PORT: "5432"
+  DB_READER_NAME: "notification_db"
+  READ_REPLICA_ENABLED: "true"
+  
+  # Redis Cache Configuration
+  REDIS_HOST: "redis-master-service.parking-system.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_DB: "10"
+  REDIS_CACHE_DB: "11"
+  REDIS_TIMEOUT: "2000"
+  REDIS_MAX_RETRIES: "3"
+  REDIS_RETRY_STRATEGY: "exponential"
+  REDIS_POOL_SIZE: "15"
+  REDIS_HEALTH_CHECK_INTERVAL: "30"
+  
+  # Cache Configuration
+  CACHE_ENABLED: "true"
+  CACHE_TTL_TEMPLATES: "3600"
+  CACHE_TTL_PREFERENCES: "300"
+  CACHE_TTL_DEVICES: "600"
+  CACHE_TTL_RATE_LIMITS: "60"
+  CACHE_PREFIX: "notification_service"
+  CACHE_NULL_VALUES: "false"
+  
+  # Email Configuration
+  SMTP_HOST: "smtp.parking-system.com"
+  SMTP_PORT: "587"
+  SMTP_SECURE: "true"
+  SMTP_TIMEOUT: "10000"
+  SMTP_POOL_SIZE: "5"
+  SMTP_MAX_CONNECTIONS: "5"
+  SMTP_RATE_LIMIT: "100"
+  SMTP_RATE_LIMIT_WINDOW: "60"
+  EMAIL_FROM_ADDRESS: "notifications@parking-system.com"
+  EMAIL_FROM_NAME: "Parking System"
+  EMAIL_REPLY_TO: "support@parking-system.com"
+  EMAIL_BCC_ENABLED: "false"
+  EMAIL_TRACKING_ENABLED: "true"
+  EMAIL_BATCH_SIZE: "50"
+  EMAIL_RETRY_ATTEMPTS: "3"
+  EMAIL_RETRY_DELAY: "300"
+  EMAIL_MAX_ATTACHMENT_SIZE: "10485760"
+  EMAIL_ALLOWED_ATTACHMENT_TYPES: "pdf,jpg,png"
+  EMAIL_TEMPLATE_ENGINE: "jinja2"
+  EMAIL_TEMPLATE_PATH: "/app/templates/email"
+  
+  # SMS Configuration
+  SMS_PROVIDER: "twilio"
+  SMS_FROM_NUMBER: "+1234567890"
+  SMS_TIMEOUT: "5000"
+  SMS_RATE_LIMIT: "50"
+  SMS_RATE_LIMIT_WINDOW: "60"
+  SMS_BATCH_SIZE: "20"
+  SMS_RETRY_ATTEMPTS: "3"
+  SMS_RETRY_DELAY: "60"
+  SMS_MAX_CHARACTERS: "160"
+  SMS_UNICODE_ENABLED: "true"
+  SMS_TEMPLATE_PATH: "/app/templates/sms"
+  
+  # Push Notification Configuration
+  PUSH_PROVIDER: "fcm"
+  PUSH_IOS_ENABLED: "true"
+  PUSH_ANDROID_ENABLED: "true"
+  PUSH_WEB_ENABLED: "true"
+  PUSH_TIMEOUT: "3000"
+  PUSH_RATE_LIMIT: "200"
+  PUSH_RATE_LIMIT_WINDOW: "60"
+  PUSH_BATCH_SIZE: "100"
+  PUSH_RETRY_ATTEMPTS: "2"
+  PUSH_RETRY_DELAY: "30"
+  PUSH_IOS_TOPIC: "com.parking.system"
+  PUSH_ANDROID_COLLAPSE_KEY: "parking_notifications"
+  PUSH_TTL: "86400"
+  PUSH_PRIORITY: "high"
+  PUSH_SOUND_ENABLED: "true"
+  PUSH_BADGE_ENABLED: "true"
+  PUSH_TEMPLATE_PATH: "/app/templates/push"
+  
+  # Webhook Configuration
+  WEBHOOK_ENABLED: "true"
+  WEBHOOK_TIMEOUT: "5000"
+  WEBHOOK_RETRY_ATTEMPTS: "3"
+  WEBHOOK_RETRY_DELAY: "60"
+  WEBHOOK_CONCURRENCY: "10"
+  WEBHOOK_SIGNATURE_ENABLED: "true"
+  WEBHOOK_SIGNATURE_HEADER: "X-Notification-Signature"
+  WEBHOOK_MAX_PAYLOAD_SIZE: "1048576"
+  
+  # In-App Notification Configuration
+  IN_APP_ENABLED: "true"
+  IN_APP_RETENTION_DAYS: "30"
+  IN_APP_MAX_PER_USER: "100"
+  IN_APP_BATCH_SIZE: "50"
+  IN_APP_REALTIME_ENABLED: "true"
+  IN_APP_WEBSOCKET_URL: "wss://notifications.parking-system.com"
+  
+  # Notification Preferences
+  DEFAULT_NOTIFICATION_CHANNELS: "email,sms,push,in_app"
+  MAX_CATEGORIES_PER_USER: "20"
+  OPT_OUT_ENABLED: "true"
+  OPT_OUT_WEBHOOK_ENABLED: "true"
+  PREFERENCE_CACHE_ENABLED: "true"
+  USER_PREFERENCE_DEFAULT: "all"
+  
+  # Notification Categories
+  NOTIFICATION_CATEGORIES: |
+    booking_confirmation,
+    booking_reminder,
+    booking_cancellation,
+    payment_receipt,
+    payment_failed,
+    parking_session_started,
+    parking_session_ended,
+    parking_violation,
+    account_verification,
+    password_reset,
+    security_alert,
+    promotional,
+    system_announcement,
+    maintenance_alert
+  
+  # Template Management
+  TEMPLATE_CACHE_ENABLED: "true"
+  TEMPLATE_VERSIONING_ENABLED: "true"
+  TEMPLATE_AUTO_COMPILE: "true"
+  TEMPLATE_DEFAULT_LOCALE: "en_US"
+  TEMPLATE_SUPPORTED_LOCALES: "en_US,es_ES,fr_FR,de_DE,zh_CN,ja_JP"
+  TEMPLATE_VARIABLE_DELIMITERS: "{{,}}"
+  
+  # Scheduling
+  SCHEDULED_NOTIFICATIONS_ENABLED: "true"
+  SCHEDULER_POLL_INTERVAL: "30"
+  SCHEDULER_BATCH_SIZE: "100"
+  SCHEDULER_MAX_FUTURE_DAYS: "30"
+  
+  # Rate Limiting
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_STRATEGY: "sliding_window"
+  RATE_LIMIT_PER_USER: "100"
+  RATE_LIMIT_PER_IP: "500"
+  RATE_LIMIT_PER_SERVICE: "1000"
+  RATE_LIMIT_WINDOW: "3600"
+  BURST_LIMIT_ENABLED: "true"
+  BURST_MULTIPLIER: "2"
+  
+  # Message Queue Configuration
+  RABBITMQ_HOST: "rabbitmq.parking-system.svc.cluster.local"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_VHOST: "/"
+  RABBITMQ_NOTIFICATION_EXCHANGE: "notification.events"
+  RABBITMQ_EMAIL_QUEUE: "notification.email"
+  RABBITMQ_SMS_QUEUE: "notification.sms"
+  RABBITMQ_PUSH_QUEUE: "notification.push"
+  RABBITMQ_WEBHOOK_QUEUE: "notification.webhook"
+  RABBITMQ_IN_APP_QUEUE: "notification.in_app"
+  RABBITMQ_PREFETCH_COUNT: "10"
+  
+  # Monitoring
+  METRICS_ENABLED: "true"
+  METRICS_PATH: "/metrics"
+  HEALTH_PATH: "/health"
+  READINESS_PATH: "/ready"
+  LIVENESS_PATH: "/alive"
+  TRACING_ENABLED: "true"
+  TRACING_SAMPLE_RATE: "0.1"
+  PROFILER_ENABLED: "false"
+  
+  # Logging
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
+  LOG_INCLUDE_TRACE_ID: "true"
+  LOG_MAX_BYTES: "104857600"
+  LOG_BACKUP_COUNT: "10"
+  SENSITIVE_DATA_MASKING: "true"
+  SENSITIVE_FIELDS: "password,token,api_key,credit_card,cvv,ssn"
+  LOG_EMAIL_CONTENT: "false"
+  LOG_SMS_CONTENT: "false"
+  LOG_PUSH_CONTENT: "false"
+  
+  # GDPR Compliance
+  GDPR_COMPLIANCE_ENABLED: "true"
+  DATA_RETENTION_DAYS: "90"
+  ANONYMIZE_AFTER_DAYS: "365"
+  DELETE_AFTER_DAYS: "730"
+  CONSENT_TRACKING_ENABLED: "true"
+  RIGHT_TO_ERASURE_ENABLED: "true"
+  DATA_EXPORT_ENABLED: "true"
+  
+  # Feature Flags
+  FEATURE_EMAIL_ENABLED: "true"
+  FEATURE_SMS_ENABLED: "true"
+  FEATURE_PUSH_ENABLED: "true"
+  FEATURE_WEBHOOK_ENABLED: "true"
+  FEATURE_IN_APP_ENABLED: "true"
+  FEATURE_SCHEDULED_NOTIFICATIONS: "true"
+  FEATURE_TEMPLATE_PREVIEW: "true"
+  FEATURE_BULK_NOTIFICATIONS: "true"
+  FEATURE_PERSONALIZATION: "true"
+  FEATURE_ATTACHMENTS: "true"
+  FEATURE_READ_RECEIPTS: "true"
+  FEATURE_ANALYTICS: "true"
+  FEATURE_A/B_TESTING: "false"
+  FEATURE_AI_PERSONALIZATION: "false"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notification-service-secret
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+    tier: microservice
+    service-type: notification-delivery
+    managed-by: kubectl
+    compliance: gdpr
+  annotations:
+    description: "Notification service sensitive configuration"
+    gdpr-scope: "in-scope"
+    encryption: "aes-256"
+    rotation-policy: "30-days"
+type: Opaque
+data:
+  # Database Credentials
+  DB_USER: bm90aWZpY2F0aW9uX3NlcnZpY2VfdXNlcg==  # notification_service_user
+  DB_PASSWORD: bm90aWZpY2F0aW9uX3NlcnZpY2VfcGFzc3dvcmQ=  # notification_service_password
+  DB_READER_USER: bm90aWZpY2F0aW9uX3NlcnZpY2VfcmVhZGVyX3VzZXI=  # notification_service_reader_user
+  DB_READER_PASSWORD: bm90aWZpY2F0aW9uX3NlcnZpY2VfcmVhZGVyX3Bhc3N3b3Jk  # notification_service_reader_password
+  
+  # Redis Credentials
+  REDIS_PASSWORD: cGFya2luZ3JlZGlzcGFzc3dvcmQ=  # parkingredispassword
+  
+  # SMTP/Email Credentials
+  SMTP_USER: bm90aWZpY2F0aW9uX3NtdHBfdXNlcg==  # notification_smtp_user
+  SMTP_PASSWORD: bm90aWZpY2F0aW9uX3NtdHBfcGFzc3dvcmQ=  # notification_smtp_password
+  SMTP_API_KEY: c210cF9hcGlfa2V5X2ZhbXBsZV8xMjM0NQ==  # smtp_api_key_fample_12345
+  
+  # Twilio SMS Configuration
+  TWILIO_ACCOUNT_SID: QUNhZmQzOGVmZmFtcGxlX3NpZA==  # ACafd38effample_sid
+  TWILIO_AUTH_TOKEN: YmZjYThkM2VmZmFtcGxlX3Rva2Vu  # bfca8d3effample_token
+  TWILIO_MESSAGING_SERVICE_SID: TUdmYW1wbGVfc2VydmljZV9zaWQ=  # MGfample_service_sid
+  TWILIO_API_KEY: U2tmYW1wbGVfdHdpbGlvX2FwaV9rZXk=  # Skfample_twilio_api_key
+  TWILIO_API_SECRET: ZmFtcGxlX3R3aWxpb19hcGlfc2VjcmV0  # sample_twilio_api_secret
+  
+  # Firebase Cloud Messaging (FCM)
+  FCM_SERVER_KEY: QUFBQUZhbXBsZUZjbVNlcnZlcktleQ==  # AAAAFampleFcmServerKey
+  FCM_SENDER_ID: MTIzNDU2Nzg5MDEy  # 123456789012
+  FCM_API_KEY: QUl6YVN5RGZhbXBsZV9mY21fYXBpX2tleQ==  # AIzaSyDfample_fcm_api_key
+  
+  # Apple Push Notification Service (APNS)
+  APNS_KEY_ID: QUJDMURFMkYzRA==  # ABC1DE2F3D
+  APNS_TEAM_ID: MTVBQzRLTkZNMw==  # 5AC4KNFM3
+  APNS_BUNDLE_ID: Y29tLnBhcmtpbmcuc3lzdGVt  # com.parking.system
+  APNS_PRIVATE_KEY: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCmZhbXBsZS1hcG5zLXByaXZhdGUta2V5Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=  # sample-apns-private-key
+  APNS_CERTIFICATE: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCmZhbXBsZS1hcG5zLWNlcnRpZmljYXRlCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=  # sample-apns-certificate
+  
+  # Web Push (VAPID)
+  VAPID_PUBLIC_KEY: QkZxc2FtcGxlLXZhcGlkLXB1YmxpYy1rZXk=  # BFqsample-vapid-public-key
+  VAPID_PRIVATE_KEY: ZmFtcGxlLXZhcGlkLXByaXZhdGUta2V5  # sample-vapid-private-key
+  VAPID_SUBJECT: bWFpbHRvOnN1cHBvcnRAcGFya2luZy1zeXN0ZW0uY29t  # mailto:support@parking-system.com
+  
+  # Webhook Signing Secret
+  WEBHOOK_SIGNING_SECRET: bm90aWZpY2F0aW9uX3dlYmhvb2tfc2lnbmluZ19zZWNyZXQ=  # notification_webhook_signing_secret
+  
+  # RabbitMQ Credentials
+  RABBITMQ_USER: bm90aWZpY2F0aW9uX3NlcnZpY2VfcmFiYml0bXFfdXNlcg==  # notification_service_rabbitmq_user
+  RABBITMQ_PASSWORD: bm90aWZpY2F0aW9uX3NlcnZpY2VfcmFiYml0bXFfcGFzc3dvcmQ=  # notification_service_rabbitmq_password
+  
+  # Encryption Keys
+  ENCRYPTION_KEY: bm90aWZpY2F0aW9uX3NlcnZpY2VfZW5jcnlwdGlvbl9rZXlfNzI5Mw==  # notification_service_encryption_key_7293
+  TOKENIZATION_KEY: bm90aWZpY2F0aW9uX3NlcnZpY2VfdG9rZW5pemF0aW9uX2tleV81NjI4  # notification_service_tokenization_key_5628
+  HASHING_SALT: bm90aWZpY2F0aW9uX3NlcnZpY2VfaGFzaGluZ19zYWx0XzkzNzQ=  # notification_service_hashing_salt_9374
+  
+  # API Keys
+  ADMIN_API_KEY: bm90aWZpY2F0aW9uX3NlcnZpY2VfYWRtaW5fYXBpX2tleV8yMDI0  # notification_service_admin_api_key_2024
+  SERVICE_API_KEY: bm90aWZpY2F0aW9uX3NlcnZpY2Vfc2VydmljZV9hcGlfa2V5XzIwMjQ=  # notification_service_service_api_key_2024
+  
+  # Third-party API Keys
+  SENDGRID_API_KEY: U0cuZmFtcGxlX3NlbmRncmlkX2FwaV9rZXk=  # SG.fample_sendgrid_api_key
+  MAILGUN_API_KEY: a2V5LWZhbXBsZS1tYWlsZ3VuLWFwaS1rZXk=  # key-fample-mailgun-api-key
+  MAILGUN_DOMAIN: bm90aWZpY2F0aW9ucy5wYXJraW5nLXN5c3RlbS5jb20=  # notifications.parking-system.com
+  AWS_SES_ACCESS_KEY: QUtJQUlPU0ZPRE5ON0VYQU1QTEU=  # AKIAIOSFODNN7EXAMPLE
+  AWS_SES_SECRET_KEY: d0phbHJYVXRuRkVNSS5FWEFNUExFL2VLbUV4Y2lwV2c=  # wJalrXUtnFEMI.EXAMPLE/eKlEmExcIpWn
+  
+  # Push Notification Provider Keys
+  ONESIGNAL_APP_ID: ZmFtcGxlLW9uZXNpZ25hbC1hcHAtaWQ=  # sample-onesignal-app-id
+  ONESIGNAL_API_KEY: ZmFtcGxlLW9uZXNpZ25hbC1hcGkta2V5  # sample-onesignal-api-key
+  AIRSHIP_APP_KEY: ZmFtcGxlLWFpcnNoaXAtYXBwLWtleQ==  # sample-airship-app-key
+  AIRSHIP_MASTER_SECRET: ZmFtcGxlLWFpcnNoaXAtbWFzdGVyLXNlY3JldA==  # sample-airship-master-secret
+  
+  # SMS Provider Backup
+  AWS_SNS_ACCESS_KEY: QUtJQUlPU0ZPRE5ON0VYQU1QTEUy  # AKIAIOSFODNN7EXAMPLE2
+  AWS_SNS_SECRET_KEY: d0phbHJYVXRuRkVNSS5FWEFNUExFL2VLbUV4Y2lwV2cy  # wJalrXUtnFEMI.EXAMPLE2/eKlEmExcIpWn2
+  AWS_SNS_REGION: dXMtZWFzdC0x  # us-east-1
+  VONAGE_API_KEY: ZmFtcGxlLXZvbmFnZS1hcGkta2V5  # sample-vonage-api-key
+  VONAGE_API_SECRET: ZmFtcGxlLXZvbmFnZS1hcGktc2VjcmV0  # sample-vonage-api-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+    tier: microservice
+    service-type: notification-delivery
+    version: "1.0.0"
+    managed-by: kubectl
+    compliance: gdpr
+  annotations:
+    description: "Notification delivery microservice for parking system"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
+    reloader.stakater.com/match: "true"
+    sidecar.jaegertracing.io/inject: "true"
+    fluentbit.io/parser: "json"
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "notification-service"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: notification-service
+      tier: microservice
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        component: backend
+        tier: microservice
+        service-type: notification-delivery
+        version: "1.0.0"
+        compliance: gdpr
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+        checksum/config: {{ include (print $.Template.BasePath "/notification-service-config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/notification-service-secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: notification-service-sa
+      containers:
+      - name: notification-service
+        image: parking-management/notification-service:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8001
+          name: management
+        - containerPort: 8002
+          name: grpc
+        - containerPort: 8003
+          name: websocket
+        - containerPort: 9090
+          name: metrics
+        envFrom:
+        - configMapRef:
+            name: notification-service-config
+        - secretRef:
+            name: notification-service-secret
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_PASSWORD
+        - name: PYTHONOPTIMIZE
+          value: "1"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /var/log/notification-service
+        - name: config
+          mountPath: /app/config
+        - name: templates
+          mountPath: /app/templates
+        - name: secrets
+          mountPath: /app/secrets
+          readOnly: true
+        - name: timezone
+          mountPath: /etc/localtime
+          readOnly: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: 8001
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          failureThreshold: 24
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                python /app/graceful_shutdown.py
+                sleep 10
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+      
+      - name: websocket-server
+        image: parking-management/notification-websocket:1.0.0
+        ports:
+        - containerPort: 8004
+          name: ws
+        env:
+        - name: REDIS_HOST
+          value: "redis-master-service.parking-system.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_PASSWORD
+        - name: REDIS_DB
+          value: "12"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /var/log/websocket
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8004
+          initialDelaySeconds: 20
+          periodSeconds: 5
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+      
+      - name: fluentbit
+        image: fluent/fluent-bit:2.1
+        volumeMounts:
+        - name: logs
+          mountPath: /var/log/notification-service
+          readOnly: true
+        - name: fluentbit-config
+          mountPath: /fluent-bit/etc/
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        securityContext:
+          runAsUser: 0
+          runAsNonRoot: false
+      
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: notification-service-config
+          defaultMode: 0644
+      - name: templates
+        persistentVolumeClaim:
+          claimName: notification-templates-pvc
+      - name: secrets
+        emptyDir:
+          medium: Memory
+      - name: fluentbit-config
+        configMap:
+          name: fluentbit-config
+          defaultMode: 0644
+      - name: timezone
+        hostPath:
+          path: /usr/share/zoneinfo/UTC
+          type: File
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - notification-service
+              topologyKey: kubernetes.io/hostname
+      
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: notification-service
+      
+      nodeSelector:
+        workload-type: microservice
+      
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+    tier: microservice
+    service-type: notification-delivery
+    version: "1.0.0"
+    managed-by: kubectl
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
+    description: "Notification delivery microservice"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+spec:
+  selector:
+    app: notification-service
+    tier: microservice
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  - name: management
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+  - name: grpc
+    port: 50054
+    targetPort: 8002
+    protocol: TCP
+  - name: websocket
+    port: 8003
+    targetPort: 8003
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service-ws
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: websocket
+    tier: microservice
+  annotations:
+    description: "WebSocket service for real-time notifications"
+spec:
+  selector:
+    app: notification-service
+    component: websocket
+  ports:
+  - name: ws
+    port: 8004
+    targetPort: 8004
+    protocol: TCP
+  - name: wss
+    port: 8005
+    targetPort: 8004
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service-headless
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+    tier: microservice
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  selector:
+    app: notification-service
+    tier: microservice
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  - name: grpc
+    port: 8002
+    targetPort: 8002
+  clusterIP: None
+  publishNotReadyAddresses: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: notification-service-sa
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+    tier: microservice
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::account-id:role/notification-service-role"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: notification-service
+  namespace: parking-system
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+  resourceNames: ["notification-service-secret", "postgres-secret", "redis-secret"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: notification-service
+  namespace: parking-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: notification-service
+subjects:
+- kind: ServiceAccount
+  name: notification-service-sa
+  namespace: parking-system
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notification-service-hpa
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notification-service
+  minReplicas: 3
+  maxReplicas: 15
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Pods
+    pods:
+      metric:
+        name: notifications_per_second
+      target:
+        type: AverageValue
+        averageValue: 500
+  - type: Pods
+    pods:
+      metric:
+        name: queue_depth
+      target:
+        type: AverageValue
+        averageValue: 100
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: notification-service-pdb
+  namespace: parking-system
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: notification-service
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: notification-service-network-policy
+  namespace: parking-system
+spec:
+  podSelector:
+    matchLabels:
+      app: notification-service
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: parking-api
+    - podSelector:
+        matchLabels:
+          app: user-service
+    - podSelector:
+        matchLabels:
+          app: payment-service
+    - podSelector:
+        matchLabels:
+          app: booking-service
+    - namespaceSelector:
+        matchLabels:
+          name: parking-monitoring
+      podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 8001
+    - protocol: TCP
+      port: 8003
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to:
+    - podSelector:
+        matchLabels:
+          app: rabbitmq
+    ports:
+    - protocol: TCP
+      port: 5672
+    - protocol: TCP
+      port: 15672
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+    ports:
+    - protocol: TCP
+      port: 25
+    - protocol: TCP
+      port: 465
+    - protocol: TCP
+      port: 587
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: notification-cleanup
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: cleanup
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: cleanup
+            image: parking-management/notification-service:1.0.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              python /app/scripts/cleanup_expired_notifications.py
+              python /app/scripts/anonymize_old_notifications.py
+            envFrom:
+            - configMapRef:
+                name: notification-service-config
+            - secretRef:
+                name: notification-service-secret
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "400m"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: notification-scheduler
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: scheduler
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: scheduler
+            image: parking-management/notification-service:1.0.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              python /app/scripts/process_scheduled_notifications.py
+            envFrom:
+            - configMapRef:
+                name: notification-service-config
+            - secretRef:
+                name: notification-service-secret
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "400m"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: notification-digest
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: digest
+spec:
+  schedule: "0 8 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: digest
+            image: parking-management/notification-service:1.0.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              python /app/scripts/send_daily_digest.py
+            envFrom:
+            - configMapRef:
+                name: notification-service-config
+            - secretRef:
+                name: notification-service-secret
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "200m"
+              limits:
+                memory: "512Mi"
+                cpu: "400m"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: notification-templates-pvc
+  namespace: parking-system
+  labels:
+    app: notification-service
+    component: templates
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentbit-config
+  namespace: parking-system
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush        1
+        Log_Level    info
+        Parsers_File parsers.conf
+    
+    [INPUT]
+        Name        tail
+        Path        /var/log/notification-service/*.log
+        Parser      json
+        Tag         notification-service
+        Mem_Buf_Limit 5MB
+        Skip_Long_Lines On
+    
+    [FILTER]
+        Name        modify
+        Match       notification-service
+        Remove      email_address
+        Remove      phone_number
+        Remove      device_token
+        Remove      api_key
+    
+    [OUTPUT]
+        Name        stdout
+        Match       *
+        Format      json_lines
+    
+    [OUTPUT]
+        Name        es
+        Match       notification-service
+        Host        elasticsearch.logging.svc.cluster.local
+        Port        9200
+        Index       notification-service-logs
+        Type        _doc
+        Generate_ID On
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-email-templates
+  namespace: parking-system
+data:
+  welcome.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Welcome to Parking System</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; }
+            .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }
+            .footer { margin-top: 20px; padding: 20px; font-size: 12px; color: #666; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Welcome to Parking System!</h1>
+            </div>
+            <div class="content">
+                <h2>Hello {{ user_name }},</h2>
+                <p>Thank you for joining Parking System! We're excited to have you on board.</p>
+                <p>With your account, you can:</p>
+                <ul>
+                    <li>Book parking spots in advance</li>
+                    <li>Manage your vehicles</li>
+                    <li>View parking history</li>
+                    <li>Receive real-time notifications</li>
+                </ul>
+                <p>
+                    <a href="{{ verification_link }}" class="button">Verify Your Email</a>
+                </p>
+                <p>If you didn't create this account, please ignore this email.</p>
+            </div>
+            <div class="footer">
+                <p>&copy; 2024 Parking System. All rights reserved.</p>
+                <p>
+                    <a href="{{ unsubscribe_link }}">Unsubscribe</a> |
+                    <a href="{{ privacy_policy_link }}">Privacy Policy</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+  
+  booking_confirmation.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Booking Confirmation</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #2196F3; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; }
+            .booking-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            .detail-row { margin-bottom: 10px; }
+            .detail-label { font-weight: bold; }
+            .footer { margin-top: 20px; padding: 20px; font-size: 12px; color: #666; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Booking Confirmed!</h1>
+            </div>
+            <div class="content">
+                <h2>Thank you, {{ user_name }}!</h2>
+                <p>Your parking booking has been confirmed.</p>
+                
+                <div class="booking-details">
+                    <h3>Booking Details:</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Booking ID:</span> {{ booking_id }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Location:</span> {{ parking_location }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Spot Number:</span> {{ spot_number }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Date:</span> {{ booking_date }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Time:</span> {{ start_time }} - {{ end_time }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Duration:</span> {{ duration }} hours
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Amount:</span> ${{ total_amount }}
+                    </div>
+                </div>
+                
+                <p>
+                    <a href="{{ view_booking_link }}" class="button">View Booking</a>
+                    <a href="{{ cancel_booking_link }}" class="button" style="background-color: #f44336;">Cancel Booking</a>
+                </p>
+            </div>
+            <div class="footer">
+                <p>&copy; 2024 Parking System. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  
+  payment_receipt.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Payment Receipt</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; }
+            .receipt-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            .amount { font-size: 24px; font-weight: bold; color: #4CAF50; }
+            .footer { margin-top: 20px; padding: 20px; font-size: 12px; color: #666; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Payment Receipt</h1>
+            </div>
+            <div class="content">
+                <h2>Payment Successful!</h2>
+                
+                <div class="receipt-details">
+                    <h3>Receipt #{{ receipt_number }}</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Transaction ID:</span> {{ transaction_id }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Date:</span> {{ payment_date }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Payment Method:</span> {{ payment_method }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Description:</span> {{ description }}
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Amount:</span> 
+                        <span class="amount">${{ amount }}</span>
+                    </div>
+                </div>
+                
+                <p>Thank you for your payment!</p>
+                <p><a href="{{ download_receipt_link }}">Download PDF Receipt</a></p>
+            </div>
+            <div class="footer">
+                <p>&copy; 2024 Parking System. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-sms-templates
+  namespace: parking-system
+data:
+  booking_reminder.txt: |
+    Reminder: Your parking at {{ parking_location }} starts in {{ minutes_until }} minutes. 
+    Spot #{{ spot_number }}. Booking ID: {{ booking_id }}
+    
+  payment_receipt.txt: |
+    Receipt #{{ receipt_number }}: ${{ amount }} paid for {{ description }}. 
+    Thank you for using Parking System!
+    
+  verification_code.txt: |
+    Your Parking System verification code is: {{ verification_code }}
+    Valid for {{ validity_minutes }} minutes.
+    
+  parking_session_started.txt: |
+    Parking session started at {{ parking_location }}, Spot #{{ spot_number }}.
+    Your session ID: {{ session_id }}
+    
+  parking_session_ended.txt: |
+    Parking session ended at {{ parking_location }}. 
+    Duration: {{ duration }} hours, Amount: ${{ amount }}
+    Receipt: {{ receipt_number }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-push-templates
+  namespace: parking-system
+data:
+  booking_confirmation.json: |
+    {
+      "title": "Booking Confirmed!",
+      "body": "Your parking at {{ parking_location }} is confirmed. Spot #{{ spot_number }}",
+      "data": {
+        "type": "booking_confirmation",
+        "booking_id": "{{ booking_id }}",
+        "timestamp": "{{ timestamp }}"
+      }
+    }
+  
+  parking_reminder.json: |
+    {
+      "title": "Parking Reminder",
+      "body": "Your parking session starts in {{ minutes_until }} minutes at {{ parking_location }}",
+      "data": {
+        "type": "parking_reminder",
+        "booking_id": "{{ booking_id }}",
+        "spot_number": "{{ spot_number }}"
+      }
+    }
+  
+  payment_received.json: |
+    {
+      "title": "Payment Received",
+      "body": "Payment of ${{ amount }} received. Thank you!",
+      "data": {
+        "type": "payment_receipt",
+        "transaction_id": "{{ transaction_id }}",
+        "receipt_number": "{{ receipt_number }}"
+      }
+    }
