@@ -73,6 +73,27 @@ scrape_configs:
       - source_labels: [__meta_kubernetes_namespace]
         target_label: namespace
 
+  # CAdvisor metrics
+scrape_configs:
+  - job_name: 'cadvisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['cadvisor:8080']
+    metric_relabel_configs:
+      - source_labels: [container_label_com_docker_compose_project]
+        regex: 'parking'
+        action: keep
+
+  # Infrastructure metrics (Node Exporter)
+scrape_configs:
+  - job_name: 'node'
+    scrape_interval: 15s
+    static_configs:
+      - targets: 
+        - 'node-exporter:9100'
+        labels:
+          group: 'infrastructure'
+
   # Parking API metrics
   - job_name: 'parking-api'
     static_configs:
