@@ -1,0 +1,200 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: parking-monitoring
+  labels:
+    app: grafana
+    component: visualization
+    version: "10.1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: visualization
+        version: "10.1"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:10.1.6
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: GRAFANA_ADMIN_USER
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: GRAFANA_ADMIN_PASSWORD
+        - name: GF_INSTALL_PLUGINS
+          value: grafana-piechart-panel,grafana-worldmap-panel
+        - name: GF_SERVER_ROOT_URL
+          value: https://grafana.parking.example.com
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "true"
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "false"
+        - name: GF_AUTH_LDAP_ENABLED
+          value: "false"
+        - name: GF_AUTH_BASIC_ENABLED
+          value: "true"
+        - name: GF_LOG_LEVEL
+          value: info
+        - name: GF_LOG_MODE
+          value: console
+        - name: GF_DASHBOARDS_MIN_REFRESH_INTERVAL
+          value: 5s
+        - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+          value: /etc/grafana/provisioning/dashboards/home.json
+        volumeMounts:
+        - name: grafana-data
+          mountPath: /var/lib/grafana
+        - name: grafana-datasources
+          mountPath: /etc/grafana/provisioning/datasources
+        - name: grafana-dashboards-providers
+          mountPath: /etc/grafana/provisioning/dashboards
+        - name: grafana-dashboards
+          mountPath: /var/lib/grafana/dashboards
+        - name: grafana-tmp
+          mountPath: /tmp
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsUser: 472
+          runAsGroup: 472
+          fsGroup: 472
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+      - name: grafana-sidecar
+        image: kiwigrid/k8s-sidecar:1.24.0
+        env:
+        - name: METHOD
+          value: WATCH
+        - name: LABEL
+          value: grafana_dashboard
+        - name: FOLDER
+          value: /tmp/dashboards
+        - name: RESOURCE
+          value: both
+        - name: NAMESPACE
+          value: ALL
+        volumeMounts:
+        - name: grafana-dashboards
+          mountPath: /tmp/dashboards
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        securityContext:
+          runAsUser: 472
+          runAsNonRoot: true
+      volumes:
+      - name: grafana-data
+        persistentVolumeClaim:
+          claimName: grafana-data-pvc
+      - name: grafana-datasources
+        configMap:
+          name: grafana-datasources
+      - name: grafana-dashboards-providers
+        configMap:
+          name: grafana-dashboards-providers
+      - name: grafana-dashboards
+        persistentVolumeClaim:
+          claimName: grafana-dashboards-pvc
+      - name: grafana-tmp
+        emptyDir: {}
+      serviceAccountName: grafana-sa
+      nodeSelector:
+        workload-type: monitoring
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: parking-monitoring
+  labels:
+    app: grafana
+    component: visualization
+spec:
+  selector:
+    app: grafana
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-sa
+  namespace: parking-monitoring
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: parking-monitoring
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - grafana.parking.example.com
+    secretName: grafana-tls-secret
+  rules:
+  - host: grafana.parking.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 3000
