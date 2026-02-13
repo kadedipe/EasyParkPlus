@@ -1,0 +1,292 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-hpa
+  namespace: parking-system
+  labels:
+    app: user-service
+    component: backend
+    part-of: parking-management-system
+    service-type: authentication
+    managed-by: kubectl
+    hpa-type: resource-based
+  annotations:
+    description: "Horizontal Pod Autoscaler for User Authentication Service"
+    autoscaling.alpha.kubernetes.io/behavior: "scale-down-stabilization"
+    security.alpha.kubernetes.io/pod-security: "restricted"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 65
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Pods
+    pods:
+      metric:
+        name: authentication_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: 50
+  - type: Object
+    object:
+      metric:
+        name: login_requests_total
+      describedObject:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        name: user-service-ingress
+      target:
+        type: Value
+        value: 500
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 30
+      - type: Percent
+        value: 40
+        periodSeconds: 45
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 240
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 90
+      - type: Percent
+        value: 8
+        periodSeconds: 90
+      selectPolicy: Min
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-session-hpa
+  namespace: parking-system
+  labels:
+    app: user-service
+    component: backend
+    part-of: parking-management-system
+    service-type: session-management
+    managed-by: kubectl
+    hpa-type: session-based
+  annotations:
+    description: "Session-based HPA for User Service to handle concurrent user sessions"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 2
+  maxReplicas: 12
+  metrics:
+  - type: External
+    external:
+      metric:
+        name: active_sessions_total
+        selector:
+          matchLabels:
+            service: user-service
+            type: jwt-sessions
+      target:
+        type: AverageValue
+        averageValue: 200
+  - type: External
+    external:
+      metric:
+        name: redis_connections
+        selector:
+          matchLabels:
+            component: session-store
+            service: user-service
+      target:
+        type: AverageValue
+        averageValue: 50
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleUp:
+      policies:
+      - type: Percent
+        value: 60
+        periodSeconds: 30
+      - type: Pods
+        value: 2
+        periodSeconds: 30
+      stabilizationWindowSeconds: 20
+    scaleDown:
+      policies:
+      - type: Percent
+        value: 15
+        periodSeconds: 180
+      stabilizationWindowSeconds: 300
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-hpa-config
+  namespace: parking-system
+  labels:
+    app: user-service
+    component: backend
+    part-of: parking-management-system
+data:
+  hpa-config.json: |
+    {
+      "cpuTargetUtilization": 65,
+      "memoryTargetUtilization": 75,
+      "authRequestThreshold": 50,
+      "sessionThreshold": 200,
+      "scaleUpSpeed": "moderate",
+      "scaleDownStability": "conservative",
+      "peakHours": {
+        "morning": {
+          "start": "07:00",
+          "end": "09:30",
+          "minReplicas": 3
+        },
+        "lunch": {
+          "start": "12:00",
+          "end": "14:00",
+          "minReplicas": 4
+        },
+        "evening": {
+          "start": "17:00",
+          "end": "20:00",
+          "minReplicas": 3
+        }
+      },
+      "security": {
+        "maxReplicasDuringAttack": 15,
+        "enableDDoSProtection": true,
+        "rateLimitScaling": true
+      }
+    }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-security-hpa
+  namespace: parking-system
+  labels:
+    app: user-service
+    component: backend
+    part-of: parking-management-system
+    service-type: security-aware
+    managed-by: kubectl
+    hpa-type: security-based
+  annotations:
+    description: "Security-aware HPA for User Service with rate limiting and DDoS protection"
+    security.alpha.kubernetes.io/policy: "auto-scaling"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 2
+  maxReplicas: 15
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: External
+    external:
+      metric:
+        name: failed_login_attempts
+        selector:
+          matchLabels:
+            type: authentication-failure
+            severity: high
+      target:
+        type: AverageValue
+        averageValue: 10
+  - type: External
+    external:
+      metric:
+        name: rate_limited_requests
+        selector:
+          matchLabels:
+            service: user-service
+            reason: too-many-requests
+      target:
+        type: AverageValue
+        averageValue: 5
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 15
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 20
+      - type: Pods
+        value: 3
+        periodSeconds: 20
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 360
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 180
+      selectPolicy: Min
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: user-service-pdb
+  namespace: parking-system
+  labels:
+    app: user-service
+    component: backend
+    part-of: parking-management-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: user-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service-metrics
+  namespace: parking-system
+  labels:
+    app: user-service
+    component: monitoring
+    part-of: parking-management-system
+spec:
+  selector:
+    app: user-service
+  ports:
+  - name: metrics
+    port: 8081
+    targetPort: 8081
