@@ -1,0 +1,1036 @@
+{
+  "index_patterns": ["vehicles-*", "vehicle-records-*"],
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 3,
+        "number_of_replicas": 1,
+        "refresh_interval": "5s",
+        "max_result_window": 10000,
+        "mapping": {
+          "total_fields": {
+            "limit": 500
+          }
+        },
+        "analysis": {
+          "analyzer": {
+            "license_plate_analyzer": {
+              "type": "custom",
+              "tokenizer": "keyword",
+              "filter": ["lowercase", "trim", "license_plate_pattern"]
+            },
+            "license_plate_partial_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim"]
+            },
+            "vehicle_make_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim", "asciifolding"]
+            },
+            "vehicle_model_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim", "asciifolding"]
+            },
+            "vehicle_color_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim"]
+            },
+            "phonetic_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "phonetic"]
+            }
+          },
+          "filter": {
+            "license_plate_pattern": {
+              "type": "pattern_replace",
+              "pattern": "[^A-Za-z0-9]",
+              "replacement": ""
+            },
+            "phonetic": {
+              "type": "phonetic",
+              "encoder": "metaphone",
+              "replace": false
+            }
+          },
+          "normalizer": {
+            "license_plate_normalizer": {
+              "type": "custom",
+              "filter": ["lowercase", "asciifolding", "trim"]
+            },
+            "vehicle_make_normalizer": {
+              "type": "custom",
+              "filter": ["lowercase", "asciifolding", "trim"]
+            }
+          }
+        }
+      }
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true
+      },
+      "dynamic_templates": [
+        {
+          "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256,
+                  "normalizer": "license_plate_normalizer"
+                }
+              }
+            }
+          }
+        },
+        {
+          "vehicle_identifiers": {
+            "match": "*_id|*_number|*_code",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "vehicle_attributes": {
+            "match": "is_*|has_*",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "vehicle_measurements": {
+            "match": "*_meters|*_kg|*_cm|height|length|width|weight",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "float"
+            }
+          }
+        },
+        {
+          "vehicle_dates": {
+            "match": "*_date|*_at|*_expiry",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "date"
+            }
+          }
+        },
+        {
+          "vehicle_counts": {
+            "match": "*_count",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "vehicle_id": {
+          "type": "keyword",
+          "ignore_above": 100
+        },
+        "vehicle_uuid": {
+          "type": "keyword",
+          "ignore_above": 100
+        },
+        "license_plate": {
+          "type": "text",
+          "analyzer": "license_plate_analyzer",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "normalizer": "license_plate_normalizer"
+            },
+            "partial": {
+              "type": "text",
+              "analyzer": "license_plate_partial_analyzer"
+            },
+            "phonetic": {
+              "type": "text",
+              "analyzer": "phonetic_analyzer"
+            },
+            "raw": {
+              "type": "keyword",
+              "ignore_above": 50
+            }
+          }
+        },
+        "license_plate_normalized": {
+          "type": "keyword",
+          "normalizer": "license_plate_normalizer",
+          "ignore_above": 50
+        },
+        "license_plate_state": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "license_plate_country": {
+          "type": "keyword",
+          "ignore_above": 10
+        },
+        "license_plate_type": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "license_plate_issuer": {
+          "type": "keyword",
+          "ignore_above": 100
+        },
+        "license_plate_issue_date": {
+          "type": "date"
+        },
+        "license_plate_expiry_date": {
+          "type": "date"
+        },
+        "license_plate_status": {
+          "type": "keyword",
+          "ignore_above": 20
+        },
+        "vin": {
+          "type": "keyword",
+          "ignore_above": 50,
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "standard"
+            }
+          }
+        },
+        "make": {
+          "type": "text",
+          "analyzer": "vehicle_make_analyzer",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "normalizer": "vehicle_make_normalizer"
+            },
+            "phonetic": {
+              "type": "text",
+              "analyzer": "phonetic_analyzer"
+            }
+          }
+        },
+        "model": {
+          "type": "text",
+          "analyzer": "vehicle_model_analyzer",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "normalizer": "vehicle_make_normalizer"
+            },
+            "phonetic": {
+              "type": "text",
+              "analyzer": "phonetic_analyzer"
+            }
+          }
+        },
+        "model_year": {
+          "type": "integer"
+        },
+        "manufacture_year": {
+          "type": "integer"
+        },
+        "trim": {
+          "type": "keyword",
+          "ignore_above": 100
+        },
+        "generation": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "series": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "body_style": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "color": {
+          "type": "text",
+          "analyzer": "vehicle_color_analyzer",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
+        },
+        "color_code": {
+          "type": "keyword",
+          "ignore_above": 20
+        },
+        "interior_color": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "vehicle_type": {
+          "type": "keyword",
+          "ignore_above": 50,
+          "fields": {
+            "text": {
+              "type": "text"
+            }
+          }
+        },
+        "vehicle_class": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "vehicle_category": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "fuel_type": {
+          "type": "keyword",
+          "ignore_above": 30
+        },
+        "transmission": {
+          "type": "keyword",
+          "ignore_above": 20
+        },
+        "drive_type": {
+          "type": "keyword",
+          "ignore_above": 20
+        },
+        "engine": {
+          "properties": {
+            "type": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "displacement_cc": {
+              "type": "integer"
+            },
+            "displacement_l": {
+              "type": "float"
+            },
+            "cylinders": {
+              "type": "integer"
+            },
+            "configuration": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "power_hp": {
+              "type": "integer"
+            },
+            "power_kw": {
+              "type": "integer"
+            },
+            "torque_nm": {
+              "type": "integer"
+            },
+            "fuel_system": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "aspiration": {
+              "type": "keyword",
+              "ignore_above": 50
+            }
+          }
+        },
+        "electric": {
+          "properties": {
+            "is_electric": {
+              "type": "boolean"
+            },
+            "battery_capacity_kwh": {
+              "type": "float"
+            },
+            "range_km": {
+              "type": "integer"
+            },
+            "charging_time_hours": {
+              "type": "float"
+            },
+            "fast_charging": {
+              "type": "boolean"
+            },
+            "connector_types": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "motor_power_kw": {
+              "type": "integer"
+            },
+            "charging_port_location": {
+              "type": "keyword",
+              "ignore_above": 50
+            }
+          }
+        },
+        "dimensions": {
+          "properties": {
+            "length_mm": {
+              "type": "integer"
+            },
+            "width_mm": {
+              "type": "integer"
+            },
+            "height_mm": {
+              "type": "integer"
+            },
+            "wheelbase_mm": {
+              "type": "integer"
+            },
+            "ground_clearance_mm": {
+              "type": "integer"
+            },
+            "curb_weight_kg": {
+              "type": "integer"
+            },
+            "gross_weight_kg": {
+              "type": "integer"
+            },
+            "cargo_volume_l": {
+              "type": "integer"
+            },
+            "fuel_tank_capacity_l": {
+              "type": "float"
+            },
+            "seating_capacity": {
+              "type": "integer"
+            },
+            "number_of_doors": {
+              "type": "integer"
+            }
+          }
+        },
+        "registration": {
+          "properties": {
+            "number": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "state": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "country": {
+              "type": "keyword",
+              "ignore_above": 10
+            },
+            "issue_date": {
+              "type": "date"
+            },
+            "expiry_date": {
+              "type": "date"
+            },
+            "status": {
+              "type": "keyword",
+              "ignore_above": 20
+            },
+            "class": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "plate_type": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "restrictions": {
+              "type": "text"
+            },
+            "verified": {
+              "type": "boolean"
+            },
+            "verified_at": {
+              "type": "date"
+            }
+          }
+        },
+        "insurance": {
+          "properties": {
+            "provider": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "policy_number": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "coverage_amount": {
+              "type": "float"
+            },
+            "deductible": {
+              "type": "float"
+            },
+            "issue_date": {
+              "type": "date"
+            },
+            "effective_date": {
+              "type": "date"
+            },
+            "expiry_date": {
+              "type": "date"
+            },
+            "status": {
+              "type": "keyword",
+              "ignore_above": 20
+            },
+            "verified": {
+              "type": "boolean"
+            },
+            "documents": {
+              "type": "object",
+              "enabled": false
+            }
+          }
+        },
+        "owner": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 20
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "first_name": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "last_name": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "email": {
+              "type": "keyword",
+              "ignore_above": 255,
+              "fields": {
+                "text": {
+                  "type": "text"
+                }
+              }
+            },
+            "phone": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "address": {
+              "type": "text"
+            },
+            "city": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "state": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "country": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "postal_code": {
+              "type": "keyword",
+              "ignore_above": 20
+            },
+            "organization_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "organization_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "verified": {
+              "type": "boolean"
+            }
+          }
+        },
+        "features": {
+          "properties": {
+            "is_handicapped": {
+              "type": "boolean"
+            },
+            "is_resident": {
+              "type": "boolean"
+            },
+            "is_vip": {
+              "type": "boolean"
+            },
+            "is_fleet": {
+              "type": "boolean"
+            },
+            "is_rental": {
+              "type": "boolean"
+            },
+            "is_commercial": {
+              "type": "boolean"
+            },
+            "is_government": {
+              "type": "boolean"
+            },
+            "has_disabled_placard": {
+              "type": "boolean"
+            },
+            "disabled_placard_number": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "disabled_placard_expiry": {
+              "type": "date"
+            },
+            "has_e_pass": {
+              "type": "boolean"
+            },
+            "e_pass_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "e_pass_expiry": {
+              "type": "date"
+            },
+            "has_rfid": {
+              "type": "boolean"
+            },
+            "rfid_tag": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "has_transponder": {
+              "type": "boolean"
+            },
+            "transponder_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            }
+          }
+        },
+        "status": {
+          "properties": {
+            "current": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "previous": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "changed_at": {
+              "type": "date"
+            },
+            "reason": {
+              "type": "text"
+            },
+            "is_active": {
+              "type": "boolean"
+            },
+            "is_blacklisted": {
+              "type": "boolean"
+            },
+            "blacklist_reason": {
+              "type": "text"
+            },
+            "blacklisted_at": {
+              "type": "date"
+            },
+            "blacklist_expiry": {
+              "type": "date"
+            },
+            "is_stolen": {
+              "type": "boolean"
+            },
+            "stolen_reported_at": {
+              "type": "date"
+            },
+            "stolen_recovered_at": {
+              "type": "date"
+            }
+          }
+        },
+        "location": {
+          "properties": {
+            "current": {
+              "type": "geo_point"
+            },
+            "last_seen": {
+              "type": "date"
+            },
+            "last_lot_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "last_lot_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "last_space_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "last_space_number": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "last_gate_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "last_gate_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "last_entry_time": {
+              "type": "date"
+            },
+            "last_exit_time": {
+              "type": "date"
+            },
+            "path_history": {
+              "type": "geo_shape"
+            }
+          }
+        },
+        "statistics": {
+          "properties": {
+            "total_visits": {
+              "type": "integer"
+            },
+            "total_sessions": {
+              "type": "integer"
+            },
+            "total_duration_minutes": {
+              "type": "integer"
+            },
+            "avg_duration_minutes": {
+              "type": "float"
+            },
+            "total_paid": {
+              "type": "float"
+            },
+            "avg_paid": {
+              "type": "float"
+            },
+            "last_visit": {
+              "type": "date"
+            },
+            "first_visit": {
+              "type": "date"
+            },
+            "favorite_lot_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "favorite_lot_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "favorite_time_of_day": {
+              "type": "integer"
+            },
+            "favorite_day_of_week": {
+              "type": "integer"
+            },
+            "visits_by_lot": {
+              "type": "object",
+              "dynamic": true
+            },
+            "visits_by_month": {
+              "type": "object",
+              "dynamic": true
+            },
+            "peak_visit_hour": {
+              "type": "integer"
+            },
+            "average_stay": {
+              "type": "float"
+            },
+            "longest_stay": {
+              "type": "integer"
+            },
+            "shortest_stay": {
+              "type": "integer"
+            }
+          }
+        },
+        "current_session": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "session_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "ticket_number": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "start_time": {
+              "type": "date"
+            },
+            "expected_end_time": {
+              "type": "date"
+            },
+            "lot_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "lot_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "space_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "space_number": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "status": {
+              "type": "keyword",
+              "ignore_above": 50
+            }
+          }
+        },
+        "recent_sessions": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "session_id": {
+              "type": "keyword"
+            },
+            "entry_time": {
+              "type": "date"
+            },
+            "exit_time": {
+              "type": "date"
+            },
+            "duration_minutes": {
+              "type": "integer"
+            },
+            "lot_id": {
+              "type": "keyword"
+            },
+            "lot_name": {
+              "type": "text"
+            },
+            "space_number": {
+              "type": "keyword"
+            },
+            "total_amount": {
+              "type": "float"
+            },
+            "payment_status": {
+              "type": "keyword"
+            }
+          }
+        },
+        "notes": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "tags": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "documents": {
+          "properties": {
+            "registration": {
+              "type": "object",
+              "enabled": false
+            },
+            "insurance": {
+              "type": "object",
+              "enabled": false
+            },
+            "inspection": {
+              "type": "object",
+              "enabled": false
+            },
+            "photo_front": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "photo_back": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "photo_left": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "photo_right": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "photo_plate": {
+              "type": "keyword",
+              "ignore_above": 1024
+            }
+          }
+        },
+        "alerts": {
+          "properties": {
+            "has_active_alerts": {
+              "type": "boolean"
+            },
+            "active_alerts": {
+              "type": "nested",
+              "properties": {
+                "type": {
+                  "type": "keyword"
+                },
+                "severity": {
+                  "type": "keyword"
+                },
+                "message": {
+                  "type": "text"
+                },
+                "created_at": {
+                  "type": "date"
+                },
+                "expires_at": {
+                  "type": "date"
+                }
+              }
+            },
+            "alert_count": {
+              "type": "integer"
+            },
+            "last_alert": {
+              "type": "date"
+            }
+          }
+        },
+        "metadata": {
+          "properties": {
+            "created_at": {
+              "type": "date"
+            },
+            "created_by": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "updated_at": {
+              "type": "date"
+            },
+            "updated_by": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "source": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "version": {
+              "type": "integer"
+            },
+            "imported_at": {
+              "type": "date"
+            },
+            "synced_at": {
+              "type": "date"
+            },
+            "verified_at": {
+              "type": "date"
+            },
+            "verified_by": {
+              "type": "keyword",
+              "ignore_above": 100
+            }
+          }
+        },
+        "organization": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "code": {
+              "type": "keyword",
+              "ignore_above": 50
+            }
+          }
+        }
+      }
+    }
+  },
+  "composed_of": ["vehicles-settings", "vehicles-mappings"],
+  "priority": 100,
+  "version": 1,
+  "_meta": {
+    "description": "Mapping for vehicles in parking management system",
+    "managed_by": "parking-management-system",
+    "version": "1.0.0",
+    "created_date": "2024-01-15",
+    "last_updated": "2024-01-15",
+    "data_retention_days": 2555
+  }
+}

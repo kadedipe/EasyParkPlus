@@ -1,0 +1,53 @@
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 3,
+        "number_of_replicas": 1,
+        "refresh_interval": "5s",
+        "max_result_window": 10000,
+        "mapping": {
+          "total_fields": {
+            "limit": 500
+          }
+        },
+        "analysis": {
+          "analyzer": {
+            "spot_location_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim"]
+            },
+            "spot_number_analyzer": {
+              "type": "custom",
+              "tokenizer": "keyword",
+              "filter": ["lowercase", "trim"]
+            },
+            "spot_type_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim"]
+            }
+          },
+          "normalizer": {
+            "spot_normalizer": {
+              "type": "custom",
+              "filter": ["lowercase", "asciifolding"]
+            }
+          }
+        },
+        "lifecycle": {
+          "name": "parking-spots-lifecycle",
+          "rollover_alias": "parking-spots"
+        },
+        "sort.field": ["level.number", "spot_number"],
+        "sort.order": ["asc", "asc"]
+      }
+    }
+  },
+  "version": 1,
+  "_meta": {
+    "description": "Settings component template for parking spots",
+    "managed_by": "parking-management-system"
+  }
+}

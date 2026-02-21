@@ -1,0 +1,831 @@
+{
+  "index_patterns": ["parking-spots-*", "parking-spaces-*"],
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 3,
+        "number_of_replicas": 1,
+        "refresh_interval": "5s",
+        "max_result_window": 10000,
+        "mapping": {
+          "total_fields": {
+            "limit": 500
+          }
+        },
+        "analysis": {
+          "analyzer": {
+            "spot_location_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim"]
+            },
+            "spot_number_analyzer": {
+              "type": "custom",
+              "tokenizer": "keyword",
+              "filter": ["lowercase", "trim"]
+            },
+            "spot_type_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim"]
+            }
+          },
+          "normalizer": {
+            "spot_normalizer": {
+              "type": "custom",
+              "filter": ["lowercase", "asciifolding"]
+            }
+          }
+        }
+      }
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true
+      },
+      "dynamic_templates": [
+        {
+          "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        {
+          "spot_attributes": {
+            "match": "attr_*",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "spot_metrics": {
+            "match": "*_count|*_rate|*_percentage",
+            "mapping": {
+              "type": "float"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "spot_id": {
+          "type": "keyword",
+          "ignore_above": 100
+        },
+        "spot_number": {
+          "type": "keyword",
+          "ignore_above": 50,
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "spot_number_analyzer"
+            }
+          }
+        },
+        "display_name": {
+          "type": "text",
+          "analyzer": "standard",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "barcode": {
+          "type": "keyword",
+          "ignore_above": 100
+        },
+        "qr_code": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "rfid_tag": {
+          "type": "keyword",
+          "ignore_above": 100
+        },
+        "status": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "previous_status": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "status_changed_at": {
+          "type": "date"
+        },
+        "status_duration_seconds": {
+          "type": "integer"
+        },
+        "spot_type": {
+          "type": "keyword",
+          "ignore_above": 50,
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "spot_type_analyzer"
+            }
+          }
+        },
+        "spot_category": {
+          "type": "keyword",
+          "ignore_above": 50
+        },
+        "size_category": {
+          "type": "keyword",
+          "ignore_above": 20
+        },
+        "level": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "number": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "code": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "section": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "zone": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "floor": {
+              "type": "integer"
+            },
+            "total_spaces": {
+              "type": "integer"
+            },
+            "available_spaces": {
+              "type": "integer"
+            }
+          }
+        },
+        "location": {
+          "properties": {
+            "lot_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "lot_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "lot_code": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "address": {
+              "type": "text",
+              "analyzer": "spot_location_analyzer"
+            },
+            "city": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "state": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "country": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "postal_code": {
+              "type": "keyword",
+              "ignore_above": 20
+            },
+            "coordinates": {
+              "type": "geo_point"
+            },
+            "bounding_box": {
+              "type": "geo_shape"
+            },
+            "entrance_distance_meters": {
+              "type": "float"
+            },
+            "elevator_distance_meters": {
+              "type": "float"
+            },
+            "stair_distance_meters": {
+              "type": "float"
+            },
+            "nearest_landmark": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "dimensions": {
+          "properties": {
+            "width_meters": {
+              "type": "float"
+            },
+            "length_meters": {
+              "type": "float"
+            },
+            "height_meters": {
+              "type": "float"
+            },
+            "area_sq_meters": {
+              "type": "float"
+            },
+            "angle_degrees": {
+              "type": "float"
+            },
+            "is_angled": {
+              "type": "boolean"
+            },
+            "is_parallel": {
+              "type": "boolean"
+            },
+            "is_compact": {
+              "type": "boolean"
+            }
+          }
+        },
+        "attributes": {
+          "properties": {
+            "is_handicapped": {
+              "type": "boolean"
+            },
+            "is_electric": {
+              "type": "boolean"
+            },
+            "is_covered": {
+              "type": "boolean"
+            },
+            "is_indoor": {
+              "type": "boolean"
+            },
+            "is_outdoor": {
+              "type": "boolean"
+            },
+            "is_reserved": {
+              "type": "boolean"
+            },
+            "is_vip": {
+              "type": "boolean"
+            },
+            "is_staff": {
+              "type": "boolean"
+            },
+            "is_visitor": {
+              "type": "boolean"
+            },
+            "is_monthly": {
+              "type": "boolean"
+            },
+            "is_ev_charging": {
+              "type": "boolean"
+            },
+            "has_cctv": {
+              "type": "boolean"
+            },
+            "has_sensor": {
+              "type": "boolean"
+            },
+            "has_lighting": {
+              "type": "boolean"
+            },
+            "has_security": {
+              "type": "boolean"
+            },
+            "has_roof": {
+              "type": "boolean"
+            },
+            "is_near_entrance": {
+              "type": "boolean"
+            },
+            "is_near_elevator": {
+              "type": "boolean"
+            },
+            "is_near_stairs": {
+              "type": "boolean"
+            },
+            "is_near_exit": {
+              "type": "boolean"
+            }
+          }
+        },
+        "charging": {
+          "properties": {
+            "type": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "connector_types": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "power_kw": {
+              "type": "float"
+            },
+            "voltage": {
+              "type": "integer"
+            },
+            "amperage": {
+              "type": "integer"
+            },
+            "is_available": {
+              "type": "boolean"
+            },
+            "in_use": {
+              "type": "boolean"
+            },
+            "current_vehicle_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "charging_started_at": {
+              "type": "date"
+            },
+            "estimated_completion": {
+              "type": "date"
+            },
+            "energy_delivered_kwh": {
+              "type": "float"
+            },
+            "charging_rate_kw": {
+              "type": "float"
+            },
+            "provider": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "price_per_kwh": {
+              "type": "float"
+            },
+            "membership_required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "sensor": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "status": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "battery_level": {
+              "type": "integer"
+            },
+            "last_reading": {
+              "type": "date"
+            },
+            "last_reading_value": {
+              "type": "float"
+            },
+            "is_occupied": {
+              "type": "boolean"
+            },
+            "confidence": {
+              "type": "float"
+            },
+            "error_rate": {
+              "type": "float"
+            },
+            "signal_strength": {
+              "type": "integer"
+            },
+            "calibration_date": {
+              "type": "date"
+            }
+          }
+        },
+        "camera": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "coverage_area": {
+              "type": "geo_shape"
+            },
+            "last_image": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "last_detection": {
+              "type": "date"
+            },
+            "detected_plate": {
+              "type": "keyword",
+              "ignore_above": 50
+            }
+          }
+        },
+        "occupancy": {
+          "properties": {
+            "current_vehicle_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "current_vehicle_plate": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "current_session_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "occupied_since": {
+              "type": "date"
+            },
+            "estimated_until": {
+              "type": "date"
+            },
+            "occupied_duration_seconds": {
+              "type": "integer"
+            },
+            "vacant_since": {
+              "type": "date"
+            },
+            "vacant_duration_seconds": {
+              "type": "integer"
+            },
+            "occupancy_rate": {
+              "type": "float"
+            },
+            "turnover_rate": {
+              "type": "float"
+            },
+            "total_occupancy_today": {
+              "type": "integer"
+            },
+            "peak_occupancy_time": {
+              "type": "date"
+            },
+            "last_occupancy_change": {
+              "type": "date"
+            },
+            "occupancy_history": {
+              "type": "histogram",
+              "field": "occupancy_rate",
+              "interval": 3600
+            }
+          }
+        },
+        "reservations": {
+          "properties": {
+            "is_reserved": {
+              "type": "boolean"
+            },
+            "current_reservation_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "reserved_until": {
+              "type": "date"
+            },
+            "reserved_by": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "reservation_type": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "upcoming_reservations": {
+              "type": "nested",
+              "properties": {
+                "id": {
+                  "type": "keyword"
+                },
+                "start_time": {
+                  "type": "date"
+                },
+                "end_time": {
+                  "type": "date"
+                },
+                "customer_name": {
+                  "type": "text"
+                },
+                "vehicle_plate": {
+                  "type": "keyword"
+                },
+                "status": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "reservation_count_today": {
+              "type": "integer"
+            },
+            "no_show_count": {
+              "type": "integer"
+            }
+          }
+        },
+        "pricing": {
+          "properties": {
+            "rate_id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "base_rate": {
+              "type": "float"
+            },
+            "current_rate": {
+              "type": "float"
+            },
+            "rate_type": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "currency": {
+              "type": "keyword",
+              "ignore_above": 10
+            },
+            "minimum_fee": {
+              "type": "float"
+            },
+            "maximum_fee": {
+              "type": "float"
+            },
+            "grace_period_minutes": {
+              "type": "integer"
+            },
+            "peak_multiplier": {
+              "type": "float"
+            },
+            "off_peak_multiplier": {
+              "type": "float"
+            },
+            "weekend_rate": {
+              "type": "float"
+            },
+            "holiday_rate": {
+              "type": "float"
+            },
+            "dynamic_pricing": {
+              "type": "boolean"
+            },
+            "last_rate_update": {
+              "type": "date"
+            }
+          }
+        },
+        "statistics": {
+          "properties": {
+            "total_sessions": {
+              "type": "integer"
+            },
+            "total_revenue": {
+              "type": "float"
+            },
+            "avg_duration_minutes": {
+              "type": "float"
+            },
+            "avg_revenue_per_session": {
+              "type": "float"
+            },
+            "utilization_rate": {
+              "type": "float"
+            },
+            "peak_hour": {
+              "type": "integer"
+            },
+            "peak_day": {
+              "type": "keyword",
+              "ignore_above": 10
+            },
+            "popularity_score": {
+              "type": "float"
+            },
+            "satisfaction_score": {
+              "type": "float"
+            },
+            "incident_count": {
+              "type": "integer"
+            },
+            "maintenance_count": {
+              "type": "integer"
+            }
+          }
+        },
+        "maintenance": {
+          "properties": {
+            "status": {
+              "type": "keyword",
+              "ignore_above": 50
+            },
+            "last_maintenance": {
+              "type": "date"
+            },
+            "next_maintenance": {
+              "type": "date"
+            },
+            "maintenance_due": {
+              "type": "boolean"
+            },
+            "maintenance_reason": {
+              "type": "text"
+            },
+            "maintenance_history": {
+              "type": "nested",
+              "properties": {
+                "date": {
+                  "type": "date"
+                },
+                "type": {
+                  "type": "keyword"
+                },
+                "description": {
+                  "type": "text"
+                },
+                "performed_by": {
+                  "type": "keyword"
+                },
+                "cost": {
+                  "type": "float"
+                }
+              }
+            },
+            "issues_reported": {
+              "type": "integer"
+            },
+            "out_of_service": {
+              "type": "boolean"
+            },
+            "out_of_service_reason": {
+              "type": "text"
+            },
+            "estimated_restoration": {
+              "type": "date"
+            }
+          }
+        },
+        "accessibility": {
+          "properties": {
+            "handicap_accessible": {
+              "type": "boolean"
+            },
+            "handicap_features": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "width_for_wheelchair": {
+              "type": "boolean"
+            },
+            "nearby_handicap_ramp": {
+              "type": "boolean"
+            },
+            "accessible_path_to_elevator": {
+              "type": "boolean"
+            },
+            "visual_aids": {
+              "type": "boolean"
+            },
+            "audio_aids": {
+              "type": "boolean"
+            }
+          }
+        },
+        "environmental": {
+          "properties": {
+            "lighting_level": {
+              "type": "float"
+            },
+            "temperature": {
+              "type": "float"
+            },
+            "humidity": {
+              "type": "float"
+            },
+            "air_quality": {
+              "type": "float"
+            },
+            "noise_level": {
+              "type": "float"
+            },
+            "weather_protected": {
+              "type": "boolean"
+            }
+          }
+        },
+        "metadata": {
+          "properties": {
+            "created_at": {
+              "type": "date"
+            },
+            "created_by": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "updated_at": {
+              "type": "date"
+            },
+            "updated_by": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "version": {
+              "type": "integer"
+            },
+            "source_system": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "imported_at": {
+              "type": "date"
+            },
+            "tags": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "notes": {
+              "type": "text"
+            }
+          }
+        },
+        "organization": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 100
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "code": {
+              "type": "keyword",
+              "ignore_above": 50
+            }
+          }
+        }
+      }
+    }
+  },
+  "composed_of": ["parking-spots-settings", "parking-spots-mappings"],
+  "priority": 100,
+  "version": 1,
+  "_meta": {
+    "description": "Mapping for parking spots/spaces in parking management system",
+    "managed_by": "parking-management-system",
+    "version": "1.0.0",
+    "created_date": "2024-01-15",
+    "last_updated": "2024-01-15"
+  }
+}
