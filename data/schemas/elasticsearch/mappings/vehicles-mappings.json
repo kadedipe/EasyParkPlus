@@ -1,0 +1,95 @@
+{
+  "template": {
+    "mappings": {
+      "_source": {
+        "enabled": true,
+        "excludes": [
+          "documents.*",
+          "alerts.active_alerts.message"
+        ]
+      },
+      "dynamic_templates": [
+        {
+          "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        {
+          "vehicle_identifiers": {
+            "match": "*_id|*_number|*_code|*_tag",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "vehicle_attributes": {
+            "match": "is_*|has_*",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "vehicle_dates": {
+            "match": "*_at|*_date|*_expiry",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "date"
+            }
+          }
+        },
+        {
+          "vehicle_measurements": {
+            "match": "*_mm|*_cm|*_m|*_kg|*_l|*_kw|*_kwh|*_hp",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "float"
+            }
+          }
+        },
+        {
+          "vehicle_counts": {
+            "match": "*_count",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "geo_points": {
+            "match": "location|coordinates",
+            "mapping": {
+              "type": "geo_point"
+            }
+          }
+        },
+        {
+          "nested_objects": {
+            "match": "*_history|*_sessions",
+            "mapping": {
+              "type": "nested"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": 1,
+  "_meta": {
+    "description": "Mappings component template for vehicles",
+    "managed_by": "parking-management-system"
+  }
+}

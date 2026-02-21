@@ -1,0 +1,88 @@
+{
+  "description": "Process parking spot data for indexing",
+  "processors": [
+    {
+      "set": {
+        "field": "@timestamp",
+        "value": "{{_ingest.timestamp}}"
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+          // Generate display name
+          if (ctx.spot_number != null && ctx.level != null && ctx.level.number != null) {
+            ctx.display_name = 'Level ' + ctx.level.number + ' - Spot ' + ctx.spot_number;
+          }
+          
+          // Calculate area if dimensions available
+          if (ctx.dimensions != null) {
+            if (ctx.dimensions.width_meters != null && ctx.dimensions.length_meters != null) {
+              ctx.dimensions.area_sq_meters = ctx.dimensions.width_meters * ctx.dimensions.length_meters;
+            }
+            if (ctx.dimensions.angle_degrees != null && ctx.dimensions.angle_degrees != 0) {
+              ctx.dimensions.is_angled = true;
+            }
+          }
+          
+          // Set status duration
+          if (ctx.status_changed_at != null) {
+            ctx.status_duration_seconds = (new Date().getTime() - ctx.status_changed_at) / 1000;
+          }
+          
+          // Calculate occupancy duration
+          if (ctx.occupancy != null) {
+            if (ctx.occupancy.occupied_since != null) {
+              ctx.occupancy.occupied_duration_seconds = (new Date().getTime() - ctx.occupancy.occupied_since) / 1000;
+            }
+            if (ctx.occupancy.vacant_since != null) {
+              ctx.occupancy.vacant_duration_seconds = (new Date().getTime() - ctx.occupancy.vacant_since) / 1000;
+            }
+          }
+          
+          // Set default attributes
+          if (ctx.attributes == null) {
+            ctx.attributes = new HashMap();
+          }
+          
+          // Map common attribute names for search
+          if (ctx.spot_type != null) {
+            String type = ctx.spot_type.toLowerCase();
+            if (type.contains('handicap') || type.contains('disabled')) {
+              ctx.attributes.is_handicapped = true;
+            }
+            if (type.contains('electric') || type.contains('ev')) {
+              ctx.attributes.is_electric = true;
+            }
+            if (type.contains('compact')) {
+              ctx.dimensions.is_compact = true;
+            }
+          }
+        """
+      }
+    },
+    {
+      "geoip": {
+        "field": "location.coordinates",
+        "target_field": "location.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "dot_expander": {
+        "field": "*",
+        "ignore_failure": true
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "field": "error.message",
+        "value": "{{ _ingest.on_failure_message }}"
+      }
+    }
+  ]
+}

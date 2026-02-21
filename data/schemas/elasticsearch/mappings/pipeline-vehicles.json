@@ -1,0 +1,128 @@
+{
+  "description": "Process vehicle data for indexing",
+  "processors": [
+    {
+      "set": {
+        "field": "@timestamp",
+        "value": "{{_ingest.timestamp}}"
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+          // Normalize license plate
+          if (ctx.license_plate != null) {
+            ctx.license_plate_normalized = ctx.license_plate.replaceAll('[^A-Za-z0-9]', '').toUpperCase();
+          }
+          
+          // Set vehicle type based on dimensions/features if not provided
+          if (ctx.vehicle_type == null) {
+            if (ctx.vehicle_class != null) {
+              ctx.vehicle_type = ctx.vehicle_class.toLowerCase();
+            } else if (ctx.body_style != null) {
+              ctx.vehicle_type = ctx.body_style.toLowerCase();
+            } else if (ctx.dimensions != null && ctx.dimensions.seating_capacity != null) {
+              if (ctx.dimensions.seating_capacity <= 2) {
+                ctx.vehicle_type = 'sports';
+              } else if (ctx.dimensions.seating_capacity <= 5) {
+                ctx.vehicle_type = 'passenger';
+              } else {
+                ctx.vehicle_type = 'van';
+              }
+            } else {
+              ctx.vehicle_type = 'unknown';
+            }
+          }
+          
+          // Set electric flag based on fuel type
+          if (ctx.fuel_type != null) {
+            String fuel = ctx.fuel_type.toLowerCase();
+            if (fuel.contains('electric') || fuel.contains('ev') || fuel.contains('plugin')) {
+              if (ctx.electric == null) {
+                ctx.electric = new HashMap();
+              }
+              ctx.electric.is_electric = true;
+            }
+          }
+          
+          // Calculate total visits
+          if (ctx.statistics != null) {
+            if (ctx.statistics.total_sessions != null) {
+              ctx.statistics.total_visits = ctx.statistics.total_sessions;
+            }
+            if (ctx.statistics.total_duration_minutes != null && ctx.statistics.total_sessions != null && ctx.statistics.total_sessions > 0) {
+              ctx.statistics.avg_duration_minutes = (double) ctx.statistics.total_duration_minutes / ctx.statistics.total_sessions;
+            }
+          }
+          
+          // Set active flag based on status
+          if (ctx.status != null && ctx.status.current != null) {
+            ctx.status.is_active = !ctx.status.current.equals('inactive') && 
+                                   !ctx.status.current.equals('decommissioned') &&
+                                   !ctx.status.current.equals('stolen');
+          }
+          
+          // Parse dates if needed
+          if (ctx.registration != null) {
+            if (ctx.registration.expiry_date != null) {
+              def expDate = ctx.registration.expiry_date;
+              def now = new Date().getTime();
+              ctx.registration.status = expDate > now ? 'valid' : 'expired';
+            }
+          }
+        """
+      }
+    },
+    {
+      "date": {
+        "field": "registration.issue_date",
+        "target_field": "registration.issue_date",
+        "formats": ["yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"],
+        "ignore_failure": true
+      }
+    },
+    {
+      "date": {
+        "field": "registration.expiry_date",
+        "target_field": "registration.expiry_date",
+        "formats": ["yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"],
+        "ignore_failure": true
+      }
+    },
+    {
+      "date": {
+        "field": "insurance.expiry_date",
+        "target_field": "insurance.expiry_date",
+        "formats": ["yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"],
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "owner.address",
+        "target_field": "owner.geo",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+    },
+    {
+      "remove": {
+        "field": [
+          "documents.registration",
+          "documents.insurance",
+          "documents.inspection"
+        ],
+        "ignore_missing": true
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "field": "error.message",
+        "value": "{{ _ingest.on_failure_message }}"
+      }
+    }
+  ]
+}

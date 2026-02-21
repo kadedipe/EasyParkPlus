@@ -1,0 +1,317 @@
+{
+  "search_by_plate": {
+    "description": "Search vehicles by license plate (exact or partial)",
+    "query": {
+      "bool": {
+        "should": [
+          {
+            "term": {
+              "license_plate.keyword": "{{plate}}"
+            }
+          },
+          {
+            "term": {
+              "license_plate_normalized": "{{plate}}"
+            }
+          },
+          {
+            "match": {
+              "license_plate.partial": "{{plate}}"
+            }
+          },
+          {
+            "match": {
+              "license_plate.phonetic": "{{plate}}"
+            }
+          }
+        ],
+        "minimum_should_match": 1
+      }
+    },
+    "sort": [
+      {
+        "_score": {
+          "order": "desc"
+        }
+      }
+    ]
+  },
+  "find_vehicles_by_owner": {
+    "description": "Find vehicles by owner information",
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "owner.id": "{{owner_id}}"
+            }
+          }
+        ],
+        "filter": [
+          {
+            "term": {
+              "status.is_active": true
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "by_type": {
+        "terms": {
+          "field": "vehicle_type"
+        }
+      },
+      "by_make": {
+        "terms": {
+          "field": "make.keyword"
+        }
+      },
+      "active_sessions": {
+        "filter": {
+          "exists": {
+            "field": "current_session.id"
+          }
+        }
+      }
+    }
+  },
+  "vehicles_due_for_maintenance": {
+    "description": "Find vehicles requiring attention (expired registration/insurance)",
+    "query": {
+      "bool": {
+        "should": [
+          {
+            "range": {
+              "registration.expiry_date": {
+                "lt": "now+30d",
+                "gte": "now"
+              }
+            }
+          },
+          {
+            "range": {
+              "insurance.expiry_date": {
+                "lt": "now+30d",
+                "gte": "now"
+              }
+            }
+          },
+          {
+            "range": {
+              "registration.expiry_date": {
+                "lt": "now"
+              }
+            }
+          },
+          {
+            "range": {
+              "insurance.expiry_date": {
+                "lt": "now"
+              }
+            }
+          }
+        ],
+        "minimum_should_match": 1
+      }
+    },
+    "sort": [
+      {
+        "registration.expiry_date": {
+          "order": "asc",
+          "missing": "_last"
+        }
+      }
+    ]
+  },
+  "vehicle_statistics": {
+    "description": "Get vehicle statistics by make/model",
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "range": {
+              "statistics.total_visits": {
+                "gt": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "by_make": {
+        "terms": {
+          "field": "make.keyword",
+          "size": 20
+        },
+        "aggs": {
+          "by_model": {
+            "terms": {
+              "field": "model.keyword",
+              "size": 10
+            },
+            "aggs": {
+              "avg_visits": {
+                "avg": {
+                  "field": "statistics.total_visits"
+                }
+              },
+              "avg_duration": {
+                "avg": {
+                  "field": "statistics.avg_duration_minutes"
+                }
+              },
+              "total_revenue": {
+                "sum": {
+                  "field": "statistics.total_paid"
+                }
+              },
+              "vehicle_count": {
+                "cardinality": {
+                  "field": "vehicle_id"
+                }
+              }
+            }
+          },
+          "avg_visits_by_make": {
+            "avg": {
+              "field": "statistics.total_visits"
+            }
+          }
+        }
+      },
+      "by_type": {
+        "terms": {
+          "field": "vehicle_type"
+        }
+      },
+      "by_year": {
+        "histogram": {
+          "field": "model_year",
+          "interval": 5,
+          "min_doc_count": 1
+        }
+      },
+      "electric_vs_ice": {
+        "filters": {
+          "filters": {
+            "electric": {
+              "term": {
+                "electric.is_electric": true
+              }
+            },
+            "hybrid": {
+              "term": {
+                "fuel_type": "hybrid"
+              }
+            },
+            "gas": {
+              "term": {
+                "fuel_type": "gasoline"
+              }
+            },
+            "diesel": {
+              "term": {
+                "fuel_type": "diesel"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "frequent_visitors": {
+    "description": "Find frequently visiting vehicles",
+    "query": {
+      "range": {
+        "statistics.total_visits": {
+          "gte": "{{min_visits}}"
+        }
+      }
+    },
+    "sort": [
+      {
+        "statistics.total_visits": {
+          "order": "desc"
+        }
+      }
+    ],
+    "aggs": {
+      "visit_distribution": {
+        "histogram": {
+          "field": "statistics.total_visits",
+          "interval": 10
+        }
+      },
+      "top_lots": {
+        "terms": {
+          "field": "favorite_lot_id",
+          "size": 10
+        }
+      }
+    }
+  },
+  "blacklisted_vehicles": {
+    "description": "Find blacklisted vehicles",
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "status.is_blacklisted": true
+            }
+          }
+        ],
+        "filter": [
+          {
+            "range": {
+              "status.blacklist_expiry": {
+                "gt": "now"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "sort": [
+      {
+        "status.blacklisted_at": {
+          "order": "desc"
+        }
+      }
+    ]
+  },
+  "vehicles_in_lot": {
+    "description": "Find vehicles currently in a specific parking lot",
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "term": {
+              "location.last_lot_id": "{{lot_id}}"
+            }
+          },
+          {
+            "exists": {
+              "field": "current_session.id"
+            }
+          }
+        ]
+      }
+    },
+    "aggs": {
+      "by_space": {
+        "terms": {
+          "field": "location.last_space_number"
+        }
+      },
+      "by_duration": {
+        "histogram": {
+          "field": "current_session.duration_minutes",
+          "interval": 30
+        }
+      }
+    }
+  }
+}
