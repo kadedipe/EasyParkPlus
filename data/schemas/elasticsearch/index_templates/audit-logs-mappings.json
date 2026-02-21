@@ -1,0 +1,112 @@
+{
+  "template": {
+    "mappings": {
+      "_source": {
+        "enabled": true,
+        "excludes": [
+          "request.body",
+          "response.body",
+          "error.stack_trace",
+          "database.query",
+          "*.before",
+          "*.after"
+        ]
+      },
+      "dynamic_templates": [
+        {
+          "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        {
+          "audit_metadata": {
+            "match": "audit_*",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        {
+          "user_identifiers": {
+            "match": "*_id",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "timestamps": {
+            "match": "*_at",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "date"
+            }
+          }
+        },
+        {
+          "counts_and_metrics": {
+            "match": "*_count|*_total|*_sum|*_avg|*_min|*_max",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "float"
+            }
+          }
+        },
+        {
+          "durations": {
+            "match": "*_ms|*_seconds|*_minutes",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "ips": {
+            "match": "*_ip",
+            "match_pattern": "regex",
+            "mapping": {
+              "type": "ip"
+            }
+          }
+        },
+        {
+          "geo_points": {
+            "match": "location|coordinates|geo_point",
+            "mapping": {
+              "type": "geo_point"
+            }
+          }
+        },
+        {
+          "booleans": {
+            "match_mapping_type": "boolean",
+            "mapping": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": 1,
+  "_meta": {
+    "description": "Mappings component template for audit logs",
+    "managed_by": "parking-management-system"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "audit-logs",
+  "timestamp_field": "@timestamp",
+  "indices": [
+    {
+      "index_name": "audit-logs-000001",
+      "generation": 1
+    }
+  ],
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "audit-logs-lifecycle",
+      "index.lifecycle.rollover_alias": "audit-logs"
+    },
+    "mappings": {
+      "properties": {
+        "data_stream": {
+          "properties": {
+            "type": {
+              "type": "constant_keyword",
+              "value": "logs"
+            },
+            "dataset": {
+              "type": "constant_keyword",
+              "value": "audit"
+            },
+            "namespace": {
+              "type": "constant_keyword",
+              "value": "parking"
+            }
+          }
+        }
+      }
+    }
+  }
+}

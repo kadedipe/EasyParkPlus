@@ -1,0 +1,69 @@
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "min_age": "0ms",
+        "actions": {
+          "rollover": {
+            "max_size": "50GB",
+            "max_age": "30d",
+            "max_docs": 50000000
+          },
+          "set_priority": {
+            "priority": 100
+          }
+        }
+      },
+      "warm": {
+        "min_age": "30d",
+        "actions": {
+          "forcemerge": {
+            "max_num_segments": 1
+          },
+          "shrink": {
+            "number_of_shards": 2
+          },
+          "allocate": {
+            "number_of_replicas": 1,
+            "require": {
+              "data_tier": "data_warm"
+            }
+          },
+          "set_priority": {
+            "priority": 50
+          }
+        }
+      },
+      "cold": {
+        "min_age": "90d",
+        "actions": {
+          "allocate": {
+            "number_of_replicas": 0,
+            "require": {
+              "data_tier": "data_cold"
+            }
+          },
+          "set_priority": {
+            "priority": 0
+          },
+          "readonly": {}
+        }
+      },
+      "frozen": {
+        "min_age": "365d",
+        "actions": {
+          "searchable_snapshot": {
+            "snapshot_repository": "audit_logs_snapshots",
+            "force_merge_index": true
+          }
+        }
+      },
+      "delete": {
+        "min_age": "2555d",
+        "actions": {
+          "delete": {}
+        }
+      }
+    }
+  }
+}

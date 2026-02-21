@@ -1,0 +1,371 @@
+{
+  "index_patterns": ["vehicle-events-*"],
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 3,
+        "number_of_replicas": 1,
+        "refresh_interval": "5s",
+        "lifecycle": {
+          "name": "vehicle-events-lifecycle",
+          "rollover_alias": "vehicle-events"
+        }
+      }
+    },
+    "mappings": {
+      "properties": {
+        "event_type": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "event_subtype": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "vehicle": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "license_plate": {
+              "type": "text",
+              "analyzer": "license_plate_analyzer",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256,
+                  "normalizer": "lowercase_normalizer"
+                },
+                "partial": {
+                  "type": "text",
+                  "analyzer": "partial_plate_analyzer"
+                },
+                "phonetic": {
+                  "type": "text",
+                  "analyzer": "phonetic_analyzer"
+                }
+              }
+            },
+            "license_plate_normalized": {
+              "type": "keyword",
+              "ignore_above": 256,
+              "normalizer": "lowercase_normalizer"
+            },
+            "make": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "model": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "color": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "year": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "attributes": {
+              "properties": {
+                "is_electric": {
+                  "type": "boolean"
+                },
+                "is_handicapped": {
+                  "type": "boolean"
+                },
+                "is_resident": {
+                  "type": "boolean"
+                },
+                "is_blacklisted": {
+                  "type": "boolean"
+                },
+                "is_vip": {
+                  "type": "boolean"
+                },
+                "height": {
+                  "type": "float"
+                },
+                "length": {
+                  "type": "float"
+                },
+                "width": {
+                  "type": "float"
+                },
+                "weight": {
+                  "type": "float"
+                }
+              }
+            }
+          }
+        },
+        "owner": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "email": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "phone": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "type": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "location": {
+          "properties": {
+            "lot_id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "lot_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "level_id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "level_number": {
+              "type": "integer"
+            },
+            "space_id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "space_number": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "coordinates": {
+              "type": "geo_point"
+            },
+            "zone": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "detection": {
+          "properties": {
+            "method": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "source": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "confidence": {
+              "type": "float"
+            },
+            "camera_id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "sensor_id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "gate_id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "image_url": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "lpr_data": {
+              "properties": {
+                "raw_plate": {
+                  "type": "text"
+                },
+                "processed_plate": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                },
+                "confidence": {
+                  "type": "float"
+                },
+                "processing_time_ms": {
+                  "type": "integer"
+                },
+                "algorithm_version": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "movement": {
+          "properties": {
+            "direction": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "speed_kmh": {
+              "type": "float"
+            },
+            "acceleration": {
+              "type": "float"
+            },
+            "heading": {
+              "type": "float"
+            },
+            "path": {
+              "type": "geo_shape"
+            },
+            "previous_location": {
+              "type": "geo_point"
+            },
+            "next_location": {
+              "type": "geo_point"
+            },
+            "distance_traveled_m": {
+              "type": "float"
+            },
+            "time_since_last_movement": {
+              "type": "integer"
+            }
+          }
+        },
+        "session": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "status": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "entry_time": {
+              "type": "date"
+            },
+            "exit_time": {
+              "type": "date"
+            },
+            "duration_minutes": {
+              "type": "integer"
+            },
+            "is_active": {
+              "type": "boolean"
+            }
+          }
+        },
+        "alerts": {
+          "properties": {
+            "has_alerts": {
+              "type": "boolean"
+            },
+            "alert_types": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "severity": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "messages": {
+              "type": "text"
+            }
+          }
+        },
+        "statistics": {
+          "properties": {
+            "total_visits": {
+              "type": "integer"
+            },
+            "total_duration_minutes": {
+              "type": "integer"
+            },
+            "average_duration_minutes": {
+              "type": "float"
+            },
+            "last_visit": {
+              "type": "date"
+            },
+            "favorite_lot": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "favorite_time": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "total_paid": {
+              "type": "float"
+            },
+            "average_paid": {
+              "type": "float"
+            }
+          }
+        }
+      }
+    }
+  },
+  "composed_of": ["component_base_settings", "component_base_mappings"],
+  "priority": 100,
+  "version": 1,
+  "_meta": {
+    "description": "Index template for vehicle events",
+    "managed_by": "parking-management-system",
+    "version": "1.0.0"
+  }
+}

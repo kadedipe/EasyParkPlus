@@ -1,0 +1,98 @@
+{
+  "size": 0,
+  "query": {
+    "range": {
+      "@timestamp": {
+        "gte": "now-30d/d",
+        "lte": "now/d"
+      }
+    }
+  },
+  "aggs": {
+    "actions_over_time": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "1d",
+        "format": "yyyy-MM-dd"
+      },
+      "aggs": {
+        "action_types": {
+          "terms": {
+            "field": "event_action",
+            "size": 20
+          }
+        },
+        "outcomes": {
+          "terms": {
+            "field": "event_outcome"
+          }
+        }
+      }
+    },
+    "top_users": {
+      "terms": {
+        "field": "user.id",
+        "size": 10
+      },
+      "aggs": {
+        "user_details": {
+          "top_hits": {
+            "size": 1,
+            "_source": {
+              "includes": ["user.username", "user.email", "user.full_name", "user.role"]
+            }
+          }
+        },
+        "last_activity": {
+          "max": {
+            "field": "@timestamp"
+          }
+        },
+        "action_count": {
+          "cardinality": {
+            "field": "event_action"
+          }
+        }
+      }
+    },
+    "resources_by_type": {
+      "terms": {
+        "field": "resource.type",
+        "size": 20
+      },
+      "aggs": {
+        "top_resources": {
+          "terms": {
+            "field": "resource.id",
+            "size": 5
+          }
+        }
+      }
+    },
+    "geo_distribution": {
+      "terms": {
+        "field": "geo.country_code",
+        "size": 10
+      }
+    },
+    "severity_breakdown": {
+      "terms": {
+        "field": "event_severity"
+      }
+    },
+    "compliance_summary": {
+      "filter": {
+        "term": {
+          "compliance.pii_accessed": true
+        }
+      },
+      "aggs": {
+        "by_data_classification": {
+          "terms": {
+            "field": "compliance.data_classification"
+          }
+        }
+      }
+    }
+  }
+}

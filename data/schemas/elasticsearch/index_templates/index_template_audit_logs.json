@@ -1,0 +1,423 @@
+{
+  "index_patterns": ["audit-logs-*"],
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 3,
+        "number_of_replicas": 1,
+        "refresh_interval": "30s",
+        "lifecycle": {
+          "name": "audit-logs-lifecycle",
+          "rollover_alias": "audit-logs"
+        },
+        "codec": "best_compression"
+      }
+    },
+    "mappings": {
+      "properties": {
+        "timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "@timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "log_date": {
+          "type": "date",
+          "format": "yyyy-MM-dd"
+        },
+        "log_hour": {
+          "type": "byte"
+        },
+        "action": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "action_category": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "action_type": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "result": {
+          "type": "keyword",
+          "ignore_above": 256
+        },
+        "status_code": {
+          "type": "integer"
+        },
+        "response_time_ms": {
+          "type": "integer"
+        },
+        "entity": {
+          "properties": {
+            "type": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "changes": {
+          "properties": {
+            "before": {
+              "type": "object",
+              "enabled": false
+            },
+            "after": {
+              "type": "object",
+              "enabled": false
+            },
+            "diff": {
+              "type": "object",
+              "enabled": false
+            },
+            "fields": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "user": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "username": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "email": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "full_name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "role": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "permissions": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "impersonator": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "username": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "request": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "method": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "path": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                }
+              }
+            },
+            "query": {
+              "type": "text"
+            },
+            "headers": {
+              "type": "object",
+              "enabled": false
+            },
+            "body": {
+              "type": "text",
+              "index": false
+            },
+            "size_bytes": {
+              "type": "integer"
+            }
+          }
+        },
+        "response": {
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "headers": {
+              "type": "object",
+              "enabled": false
+            },
+            "body": {
+              "type": "text",
+              "index": false
+            },
+            "size_bytes": {
+              "type": "integer"
+            }
+          }
+        },
+        "network": {
+          "properties": {
+            "client_ip": {
+              "type": "ip"
+            },
+            "client_port": {
+              "type": "integer"
+            },
+            "server_ip": {
+              "type": "ip"
+            },
+            "server_port": {
+              "type": "integer"
+            },
+            "protocol": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "user_agent": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "referer": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                }
+              }
+            },
+            "origin": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "forwarded_for": {
+              "type": "ip"
+            }
+          }
+        },
+        "geo": {
+          "properties": {
+            "location": {
+              "type": "geo_point"
+            },
+            "country": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "city": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "region": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "postal_code": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "timezone": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "session": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "start_time": {
+              "type": "date"
+            },
+            "duration_seconds": {
+              "type": "integer"
+            }
+          }
+        },
+        "organization": {
+          "properties": {
+            "id": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "code": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "security": {
+          "properties": {
+            "event_type": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "severity": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "threat_level": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "auth_method": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "auth_success": {
+              "type": "boolean"
+            },
+            "mfa_used": {
+              "type": "boolean"
+            },
+            "failure_reason": {
+              "type": "text"
+            },
+            "blocked": {
+              "type": "boolean"
+            },
+            "block_reason": {
+              "type": "text"
+            }
+          }
+        },
+        "compliance": {
+          "properties": {
+            "data_classification": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "retention_period_days": {
+              "type": "integer"
+            },
+            "pii_accessed": {
+              "type": "boolean"
+            },
+            "phi_accessed": {
+              "type": "boolean"
+            },
+            "sensitive_fields": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "legal_hold": {
+              "type": "boolean"
+            },
+            "legal_hold_id": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "error": {
+          "properties": {
+            "code": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "message": {
+              "type": "text"
+            },
+            "stack_trace": {
+              "type": "text",
+              "index": false
+            },
+            "exception_class": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "file": {
+              "type": "text"
+            },
+            "line": {
+              "type": "integer"
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "dynamic": true
+        },
+        "tags": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    }
+  },
+  "composed_of": ["component_base_settings", "component_base_mappings"],
+  "priority": 100,
+  "version": 1,
+  "_meta": {
+    "description": "Index template for audit logs",
+    "managed_by": "parking-management-system",
+    "version": "1.0.0"
+  }
+}
