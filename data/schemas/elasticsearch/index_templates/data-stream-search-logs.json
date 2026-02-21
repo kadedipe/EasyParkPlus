@@ -1,0 +1,36 @@
+{
+  "name": "search-logs",
+  "timestamp_field": "@timestamp",
+  "indices": [
+    {
+      "index_name": "search-logs-000001",
+      "generation": 1
+    }
+  ],
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "search-logs-lifecycle",
+      "index.lifecycle.rollover_alias": "search-logs"
+    },
+    "mappings": {
+      "properties": {
+        "data_stream": {
+          "properties": {
+            "type": {
+              "type": "constant_keyword",
+              "value": "logs"
+            },
+            "dataset": {
+              "type": "constant_keyword",
+              "value": "search"
+            },
+            "namespace": {
+              "type": "constant_keyword",
+              "value": "parking"
+            }
+          }
+        }
+      }
+    }
+  }
+}

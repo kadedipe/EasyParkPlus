@@ -1,0 +1,158 @@
+{
+  "index_patterns": ["*"],
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 3,
+        "number_of_replicas": 1,
+        "refresh_interval": "5s",
+        "max_result_window": 10000,
+        "max_inner_result_window": 100,
+        "max_rescore_window": 10000,
+        "max_docvalue_fields_search": 200,
+        "max_script_fields": 32,
+        "max_terms_count": 65536,
+        "max_analyzed_offset": 1000000,
+        "mapping": {
+          "total_fields": {
+            "limit": 1000
+          },
+          "depth": {
+            "limit": 30
+          },
+          "nested_fields": {
+            "limit": 50
+          },
+          "nested_objects": {
+            "limit": 10000
+          }
+        },
+        "analysis": {
+          "analyzer": {
+            "license_plate_analyzer": {
+              "type": "custom",
+              "tokenizer": "keyword",
+              "filter": ["lowercase", "trim", "license_plate_pattern"]
+            },
+            "vehicle_make_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim", "asciifolding"]
+            },
+            "address_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "trim", "asciifolding"]
+            },
+            "partial_plate_analyzer": {
+              "type": "custom",
+              "tokenizer": "ngram",
+              "filter": ["lowercase", "trim"]
+            }
+          },
+          "filter": {
+            "license_plate_pattern": {
+              "type": "pattern_replace",
+              "pattern": "[^A-Za-z0-9]",
+              "replacement": ""
+            },
+            "ngram_filter": {
+              "type": "ngram",
+              "min_gram": 2,
+              "max_gram": 10
+            }
+          },
+          "normalizer": {
+            "lowercase_normalizer": {
+              "type": "custom",
+              "filter": ["lowercase", "asciifolding"]
+            }
+          }
+        }
+      }
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true,
+        "excludes": ["password", "token", "secret"]
+      },
+      "dynamic_templates": [
+        {
+          "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256,
+                  "normalizer": "lowercase_normalizer"
+                }
+              }
+            }
+          }
+        },
+        {
+          "timestamps_as_date": {
+            "match": "*_at",
+            "mapping": {
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
+            }
+          }
+        },
+        {
+          "counts_as_integer": {
+            "match": "*_count",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "amounts_as_float": {
+            "match": "*_amount",
+            "mapping": {
+              "type": "float"
+            }
+          }
+        },
+        {
+          "ids_as_keyword": {
+            "match": "*_id",
+            "mapping": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        {
+          "coordinates_as_geo_point": {
+            "match": "location",
+            "mapping": {
+              "type": "geo_point"
+            }
+          }
+        },
+        {
+          "ip_as_ip": {
+            "match": "*_ip",
+            "mapping": {
+              "type": "ip"
+            }
+          }
+        },
+        {
+          "booleans": {
+            "match_mapping_type": "boolean",
+            "mapping": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "priority": 1,
+  "version": 1
+}
