@@ -1,0 +1,29 @@
+Parking Management System
+Copyright 2024 Parking Management System Contributors
+
+This product includes software developed by the Parking Management System project
+(https://github.com/yourusername/parking-management).
+
+========================================================================
+Third-party Software Notices
+========================================================================
+
+This project includes the following third-party software:
+
+1. FastAPI (https://fastapi.tiangolo.com/)
+   Copyright (c) 2018 Sebastián Ramírez
+   Licensed under MIT License
+
+2. SQLAlchemy (https://www.sqlalchemy.org/)
+   Copyright (c) 2005-2024, SQLAlchemy authors and contributors
+   Licensed under MIT License
+
+3. Pydantic (https://docs.pydantic.dev/)
+   Copyright (c) 2017-2024, Samuel Colvin and other contributors
+   Licensed under MIT License
+
+4. Stripe Python Library (https://github.com/stripe/stripe-python)
+   Copyright (c) 2010-2024 Stripe, Inc.
+   Licensed under MIT License
+
+[Continue with all third-party dependencies...]

@@ -1,0 +1,474 @@
+@startuml parking-management-uml/diagrams/images/deployment_diagram.svg
+
+' =============================================
+' Parking Management System - Deployment Diagram
+' =============================================
+
+title Parking Management System - Cloud Deployment Architecture
+
+skinparam component {
+    BackgroundColor<<K8s>> #E3F2FD
+    BackgroundColor<<AWS>> #FFECB3
+    BackgroundColor<<Service>> #F3E5F5
+    BackgroundColor<<Database>> #C8E6C9
+    BackgroundColor<<Cache>> #FFCCBC
+    BackgroundColor<<Queue>> #D1C4E9
+    BackgroundColor<<Storage>> #FFF3E0
+    BackgroundColor<<Monitoring>> #E0F2F1
+    BackgroundColor<<Security>> #FCE4EC
+    BorderColor #263238
+    ArrowColor #37474F
+    FontSize 14
+}
+
+skinparam node {
+    backgroundColor #FFFFFF
+    borderColor #263238
+    shadowing false
+}
+
+skinparam {
+    shadowing false
+    roundcorner 10
+    style strictuml
+    linetype ortho
+}
+
+' =============================================
+' Deployment Nodes
+' =============================================
+
+node "AWS Cloud" as aws_cloud {
+    node "us-east-1 (Primary Region)" as region_primary {
+        node "VPC: 10.0.0.0/16" as vpc_primary {
+            node "Public Subnet" as public_subnet {
+                component "Internet Gateway" as igw_primary <<AWS>> #FFECB3
+                component "NAT Gateway" as nat_primary <<AWS>> #FFECB3
+                component "API Gateway" as api_gateway <<AWS>> #FFECB3 {
+                    rectangle "REST API Endpoints" as api_endpoints
+                    rectangle "WebSocket API" as ws_api
+                    rectangle "Rate Limiting" as rate_limiting
+                    rectangle "API Keys" as api_keys
+                }
+                component "CloudFront CDN" as cloudfront <<AWS>> #FFECB3 {
+                    rectangle "Edge Locations" as edge_locations
+                    rectangle "WAF" as waf
+                    rectangle "DDoS Protection" as ddos_protection
+                }
+            }
+            
+            node "Private Subnet A" as private_subnet_a {
+                component "EKS Cluster" as eks_cluster <<K8s>> #E3F2FD {
+                    node "Worker Node Group" as worker_nodes {
+                        component "API Service" as api_service <<Service>> #F3E5F5 {
+                            rectangle "Parking Slot API" as parking_api
+                            rectangle "User Management API" as user_api
+                            rectangle "Payment Processing API" as payment_api
+                            rectangle "Notification Service" as notification_service
+                        }
+                        
+                        component "Microservices" as microservices <<Service>> #F3E5F5 {
+                            rectangle "Booking Service" as booking_service
+                            rectangle "Pricing Service" as pricing_service
+                            rectangle "Analytics Service" as analytics_service
+                            rectangle "Report Service" as report_service
+                        }
+                        
+                        component "Background Workers" as workers <<Service>> #F3E5F5 {
+                            rectangle "Payment Processor" as payment_processor
+                            rectangle "Notification Dispatcher" as notification_dispatcher
+                            rectangle "Report Generator" as report_generator
+                            rectangle "Data Sync" as data_sync
+                        }
+                    }
+                }
+                
+                component "RDS Aurora PostgreSQL" as rds_primary <<Database>> #C8E6C9 {
+                    rectangle "Writer Instance" as writer_instance
+                    rectangle "Reader Instance 1" as reader_1
+                    rectangle "Reader Instance 2" as reader_2
+                    rectangle "Read Replicas" as read_replicas
+                }
+                
+                component "ElastiCache Redis" as redis_primary <<Cache>> #FFCCBC {
+                    rectangle "Primary Node" as redis_primary_node
+                    rectangle "Replica Nodes" as redis_replicas
+                    rectangle "Cluster Mode" as redis_cluster
+                }
+            }
+            
+            node "Private Subnet B" as private_subnet_b {
+                component "Amazon MQ (RabbitMQ)" as amazon_mq <<Queue>> #D1C4E9 {
+                    rectangle "Message Broker" as message_broker
+                    rectangle "Queues" as queues
+                    rectangle "Exchanges" as exchanges
+                }
+                
+                component "Amazon S3" as s3_primary <<Storage>> #FFF3E0 {
+                    rectangle "Parking Data Bucket" as parking_bucket
+                    rectangle "User Uploads Bucket" as uploads_bucket
+                    rectangle "Backup Bucket" as backup_bucket
+                    rectangle "Logs Bucket" as logs_bucket
+                }
+                
+                component "EFS File System" as efs_primary <<Storage>> #FFF3E0 {
+                    rectangle "Shared Storage" as shared_storage
+                    rectangle "Temp Files" as temp_files
+                    rectangle "Upload Cache" as upload_cache
+                }
+            }
+            
+            node "Monitoring Subnet" as monitoring_subnet {
+                component "CloudWatch" as cloudwatch <<Monitoring>> #E0F2F1 {
+                    rectangle "Metrics" as metrics
+                    rectangle "Logs" as logs
+                    rectangle "Alarms" as alarms
+                    rectangle "Dashboards" as dashboards
+                }
+                
+                component "Prometheus" as prometheus <<Monitoring>> #E0F2F1 {
+                    rectangle "Time Series DB" as tsdb
+                    rectangle "Alert Manager" as alert_manager
+                    rectangle "Push Gateway" as push_gateway
+                }
+                
+                component "Grafana" as grafana <<Monitoring>> #E0F2F1 {
+                    rectangle "Dashboards" as grafana_dashboards
+                    rectangle "Alerting" as grafana_alerts
+                    rectangle "Data Sources" as data_sources
+                }
+            }
+        }
+    }
+    
+    node "us-west-2 (DR Region)" as region_dr {
+        node "VPC: 10.1.0.0/16" as vpc_dr {
+            component "RDS Aurora Replica" as rds_dr <<Database>> #C8E6C9 {
+                rectangle "DR Instance" as dr_instance
+                rectangle "Read Replica" as dr_replica
+            }
+            
+            component "ElastiCache Replica" as redis_dr <<Cache>> #FFCCBC {
+                rectangle "DR Cache Node" as dr_cache
+            }
+            
+            component "S3 Replication" as s3_dr <<Storage>> #FFF3E0 {
+                rectangle "DR Bucket" as dr_bucket
+            }
+            
+            component "EKS DR Cluster" as eks_dr <<K8s>> #E3F2FD {
+                rectangle "Standby Services" as standby_services
+            }
+        }
+    }
+    
+    node "Global Services" as global_services {
+        component "Route 53" as route53 <<AWS>> #FFECB3 {
+            rectangle "DNS Management" as dns
+            rectangle "Health Checks" as health_checks
+            rectangle "Routing Policies" as routing_policies
+        }
+        
+        component "WAF & Shield" as waf_shield <<Security>> #FCE4EC {
+            rectangle "Web ACLs" as web_acls
+            rectangle "DDoS Protection" as shield
+            rectangle "Bot Control" as bot_control
+        }
+        
+        component "ACM" as acm <<Security>> #FCE4EC {
+            rectangle "SSL Certificates" as ssl_certs
+            rectangle "Certificate Manager" as cert_manager
+        }
+        
+        component "IAM" as iam <<Security>> #FCE4EC {
+            rectangle "Roles" as roles
+            rectangle "Policies" as policies
+            rectangle "Users" as users
+        }
+    }
+}
+
+' =============================================
+' External Systems
+' =============================================
+
+cloud "Internet" as internet {
+    rectangle "Mobile Apps" as mobile_apps
+    rectangle "Web Portal" as web_portal
+    rectangle "Admin Dashboard" as admin_dashboard
+    rectangle "Third-party APIs" as third_party_apis
+}
+
+cloud "Payment Ecosystem" as payment_ecosystem {
+    component "Stripe" as stripe
+    component "PayPal" as paypal
+    component "Square" as square
+    component "Bank APIs" as bank_apis
+}
+
+cloud "Notification Services" as notification_services {
+    component "Twilio (SMS)" as twilio
+    component "SendGrid (Email)" as sendgrid
+    component "Firebase (Push)" as firebase
+    component "Slack (Alerts)" as slack
+}
+
+cloud "IoT Devices" as iot_devices {
+    component "Parking Sensors" as parking_sensors
+    component "License Plate Readers" as lpr_cameras
+    component "Barrier Gates" as barrier_gates
+    component "Payment Kiosks" as payment_kiosks
+}
+
+cloud "Analytics & BI" as analytics_bi {
+    component "Amazon QuickSight" as quicksight
+    component "Data Warehouse" as data_warehouse
+    component "ML Services" as ml_services
+}
+
+' =============================================
+' Deployment Artifacts
+' =============================================
+
+artifact "Docker Images" as docker_images {
+    file "api-service:1.0.0" as api_image
+    file "booking-service:1.0.0" as booking_image
+    file "payment-service:1.0.0" as payment_image
+    file "notification-service:1.0.0" as notification_image
+}
+
+artifact "Helm Charts" as helm_charts {
+    file "parking-system" as helm_chart
+    file "values.yaml" as values_file
+    file "Chart.yaml" as chart_file
+}
+
+artifact "Infrastructure as Code" as iac {
+    file "terraform/" as terraform_dir
+    file "cloudformation/" as cloudformation_dir
+    file "cdk/" as cdk_dir
+}
+
+' =============================================
+' Connections & Relationships
+' =============================================
+
+' Internet Traffic Flow
+internet --> cloudfront : "HTTPS Traffic"
+cloudfront --> api_gateway : "API Requests"
+api_gateway --> api_service : "Route Traffic"
+
+' Internal Service Communication
+api_service --> microservices : "gRPC/HTTP"
+api_service --> workers : "Async Messages"
+microservices --> workers : "Event Driven"
+
+' Database Connections
+api_service --> rds_primary : "SQL Connections"
+microservices --> rds_primary : "SQL Connections"
+workers --> rds_primary : "SQL Connections"
+
+' Cache Connections
+api_service --> redis_primary : "Redis Protocol"
+microservices --> redis_primary : "Redis Protocol"
+
+' Queue Connections
+workers --> amazon_mq : "AMQP Protocol"
+api_service --> amazon_mq : "AMQP Protocol"
+
+' Storage Connections
+api_service --> s3_primary : "S3 API"
+workers --> s3_primary : "S3 API"
+api_service --> efs_primary : "NFS Mount"
+
+' Monitoring Connections
+api_service --> cloudwatch : "Metrics & Logs"
+microservices --> cloudwatch : "Metrics & Logs"
+workers --> cloudwatch : "Metrics & Logs"
+api_service --> prometheus : "Metrics Scrape"
+prometheus --> grafana : "Data Source"
+
+' External Service Integrations
+payment_api --> payment_ecosystem : "HTTPS API"
+notification_service --> notification_services : "API Calls"
+api_service --> iot_devices : "MQTT/WebSocket"
+
+' Cross-region Replication
+rds_primary ..> rds_dr : "Cross-region Replication"
+redis_primary ..> redis_dr : "Cross-region Replication"
+s3_primary ..> s3_dr : "Cross-region Replication"
+
+' DNS and Routing
+route53 --> cloudfront : "DNS Resolution"
+route53 --> api_gateway : "DNS Resolution"
+
+' Security Services
+waf_shield --> cloudfront : "Protection"
+waf_shield --> api_gateway : "Protection"
+acm --> cloudfront : "SSL Certificates"
+acm --> api_gateway : "SSL Certificates"
+
+' Deployment Artifacts
+docker_images --> eks_cluster : "Deployed to"
+helm_charts --> eks_cluster : "Manages"
+iac --> aws_cloud : "Provisions"
+
+' =============================================
+' Network Zones
+' =============================================
+
+frame "Public Zone" {
+    cloudfront
+    api_gateway
+    internet
+}
+
+frame "Application Zone" {
+    eks_cluster
+    api_service
+    microservices
+    workers
+}
+
+frame "Data Zone" {
+    rds_primary
+    redis_primary
+    amazon_mq
+}
+
+frame "Storage Zone" {
+    s3_primary
+    efs_primary
+}
+
+frame "Monitoring Zone" {
+    cloudwatch
+    prometheus
+    grafana
+}
+
+frame "DR Zone" {
+    region_dr
+}
+
+' =============================================
+' Notes & Annotations
+' =============================================
+
+note top of aws_cloud
+    <b>AWS Cloud Infrastructure</b>
+    • Multi-AZ deployment for high availability
+    • Auto-scaling based on load
+    • VPC isolation for security
+    • Cross-region disaster recovery
+end note
+
+note right of eks_cluster
+    <b>Kubernetes Cluster</b>
+    • Managed node groups
+    • Horizontal pod autoscaling
+    • Rolling deployments
+    • Service mesh (Istio)
+end note
+
+note left of rds_primary
+    <b>Aurora PostgreSQL</b>
+    • Multi-AZ deployment
+    • Read replicas for scaling
+    • Automated backups
+    • Point-in-time recovery
+end note
+
+note bottom of redis_primary
+    <b>Redis Cluster</b>
+    • In-memory caching
+    • Session storage
+    • Rate limiting
+    • Pub/Sub messaging
+end note
+
+note top of api_gateway
+    <b>API Gateway</b>
+    • Rate limiting per API key
+    • Request validation
+    • API versioning
+    • Usage plans
+end note
+
+note right of payment_ecosystem
+    <b>Payment Processing</b>
+    • PCI DSS compliant
+    • Tokenized card storage
+    • 3D Secure authentication
+    • Fraud detection
+end note
+
+' =============================================
+' Deployment Details
+' =============================================
+
+legend right
+    | Color Legend |
+    <#E3F2FD> Kubernetes Components |
+    <#FFECB3> AWS Managed Services |
+    <#F3E5F5> Application Services |
+    <#C8E6C9> Database Services |
+    <#FFCCBC> Caching Services |
+    <#D1C4E9> Message Queues |
+    <#FFF3E0> Storage Services |
+    <#E0F2F1> Monitoring Services |
+    <#FCE4EC> Security Services |
+    ---
+    | Network Zones |
+    Public Zone : Internet-facing |
+    Application Zone : Business logic |
+    Data Zone : Persistent storage |
+    Storage Zone : Object storage |
+    Monitoring Zone : Observability |
+    DR Zone : Disaster recovery |
+    ---
+    | Connection Types |
+    --> : Synchronous |
+    ..> : Asynchronous/Replication |
+    ->> : Deployment/Provisioning |
+end legend
+
+' =============================================
+' Component Specifications
+' =============================================
+
+note as tech_specs
+    <b>Technical Specifications:</b>
+    
+    <u>Compute:</u>
+    • EKS: m5.large nodes (min: 3, max: 20)
+    • Auto-scaling: CPU > 70%, Memory > 80%
+    
+    <u>Database:</u>
+    • RDS Aurora: db.r5.2xlarge
+    • Storage: 500GB GP3, 3000 IOPS
+    • Backup: 35 days retention
+    
+    <u>Cache:</u>
+    • ElastiCache: cache.r5.large
+    • Cluster mode enabled
+    • 30GB memory per node
+    
+    <u>Storage:</u>
+    • S3: Standard + Intelligent Tiering
+    • EFS: 100GB General Purpose
+    • Lifecycle policies enabled
+    
+    <u>Networking:</u>
+    • VPC: 10.0.0.0/16
+    • Subnets: /24 CIDR blocks
+    • NAT Gateway for egress
+    
+    <u>Security:</u>
+    • IAM roles for services
+    • Security groups per tier
+    • WAF rules for OWASP top 10
+    • TLS 1.2 minimum
+end note
+
+@enduml

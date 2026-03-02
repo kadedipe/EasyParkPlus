@@ -1,0 +1,16 @@
+# Test-specific ignores
+.git
+.env
+.env.test
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+htmlcov
+tests/fixtures/*
+!tests/fixtures/__init__.py
+test-reports
+logs
+venv
+.vscode
+.idea

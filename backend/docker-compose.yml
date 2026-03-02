@@ -1,0 +1,806 @@
+# ============================================
+# PARKING MANAGEMENT SYSTEM - BACKEND DOCKER COMPOSE
+# ============================================
+# Version: 3.8
+# Description: Orchestrates all backend services including databases,
+# message queues, caches, and microservices
+# ============================================
+
+version: '3.8'
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  parking-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+  monitoring-network:
+    driver: bridge
+  internal-network:
+    driver: bridge
+    internal: true  # No external access
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/postgres
+      o: bind
+  postgres-backup:
+    driver: local
+  redis-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  rabbitmq-logs:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  minio-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  backend-logs:
+    driver: local
+  backend-uploads:
+    driver: local
+
+# ============================================
+# Services
+# ============================================
+services:
+  # ==========================================
+  # Database Services
+  # ==========================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: parking-postgres
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - internal-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-backup:/backup
+      - ./data/postgres/init:/docker-entrypoint-initdb.d
+      - ./data/postgres/scripts:/scripts
+      - ./data/postgres/config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-parking_db}
+      POSTGRES_USER: ${POSTGRES_USER:-parking_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-parking_password}
+      POSTGRES_MULTIPLE_DATABASES: parking_test,parking_staging
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: UTC
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    command: |
+      postgres 
+      -c shared_buffers=256MB 
+      -c max_connections=200 
+      -c effective_cache_size=768MB 
+      -c maintenance_work_mem=64MB 
+      -c checkpoint_completion_target=0.9 
+      -c wal_buffers=16MB 
+      -c default_statistics_target=100 
+      -c random_page_cost=1.1 
+      -c effective_io_concurrency=200 
+      -c work_mem=5242kB 
+      -c min_wal_size=1GB 
+      -c max_wal_size=4GB 
+      -c max_worker_processes=8 
+      -c max_parallel_workers_per_gather=4 
+      -c max_parallel_workers=8
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-parking_user} -d ${POSTGRES_DB:-parking_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:15-alpine
+    container_name: parking-postgres-backup
+    restart: unless-stopped
+    networks:
+      - internal-network
+    volumes:
+      - postgres-backup:/backups
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-parking_db}
+      POSTGRES_USER: ${POSTGRES_USER:-parking_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-parking_password}
+      POSTGRES_EXTRA_OPTS: -Z6 --schema=public --blobs
+      SCHEDULE: "@daily"
+      BACKUP_DIR: /backups
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: parking-redis
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - internal-network
+    volumes:
+      - redis-data:/data
+      - ./data/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: parking-redis-commander
+    restart: unless-stopped
+    networks:
+      - parking-network
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+      HTTP_USER: ${REDIS_COMMANDER_USER:-admin}
+      HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD:-admin}
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: parking-rabbitmq
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - internal-network
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - rabbitmq-logs:/var/log/rabbitmq
+      - ./data/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./data/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_VHOST: /
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secret-cookie}
+      RABBITMQ_VM_MEMORY_HIGH_WATERMARK: 0.4
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"   # AMQP protocol
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672" # Management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: parking-elasticsearch
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - internal-network
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+      - ./data/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=parking-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=true
+      - action.destructive_requires_name=false
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=85%
+      - cluster.routing.allocation.disk.watermark.high=90%
+      - cluster.routing.allocation.disk.watermark.flood_stage=95%
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT:-9300}:9300"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # ==========================================
+  # Storage Services
+  # ==========================================
+  
+  minio:
+    image: minio/minio:latest
+    container_name: parking-minio
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BROWSER: on
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # Backend Microservices
+  # ==========================================
+  
+  parking-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        - APP_VERSION=${APP_VERSION:-1.0.0}
+        - BUILD_DATE=${BUILD_DATE:-}
+    image: parking-api:${TAG:-latest}
+    container_name: parking-api
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./:/app
+      - /app/__pycache__
+      - /app/.pytest_cache
+      - backend-logs:/app/logs
+      - backend-uploads:/app/uploads
+      - ./data/api:/app/data
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - SERVICE_NAME=parking-api
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+      - ELASTICSEARCH_HOST=elasticsearch
+      - MINIO_HOST=minio
+      - MINIO_PORT=9000
+    ports:
+      - "${API_PORT:-8000}:8000"
+      - "${API_DEBUG_PORT:-5678}:5678"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    command: uvicorn parking-api.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: notification-service:${TAG:-latest}
+    container_name: parking-notification
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./:/app
+      - /app/__pycache__
+      - backend-logs:/app/logs
+      - ./data/notifications:/app/data
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - SERVICE_NAME=notification-service
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "${NOTIFICATION_PORT:-8002}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: uvicorn notification-service.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: payment-service:${TAG:-latest}
+    container_name: parking-payment
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./:/app
+      - /app/__pycache__
+      - backend-logs:/app/logs
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - SERVICE_NAME=payment-service
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "${PAYMENT_PORT:-8003}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: uvicorn payment-service.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Background Workers
+  # ==========================================
+  
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: celery-worker:${TAG:-latest}
+    container_name: parking-celery
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./:/app
+      - backend-logs:/app/logs
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - SERVICE_NAME=celery-worker
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - redis
+      - rabbitmq
+      - postgres
+    command: celery -A parking-api.core.celery worker --loglevel=info --concurrency=4
+    healthcheck:
+      test: ["CMD", "celery", "-A", "parking-api.core.celery", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: celery-beat:${TAG:-latest}
+    container_name: parking-celery-beat
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./:/app
+      - backend-logs:/app/logs
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - SERVICE_NAME=celery-beat
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - redis
+      - rabbitmq
+      - postgres
+      - celery-worker
+    command: celery -A parking-api.core.celery beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+  celery-flower:
+    image: mher/flower:2.0.1
+    container_name: parking-flower
+    restart: unless-stopped
+    networks:
+      - parking-network
+    environment:
+      - CELERY_BROKER_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      - FLOWER_BASIC_AUTH=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
+    ports:
+      - "${FLOWER_PORT:-5555}:5555"
+    depends_on:
+      - rabbitmq
+      - redis
+      - celery-worker
+
+  # ==========================================
+  # Monitoring & Observability
+  # ==========================================
+  
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: parking-prometheus
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - monitoring-network
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    depends_on:
+      - parking-api
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: parking-grafana
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - monitoring-network
+    volumes:
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-clock-panel
+      GF_SERVER_ROOT_URL: http://localhost:${GRAFANA_PORT:-3002}
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    ports:
+      - "${GRAFANA_PORT:-3002}:3000"
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: parking-node-exporter
+    restart: unless-stopped
+    networks:
+      - monitoring-network
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "${NODE_EXPORTER_PORT:-9100}:9100"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: parking-cadvisor
+    restart: unless-stopped
+    networks:
+      - monitoring-network
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "${CADVISOR_PORT:-8080}:8080"
+    privileged: true
+
+  # ==========================================
+  # Logging & Tracing
+  # ==========================================
+  
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: parking-logstash
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - monitoring-network
+    volumes:
+      - ./monitoring/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./monitoring/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - backend-logs:/logs:ro
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    ports:
+      - "${LOGSTASH_PORT:-5000}:5000"
+      - "${LOGSTASH_MONITOR_PORT:-9600}:9600"
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: parking-kibana
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - monitoring-network
+    volumes:
+      - ./monitoring/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    depends_on:
+      - elasticsearch
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.48
+    container_name: parking-jaeger
+    restart: unless-stopped
+    networks:
+      - parking-network
+      - monitoring-network
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+      COLLECTOR_ZIPKIN_HOST_PORT: ":9411"
+    ports:
+      - "${JAEGER_UI_PORT:-16686}:16686"  # UI
+      - "${JAEGER_COLLECTOR_PORT:-14250}:14250"  # gRPC
+      - "${JAEGER_COLLECTOR_HTTP_PORT:-14268}:14268"  # HTTP
+      - "${JAEGER_ZIPKIN_PORT:-9411}:9411"  # Zipkin
+
+  # ==========================================
+  # Development Tools
+  # ==========================================
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: parking-pgadmin
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@parking.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - postgres
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: parking-mailhog
+    restart: unless-stopped
+    networks:
+      - parking-network
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"  # SMTP
+      - "${MAILHOG_UI_PORT:-8025}:8025"    # Web UI
+    logging:
+      driver: "none"  # Disable logging
+
+  # ==========================================
+  # Reverse Proxy / Load Balancer
+  # ==========================================
+  
+  nginx:
+    image: nginx:alpine
+    container_name: parking-nginx
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./proxy/conf.d:/etc/nginx/conf.d:ro
+      - ./proxy/ssl:/etc/nginx/ssl:ro
+      - ./proxy/static:/usr/share/nginx/html/static:ro
+      - backend-logs:/var/log/nginx
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    depends_on:
+      - parking-api
+      - notification-service
+      - payment-service
+      - grafana
+      - kibana
+
+# ============================================
+# Docker Compose Profiles
+# ============================================
+# Usage: docker-compose --profile [profile_name] up
+
+profiles:
+  - development  # Default, includes all services
+  - production   # Production-optimized services
+  - monitoring   # Monitoring stack only
+  - logging      # Logging stack only
+  - testing      # Testing environment
+  - ci           # CI/CD environment
+
+# ============================================
+# X-Common Variables (YAML anchors for reusability)
+# ============================================
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-healthcheck: &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+x-resources: &default-resources
+  limits:
+    cpus: '1'
+    memory: 1G
+  reservations:
+    cpus: '0.2'
+    memory: 256M
+
+# ============================================
+# End of docker-compose.yml
+# ============================================

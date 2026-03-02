@@ -1,0 +1,594 @@
+# ============================================
+# PARKING MANAGEMENT SYSTEM - BACKEND DOCKERIGNORE
+# ============================================
+# This file specifies which files and directories should be excluded
+# from the Docker build context for smaller and more secure images
+# ============================================
+
+# ============================================
+# Version Control
+# ============================================
+.git
+.gitignore
+.gitattributes
+.gitmodules
+.github
+.gitlab
+.gitlab-ci.yml
+.hg
+.svn
+
+# ============================================
+# Environment Files
+# ============================================
+.env
+.env.*
+!.env.example
+!.env.dist
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+*.env
+environments/
+secrets/
+*.pem
+*.key
+*.crt
+*.keystore
+*.kdb
+
+# ============================================
+# Python
+# ============================================
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.python-version
+
+# Virtual environments
+venv/
+env/
+venv.bak/
+env.bak/
+.env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+virtualenv/
+.virtualenv/
+pythonenv/
+
+# Pip/Pipenv
+Pipfile
+Pipfile.lock
+poetry.lock
+pyproject.toml
+pip-log.txt
+pip-delete-this-directory.txt
+pip-selfcheck.json
+.requirements.bak
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# PyInstaller
+*.manifest
+*.spec
+
+# ============================================
+# Testing and Coverage
+# ============================================
+tests/
+test-reports/
+test-results/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
+htmlcov/
+.coverage-reports/
+junit/
+nosetests.xml
+cover/
+*.tests
+test_*.py
+*_test.py
+test_*.pyc
+*_test.pyc
+
+# ============================================
+# Logs and Databases
+# ============================================
+logs/
+*.log
+*.log.*
+*.pid
+*.seed
+*.pid.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Database dumps
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.mdb
+*.accdb
+*.bak
+*.backup
+
+# ============================================
+# IDE and Editor Files
+# ============================================
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.history/
+
+# IntelliJ IDEA / PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+out/
+.classpath
+.project
+.settings/
+.factorypath
+*.sublime-*
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.externalToolBuilders/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/
+
+# Vim
+*.swp
+*.swo
+*.swn
+Session.vim
+.netrwhist
+*.un~
+
+# ============================================
+# Docker Files
+# ============================================
+Dockerfile
+Dockerfile.*
+!.dockerignore
+docker-compose*
+*.docker
+.docker/
+.dockerignore
+.dockercache
+docker-entrypoint.sh
+
+# ============================================
+# CI/CD Files
+# ============================================
+.circleci/
+.github/
+.gitlab/
+.jenkins/
+.travis.yml
+.zuul.yaml
+cloudbuild.yaml
+skaffold.yaml
+Jenkinsfile
+azure-pipelines.yml
+bitbucket-pipelines.yml
+build.yaml
+
+# ============================================
+# Kubernetes/Helm
+# ============================================
+charts/
+helm/
+*.helm
+k8s/
+kubernetes/
+deployment.yaml
+service.yaml
+ingress.yaml
+configmap.yaml
+secrets.yaml
+*.kubeconfig
+kubeconfig
+*.k8s.yaml
+
+# ============================================
+# Terraform/Infrastructure
+# ============================================
+terraform/
+*.tf
+*.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+*.plan
+terraform.tfplan
+terraform.tfstate
+terraform.tfstate.backup
+
+# ============================================
+# Documentation
+# ============================================
+docs/
+*.md
+*.rst
+*.txt
+!.github
+!.gitignore
+!.dockerignore
+!.env.example
+!.gitkeep
+MANIFEST
+AUTHORS
+CHANGELOG*
+CONTRIBUTING*
+LICENSE*
+README*
+CODE_OF_CONDUCT*
+SECURITY*
+
+# ============================================
+# Cache and Temporary Files
+# ============================================
+*.cache
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+*.part
+*.pid
+.lock
+.tmp
+.temp
+.cache
+.tmp.dockerignore
+
+# ============================================
+# Build Artifacts
+# ============================================
+dist/
+build/
+*.egg-info/
+*.egg
+*.whl
+*.tar.gz
+*.zip
+*.rpm
+*.deb
+*.dmg
+*.pkg
+*.exe
+*.msi
+bin/
+obj/
+target/
+out/
+output/
+artifacts/
+*.build
+*.built
+
+# ============================================
+# Data Files
+# ============================================
+data/
+*.data
+*.json
+*.csv
+*.xml
+*.yaml
+*.yml
+!requirements*.txt
+!requirements*.in
+!*.json.example
+!*.yml.example
+!*.yaml.example
+
+# ============================================
+# Media and Uploads
+# ============================================
+uploads/
+media/
+static/
+staticfiles/
+mediafiles/
+user_uploads/
+profile_pics/
+avatars/
+images/
+photos/
+videos/
+documents/
+attachments/
+temp_uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.svg
+*.ico
+*.mp4
+*.mp3
+*.wav
+*.pdf
+*.doc
+*.docx
+
+# ============================================
+# Secrets and Credentials
+# ============================================
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.kdb
+*.kdbx
+*.k5login
+*.k5identity
+.secrets/
+secrets/
+credentials.json
+service-account.json
+*.service-account.json
+oauth-credentials.json
+firebase-*.json
+google-*.json
+aws-*.json
+gcp-*.json
+azure-*.json
+*.secret
+*.private
+*.pub
+*.pgp
+*.gpg
+*.asc
+
+# ============================================
+# Profiling and Performance
+# ============================================
+*.prof
+*.stats
+*.pstats
+*.callgrind
+*.cachegrind
+profile/
+profiles/
+coverage/
+*.performance
+*.benchmark
+*.bench
+
+# ============================================
+# Node.js (if any Node tools are used)
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.npm
+.yarn-integrity
+.pnpm-store/
+
+# ============================================
+# Miscellaneous
+# ============================================
+*.pid
+*.seed
+*.pid.lock
+*.DS_Store
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.lnk
+*.desktop
+*.directory
+*.directory~
+*.kate-swp
+*.sass-cache
+*.css.map
+*.js.map
+*.ts.map
+*.min.*
+*.generated.*
+*.generated
+
+# ============================================
+# Development Tools
+# ============================================
+.idea/
+.vscode/
+.history/
+.tool-versions
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+noxfile.py
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.prof
+.profraw
+*.lcov
+
+# ============================================
+# Local Development
+# ============================================
+local/
+dev/
+scratch/
+sandbox/
+playground/
+experimental/
+temp/
+tmp/
+.backup/
+.backups/
+
+# ============================================
+# Configuration Files
+# ============================================
+config.local.yaml
+config.local.yml
+config.dev.yaml
+config.dev.yml
+config.local.json
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+bootstrap-local.properties
+bootstrap-local.yml
+*.local.*
+*.dev.*
+
+# ============================================
+# Migration Backups
+# ============================================
+alembic/versions/__pycache__/
+alembic/versions/*.pyc
+alembic/versions/*.py.bak
+migrations_backup/
+*.migration.bak
+*.migration.backup
+
+# ============================================
+# Exceptions (Files to keep)
+# ============================================
+# Keep example and template files
+!.env.example
+!.env.dist
+!requirements*.txt
+!requirements*.in
+!*.py
+!*.pyi
+!*.pyx
+!*.pxd
+!*.c
+!*.h
+!*.md
+!*.rst
+!*.txt
+!*.yml.example
+!*.yaml.example
+!*.json.example
+
+# Keep source code
+!*.py
+!*.pyi
+!*.pyx
+!*.pxd
+!*.c
+!*.h
+!*.sh
+!*.bash
+
+# Keep configuration templates
+!config/*.example
+!config/*.template
+!config/*.dist
+
+# Keep Docker-related files (but not all)
+!Dockerfile
+!docker-compose.yml
+!docker-compose.*.yml
+!.dockerignore
+
+# ============================================
+# Final Safety Check
+# ============================================
+# Ensure we don't accidentally include sensitive files
+**/*.pem
+**/*.key
+**/*.crt
+**/*.csr
+**/*.p12
+**/*.pfx
+**/*.jks
+**/*.keystore
+**/*.kdb
+**/secrets/
+**/credentials.json
+**/service-account.json
+**/*.service-account.json
+**/oauth-credentials.json
+**/firebase-*.json
+**/google-*.json
+**/aws-*.json
+**/gcp-*.json
+**/azure-*.json
+**/*.secret
+**/*.private
+**/*.pub
+**/*.pgp
+**/*.gpg
+**/*.asc
+**/.env
+**/.env.*
+!.env.example
+
+# ============================================
+# END OF DOCKERIGNORE
+# ============================================
