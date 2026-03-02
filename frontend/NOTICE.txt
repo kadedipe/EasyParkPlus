@@ -1,0 +1,115 @@
+Parking Management System - Frontend
+Copyright 2024 Parking Management System Contributors
+
+This product includes software developed by the Parking Management System project
+(https://github.com/yourusername/parking-management).
+
+========================================================================
+Third-party Software Notices
+========================================================================
+
+This project includes the following third-party software:
+
+1. React (https://reactjs.org/)
+   Copyright (c) Meta Platforms, Inc. and affiliates.
+   Licensed under MIT License
+
+2. Material-UI (https://mui.com/)
+   Copyright (c) 2014 Call-Em-All
+   Licensed under MIT License
+
+3. TypeScript (https://www.typescriptlang.org/)
+   Copyright (c) Microsoft Corporation
+   Licensed under Apache License 2.0
+
+4. React Router (https://reactrouter.com/)
+   Copyright (c) React Training 2015-2019
+   Copyright (c) Remix Software 2020-2022
+   Licensed under MIT License
+
+5. Zustand (https://github.com/pmndrs/zustand)
+   Copyright (c) 2019 Paul Henschel
+   Licensed under MIT License
+
+6. React Query (https://tanstack.com/query)
+   Copyright (c) TanStack
+   Licensed under MIT License
+
+7. Axios (https://axios-http.com/)
+   Copyright (c) 2014-present Matt Zabriskie
+   Licensed under MIT License
+
+8. Emotion (https://emotion.sh/)
+   Copyright (c) Emotion team and other contributors
+   Licensed under MIT License
+
+9. React Hook Form (https://react-hook-form.com/)
+   Copyright (c) 2019-present Beier(Bill) Luo
+   Licensed under MIT License
+
+10. Zod (https://zod.dev/)
+    Copyright (c) 2020 Colin McDonnell
+    Licensed under MIT License
+
+11. Recharts (https://recharts.org/)
+    Copyright (c) 2015 JIANG Yixiu
+    Licensed under MIT License
+
+12. Jest (https://jestjs.io/)
+    Copyright (c) Meta Platforms, Inc. and affiliates.
+    Licensed under MIT License
+
+13. Testing Library (https://testing-library.com/)
+    Copyright (c) 2017 Kent C. Dodds
+    Licensed under MIT License
+
+14. Cypress (https://www.cypress.io/)
+    Copyright (c) 2015 Cypress.io
+    Licensed under MIT License
+
+15. ESLint (https://eslint.org/)
+    Copyright (c) 2013 Nicholas C. Zakas
+    Licensed under MIT License
+
+16. Prettier (https://prettier.io/)
+    Copyright (c) 2017 James Long
+    Licensed under MIT License
+
+17. Vite (https://vitejs.dev/)
+    Copyright (c) 2019-present, Yuxi (Evan) You and Vite contributors
+    Licensed under MIT License
+
+========================================================================
+Open Source Licenses Summary
+========================================================================
+
+This project uses the following open source licenses:
+
+- MIT License: Used by most JavaScript/TypeScript libraries
+- Apache License 2.0: Used by TypeScript
+- BSD License: Used by some dependencies
+
+For the full license texts of individual dependencies, please check the
+node_modules directory or visit the respective project websites.
+
+========================================================================
+Notice Regarding External Services
+========================================================================
+
+This application integrates with the following external services:
+
+- Google Maps Platform: Subject to Google's Terms of Service
+- Stripe: Subject to Stripe's Terms of Service
+- Twilio: Subject to Twilio's Terms of Service
+- Firebase: Subject to Google's Terms of Service
+
+Usage of these services requires acceptance of their respective terms
+and conditions.
+
+========================================================================
+Contact Information
+========================================================================
+
+For questions about licensing, please contact:
+- Email: legal@parking.example.com
+- Address: 123 Parking Street, Suite 100, City, State 12345

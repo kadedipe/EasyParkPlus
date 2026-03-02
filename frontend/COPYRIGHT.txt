@@ -1,0 +1,19 @@
+Copyright (c) 2024 Parking Management System Contributors
+
+Individual contributors retain copyright to their contributions.
+See the git history for detailed authorship information.
+
+The names "Parking Management System" and the Parking Management System logo
+are trademarks of the Parking Management System project. All rights reserved.
+
+This project includes software developed by:
+
+- Meta Platforms, Inc. (React, Jest, Flow)
+- Microsoft Corporation (TypeScript, VS Code)
+- Google (Material Design, Google Maps APIs)
+- Stripe, Inc. (Stripe Payment Processing)
+- Twilio, Inc. (SMS and Communication APIs)
+- Firebase (Backend-as-a-Service)
+
+For a complete list of contributors, please see the git history or visit:
+https://github.com/yourusername/parking-management/graphs/contributors
