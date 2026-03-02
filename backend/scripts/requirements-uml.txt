@@ -1,0 +1,14 @@
+# File: scripts/requirements-uml.txt
+# Requirements for UML diagram generation
+
+# Required for diagram generation
+pylint>=2.12.0
+graphviz>=0.20.0
+
+# Optional but recommended for PlantUML
+# Install PlantUML from: https://plantuml.com/download
+# Or use the Python wrapper:
+plantuml>=0.3.0
+
+# For additional analysis
+astunparse>=1.6.0
