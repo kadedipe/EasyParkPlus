@@ -1,9 +1,0 @@
-# kong.yml - Kong configuration
-plugins:
-  - name: prometheus
-    config:
-      latency_metrics: true
-      bandwidth_metrics: true
-      upstream_health_metrics: true
-      status_code_metrics: true
-      consumer_metrics: true

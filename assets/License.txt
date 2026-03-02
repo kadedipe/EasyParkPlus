@@ -1,5 +1,0 @@
-This project is licensed under the MIT License.
-
-This complete structure provides a solid foundation for a parking management system with all the necessary 
-components based on your constants file. The code includes proper error handling, validation, 
-business logic separation, and follows best practices for a production-ready application.

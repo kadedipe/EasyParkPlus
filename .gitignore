@@ -1,0 +1,897 @@
+# ============================================
+# Operating System Files
+# ============================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+*.dll
+*.exe
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+*.swp
+*.swo
+*~
+.DS_Store?
+.AppleDB
+.AppleDesktop
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+*.old
+*.bak
+*.orig
+*.part
+*.tmp
+*.temp
+*.swp
+*.swo
+*.swn
+*.lock
+
+# ============================================
+# IDE and Editor Files
+# ============================================
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json.example
+.vscode/*.code-workspace
+.history/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+out/
+.classpath
+.project
+.settings/
+.factorypath
+*.springBeans
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.externalToolBuilders/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+.sublime-*
+Session.vim
+
+# Vim
+*.swp
+*.swo
+*.swn
+*.un~
+Session.vim
+.netrwhist
+*.vimrc
+
+# ============================================
+# Backend (Python)
+# ============================================
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+*.pyo
+*.pyd
+
+# Python packages
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+venv/
+venv.bak/
+env/
+env.bak/
+.venv/
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+pip-selfcheck.json
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
+test-results/
+test-reports/
+junit/
+htmlcov/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_root/
+media_root/
+*.db
+*.sqlite3
+
+# Flask stuff
+instance/
+.webassets-cache
+.env.flask
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+*.pid
+
+# Sphinx documentation
+docs/_build/
+docs/api/
+docs/source/api/
+docs/build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+__pypackages__/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+*.mypy_cache
+*.dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ============================================
+# Frontend (React/JavaScript)
+# ============================================
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+build/
+dist/
+out/
+*.js.map
+*.css.map
+*.ts.map
+*.jsx.map
+*.tsx.map
+static/
+public/build/
+.next/
+out/
+.nuxt/
+.cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# Testing
+coverage/
+.nyc_output/
+reports/
+test-results/
+junit.xml
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+*.test.tsx
+*.spec.tsx
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.*~
+*.sublime-*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Misc
+.DS_Store
+*.pem
+Thumbs.db
+desktop.ini
+
+# React
+*.orig
+*.pid
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# Docker
+# ============================================
+
+# Docker files
+.dockerignore
+Dockerfile
+docker-compose*.yml
+*.docker
+docker-compose.override.yml
+docker-compose.prod.yml
+docker-compose.dev.yml
+docker-compose.test.yml
+
+# Docker volumes
+/var/lib/docker/
+/var/lib/docker/volumes/
+/var/lib/docker/containers/
+/var/lib/docker/overlay2/
+
+# Docker secrets
+.docker/secrets/
+docker/secrets/
+.docker/keys/
+docker/keys/
+
+# ============================================
+# Database
+# ============================================
+
+# Database dumps
+*.sql
+*.sql.gz
+*.sql.zip
+*.backup
+*.dump
+*.dmp
+*.bak
+*.bkp
+*.pgdump
+*.mysqldump
+*.mongodump
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.sqlitedb
+*.db-shm
+*.db-wal
+*.db-journal
+*.mdb
+*.accdb
+*.frm
+*.ibd
+*.myi
+*.myd
+
+# Migration files (but not the migrations directory)
+# Uncomment if you want to ignore migration files
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# ============================================
+# Logs and Runtime Data
+# ============================================
+
+# Logs
+logs/
+*.log
+*.log.*
+*.pid
+*.seed
+*.pid.lock
+*-error.log
+*-access.log
+*-combined.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# Testing and Coverage
+# ============================================
+
+# Test coverage
+coverage/
+.coverage
+.coverage.*
+.hypothesis/
+.pytest_cache/
+.tox/
+htmlcov/
+junit/
+test-results/
+test-reports/
+*.cover
+*.py,cover
+
+# ============================================
+# Environment and Secrets
+# ============================================
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.staging
+.env.test
+.env.example
+.env.dist
+.env.dev
+.env.prod
+
+# Secrets
+secrets/
+.secrets/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.keystore
+*.truststore
+*.jks
+*.kdb
+*.rdp
+*.pub
+*.priv
+*.asc
+*.gpg
+*.age
+*.enc
+*.dec
+*.encrypted
+*.decrypted
+
+# SSH keys
+*.pem
+*.ppk
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# ============================================
+# Cache Files
+# ============================================
+
+# Cache directories
+.cache/
+.tmp/
+.temp/
+tmp/
+temp/
+*.cache
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# NPM cache
+.npm/
+.eslintcache
+.stylelintcache
+.parcel-cache/
+
+# Yarn cache
+.yarn/
+.yarn-integrity
+
+# ============================================
+# Build Artifacts
+# ============================================
+
+# Compiled files
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.dylib
+*.lib
+*.exp
+*.obj
+*.pdb
+*.ilk
+*.pyc
+*.pyo
+*.pyd
+
+# Build directories
+dist/
+build/
+out/
+target/
+bin/
+obj/
+*.egg-info/
+*.egg
+*.whl
+*.tar.gz
+*.zip
+*.rar
+
+# ============================================
+# Documentation
+# ============================================
+
+# Generated documentation
+docs/_build/
+docs/build/
+docs/api/
+docs/source/api/
+docs/generated/
+docs/out/
+
+# ============================================
+# Uploads and Media
+# ============================================
+
+# User uploaded files
+uploads/
+media/
+static/
+media_files/
+static_files/
+user_uploads/
+uploaded_files/
+profile_pics/
+avatars/
+images/
+photos/
+videos/
+documents/
+attachments/
+temp_uploads/
+
+# ============================================
+# SSL Certificates (except examples)
+# ============================================
+
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.csr
+ssl/
+certs/
+keys/
+*.crt.example
+*.key.example
+
+# ============================================
+# Backup Files
+# ============================================
+
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*.temp
+*.swp
+*.swo
+*.swn
+*~
+*.~*
+
+# ============================================
+# Project Specific
+# ============================================
+
+# Custom parking management specific ignores
+parking_data/
+spot_images/
+license_plate_scans/
+parking_tickets/
+receipts/
+invoices/
+reports/
+exports/
+imports/
+
+# Database migrations backup
+migrations_backup/
+alembic/versions/__pycache__/
+alembic/versions/*.pyc
+
+# ============================================
+# CI/CD and Deployment
+# ============================================
+
+# CI/CD
+.circleci/
+.github/
+.gitlab/
+.idea/
+.vscode/
+*.code-workspace
+*.sublime-*
+
+# Deployment
+deploy/
+kubernetes/
+helm/
+charts/
+terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+
+# ============================================
+# Large Files
+# ============================================
+
+# Media files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.flv
+*.wmv
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+
+# Data files
+*.csv
+*.json
+*.xml
+*.yaml
+*.yml
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.pkl
+*.pickle
+
+# ============================================
+# Secrets and Credentials
+# ============================================
+
+# Service account files
+*.json
+service-account.json
+credentials.json
+auth.json
+oauth.json
+firebase.json
+google.json
+aws.json
+azure.json
+gcp.json
+
+# ============================================
+# Package Manager Specific
+# ============================================
+
+# npm
+node_modules/
+npm-debug.log*
+npm-error.log*
+.npm/
+
+# yarn
+yarn-error.log
+yarn-debug.log
+.yarn-integrity
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+.pnp.js
+.pnp.cjs
+
+# pnpm
+pnpm-lock.yaml
+pnpm-workspace.yaml
+.pnpm-store/
+
+# ============================================
+# Profiling Data
+# ============================================
+
+*.prof
+*.profile
+*.stats
+*.trace
+*.perf
+*.heapprof
+*.cpuprofile
+*.heapsnapshot
+
+# ============================================
+# Archive Files
+# ============================================
+
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.bz2
+*.gz
+*.xz
+*.lz
+*.lzma
+*.lzo
+
+# ============================================
+# Temporary Directories
+# ============================================
+
+tmp/
+temp/
+.tmp/
+.temp/
+temp_uploads/
+tmp_uploads/
+temp_files/
+tmp_files/
+temp_downloads/
+tmp_downloads/
+
+# ============================================
+# Exception Rules (Files to keep)
+# ============================================
+
+# Keep example environment files
+!.env.example
+!.env.dist
+!.env.sample
+!.env.template
+
+# Keep sample data
+!sample_data/
+!example_data/
+!demo_data/
+
+# Keep example configurations
+!config.example.*
+!*.example
+!*.sample
+!*.template
+!*.dist
+
+# Keep public assets
+!public/
+!public/**/*
+!assets/
+!assets/**/*
+
+# Keep required empty directories
+!.gitkeep
+!.keep
+
+# Keep documentation images
+!docs/images/
+!docs/**/*.png
+!docs/**/*.jpg
+!docs/**/*.svg
+!docs/**/*.gif
+
+# Keep license and readme
+!LICENSE*
+!README*
+!CONTRIBUTING*
+!CODE_OF_CONDUCT*
+!CHANGELOG*
+
+# Keep build configuration
+!Dockerfile
+!docker-compose*.yml
+!.dockerignore
+!.gitignore
+!.gitattributes
+!.editorconfig
+!.prettierrc
+!.eslintrc
+!.stylelintrc
+!.browserslistrc
+
+# Keep sample data
+!tests/fixtures/
+!tests/fixtures/**/*
+!tests/data/
+!tests/data/**/*
+!seeds/
+!seeds/**/*
+!fixtures/
+!fixtures/**/*
+
+# ============================================
+# Conditional Ignores
+# ============================================
+
+# Ignore compiled files but not source
+*.pyc
+__pycache__/
+!*.py
+
+# Ignore built files but not source
+dist/
+build/
+!src/
+!lib/
+
+# Ignore test coverage but not tests
+coverage/
+htmlcov/
+!tests/
+
+# Ignore environment but keep example
+.env
+.env.*
+!.env.example
+!.env.dist
+
+# Ignore logs but keep log directories
+logs/
+*.log
+!logs/.gitkeep
+
+# Ignore uploads but keep directory structure
+uploads/
+media/
+static/
+!uploads/.gitkeep
+!media/.gitkeep
+!static/.gitkeep
