@@ -1,0 +1,619 @@
+version: '3.8'
+
+# Networks
+networks:
+  parking-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  backend-logs:
+    driver: local
+  frontend-build:
+    driver: local
+
+# Services
+services:
+  # ============================================
+  # Database Services
+  # ============================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: parking-postgres
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./backend/data/migrations:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: parking_db
+      POSTGRES_USER: ${DB_USER:-parking_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-parking_password}
+      POSTGRES_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-parking_user} -d parking_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: parking-redis
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: parking-rabbitmq
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: parking-elasticsearch
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=parking-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health?wait_for_status=green&timeout=1s"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ============================================
+  # Backend Services
+  # ============================================
+
+  parking-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: parking-api
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend:/app
+      - backend-logs:/app/logs
+      - /app/__pycache__
+      - /app/.pytest_cache
+    environment:
+      # App Configuration
+      APP_ENV: ${APP_ENV:-development}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_SECRET_KEY: ${APP_SECRET_KEY:-your-secret-key-change-in-production}
+      
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: parking_db
+      DB_USER: ${DB_USER:-parking_user}
+      DB_PASSWORD: ${DB_PASSWORD:-parking_password}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+      
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      
+      # Elasticsearch
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      
+      # Payment Gateways
+      STRIPE_API_KEY: ${STRIPE_API_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
+      
+      # Email
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      
+      # SMS (Twilio)
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
+      
+      # Firebase
+      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT:-}
+      
+      # API Configuration
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:8000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:3001}
+      
+      # Rate Limiting
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      RATE_LIMIT_REQUESTS: ${RATE_LIMIT_REQUESTS:-100}
+      RATE_LIMIT_PERIOD: ${RATE_LIMIT_PERIOD:-60}
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+    ports:
+      - "8000:8000"   # FastAPI
+      - "8001:8001"   # Debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn parking-api.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  notification-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: parking-notification
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend:/app
+      - backend-logs:/app/logs
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: parking_db
+      DB_USER: ${DB_USER:-parking_user}
+      DB_PASSWORD: ${DB_PASSWORD:-parking_password}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+      
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      
+      # Email
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      
+      # SMS
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
+      
+      # Push
+      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT:-}
+      
+      # Slack
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+    ports:
+      - "8002:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: uvicorn notification-service.main:app --host 0.0.0.0 --port 8000 --reload
+
+  payment-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: parking-payment
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend:/app
+      - backend-logs:/app/logs
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: parking_db
+      DB_USER: ${DB_USER:-parking_user}
+      DB_PASSWORD: ${DB_PASSWORD:-parking_password}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+      
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      
+      # Payment Gateways
+      STRIPE_API_KEY: ${STRIPE_API_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
+      PAYPAL_MODE: ${PAYPAL_MODE:-sandbox}
+      
+      # Webhook
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-webhook-secret-change-in-production}
+    ports:
+      - "8003:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: uvicorn payment-service.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ============================================
+  # Frontend Service
+  # ============================================
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8000}
+        REACT_APP_WS_URL: ${REACT_APP_WS_URL:-ws://localhost:8000}
+        REACT_APP_GOOGLE_MAPS_API_KEY: ${REACT_APP_GOOGLE_MAPS_API_KEY:-}
+    container_name: parking-frontend
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./frontend:/app
+      - frontend-build:/app/build
+      - /app/node_modules
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8000}
+      REACT_APP_WS_URL: ${REACT_APP_WS_URL:-ws://localhost:8000}
+      REACT_APP_GOOGLE_MAPS_API_KEY: ${REACT_APP_GOOGLE_MAPS_API_KEY:-}
+      REACT_APP_STRIPE_PUBLIC_KEY: ${REACT_APP_STRIPE_PUBLIC_KEY:-}
+      REACT_APP_FIREBASE_API_KEY: ${REACT_APP_FIREBASE_API_KEY:-}
+      REACT_APP_FIREBASE_AUTH_DOMAIN: ${REACT_APP_FIREBASE_AUTH_DOMAIN:-}
+      REACT_APP_FIREBASE_PROJECT_ID: ${REACT_APP_FIREBASE_PROJECT_ID:-}
+      REACT_APP_FIREBASE_STORAGE_BUCKET: ${REACT_APP_FIREBASE_STORAGE_BUCKET:-}
+      REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${REACT_APP_FIREBASE_MESSAGING_SENDER_ID:-}
+      REACT_APP_FIREBASE_APP_ID: ${REACT_APP_FIREBASE_APP_ID:-}
+    ports:
+      - "3000:3000"   # React dev server
+      - "3001:3001"   # Storybook
+    depends_on:
+      - parking-api
+      - notification-service
+      - payment-service
+    command: npm start
+
+  # ============================================
+  # Monitoring & Observability
+  # ============================================
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: parking-prometheus
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend/deployment/monitoring/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    depends_on:
+      - parking-api
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: parking-grafana
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend/deployment/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./backend/deployment/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    ports:
+      - "3002:3000"
+    depends_on:
+      - prometheus
+
+  # ============================================
+  # Reverse Proxy / Load Balancer
+  # ============================================
+
+  nginx:
+    image: nginx:alpine
+    container_name: parking-nginx
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend/deployment/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./backend/deployment/nginx/conf.d:/etc/nginx/conf.d
+      - frontend-build:/usr/share/nginx/html
+      - ./backend/deployment/ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"   # Alternative port for testing
+    depends_on:
+      - parking-api
+      - frontend
+      - grafana
+
+  # ============================================
+  # Background Workers / Task Queue
+  # ============================================
+
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: parking-celery
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend:/app
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: parking_db
+      DB_USER: ${DB_USER:-parking_user}
+      DB_PASSWORD: ${DB_PASSWORD:-parking_password}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+      
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      - redis
+      - rabbitmq
+    command: celery -A parking-api.core.celery worker --loglevel=info
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: parking-celery-beat
+    restart: unless-stopped
+    networks:
+      - parking-network
+    volumes:
+      - ./backend:/app
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: parking_db
+      DB_USER: ${DB_USER:-parking_user}
+      DB_PASSWORD: ${DB_PASSWORD:-parking_password}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+      
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      - redis
+      - rabbitmq
+      - celery-worker
+    command: celery -A parking-api.core.celery beat --loglevel=info
+
+  # ============================================
+  # Development Tools
+  # ============================================
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: parking-pgadmin
+    restart: unless-stopped
+    networks:
+      - parking-network
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@parking.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - ./backend/deployment/pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: parking-redis-commander
+    restart: unless-stopped
+    networks:
+      - parking-network
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+
+  rabbitmq-management:
+    image: rabbitmq:3-management-alpine
+    container_name: parking-rabbitmq-mgmt
+    restart: unless-stopped
+    networks:
+      - parking-network
+    ports:
+      - "15673:15672"  # Management UI on different port to avoid conflict
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      - rabbitmq
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: parking-mailhog
+    restart: unless-stopped
+    networks:
+      - parking-network
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    logging:
+      driver: "none"  # Disable logging
+
+  # ============================================
+  # Production-Ready Additions (Optional)
+  # ============================================
+
+  # Uncomment for production with SSL termination
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: parking-certbot
+  #   networks:
+  #     - parking-network
+  #   volumes:
+  #     - ./backend/deployment/ssl:/etc/letsencrypt
+  #     - ./backend/deployment/nginx/conf.d:/etc/nginx/conf.d
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+# ============================================
+# Docker Compose Profiles
+# ============================================
+# Usage: docker-compose --profile [profile_name] up
+
+profiles:
+  - development  # Default, all services
+  - production   # Production-optimized setup
+  - monitoring   # Only monitoring services
+  - testing      # Testing environment
+  - ci           # CI/CD environment
