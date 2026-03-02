@@ -1,0 +1,24 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Parking Management System Frontend
+Upstream-Contact: dev@parking.example.com
+Source: https://github.com/yourusername/parking-management
+
+Files: *
+Copyright: 2024 Parking Management System Contributors
+License: MIT
+
+Files: src/assets/icons/*
+Copyright: 2024 Fonticons, Inc.
+License: CC-BY-4.0
+
+Files: src/assets/fonts/*
+Copyright: 2024 Google
+License: Apache-2.0
+
+Files: package.json
+Copyright: 2024 Parking Management System Contributors
+License: MIT
+
+Files: .eslintrc.js .prettierrc vite.config.ts
+Copyright: 2024 Parking Management System Contributors
+License: MIT
