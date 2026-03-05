@@ -1,0 +1,52 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Match JS/TS files
+[*.{js,jsx,ts,tsx,json,jsonc}]
+indent_style = space
+indent_size = 2
+
+# Match CSS/SCSS files
+[*.{css,scss,less}]
+indent_style = space
+indent_size = 2
+
+# Match HTML files
+[*.{html,htm}]
+indent_style = space
+indent_size = 2
+
+# Match YAML files
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Match Markdown files
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+# Match GraphQL files
+[*.{graphql,gql}]
+indent_style = space
+indent_size = 2
+
+# Match package.json
+[package.json]
+indent_style = space
+indent_size = 2
+
+# Ignore patterns
+[.{gitignore,prettierignore,eslintignore}]
+indent_style = unset
+indent_size = unset

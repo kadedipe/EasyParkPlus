@@ -60,6 +60,16 @@ module.exports = {
     'no-secrets',
     'chai-friendly',
     'react-refresh',
+    'react-perf',
+    'deprecation',
+    'etc',
+    'eslint-comments',
+    'no-unsanitized',
+    'xss',
+    'canonical',
+    'functional',
+    'optimize-regex',
+    'regexp',
   ],
 
   // ============================================
@@ -78,6 +88,7 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
+    'plugin:react-perf/recommended',
     
     // Accessibility
     'plugin:jsx-a11y/recommended',
@@ -98,6 +109,10 @@ module.exports = {
     'plugin:unicorn/recommended',
     'plugin:promise/recommended',
     'plugin:security/recommended',
+    'plugin:regexp/recommended',
+    
+    // ESLint comments
+    'plugin:eslint-comments/recommended',
     
     // Prettier (must be last)
     'prettier',
@@ -133,6 +148,11 @@ module.exports = {
           ['@types', './src/types'],
           ['@assets', './src/assets'],
           ['@styles', './src/styles'],
+          ['@config', './src/config'],
+          ['@contexts', './src/contexts'],
+          ['@lib', './src/lib'],
+          ['@helpers', './src/helpers'],
+          ['@constants', './src/constants'],
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
       },
@@ -157,7 +177,13 @@ module.exports = {
         Textarea: 'textarea',
         Link: 'a',
         Img: 'img',
+        NavLink: 'a',
+        RouterLink: 'a',
+        MenuItem: 'button',
       },
+    },
+    'etc': {
+      enableExperimental: false,
     },
   },
 
@@ -168,32 +194,50 @@ module.exports = {
     // ==========================================
     // General ESLint Rules
     // ==========================================
-    'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+    'no-console': ['warn', { 
+      allow: ['warn', 'error', 'info', 'debug'] 
+    }],
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
-    'no-alert': 'warn',
+    'no-alert': 'error',
     'no-var': 'error',
-    'prefer-const': 'error',
+    'prefer-const': ['error', {
+      destructuring: 'any',
+      ignoreReadBeforeAssign: false,
+    }],
     'prefer-template': 'error',
     'prefer-spread': 'error',
     'prefer-rest-params': 'error',
     'prefer-destructuring': [
       'error',
       {
-        array: false,
+        array: true,
         object: true,
       },
       {
         enforceForRenamedProperties: false,
       },
     ],
-    'prefer-arrow-callback': 'error',
+    'prefer-arrow-callback': ['error', {
+      allowNamedFunctions: false,
+      allowUnboundThis: true,
+    }],
     'arrow-body-style': ['error', 'as-needed'],
-    'object-shorthand': ['error', 'always'],
+    'object-shorthand': ['error', 'always', {
+      ignoreConstructors: false,
+      avoidQuotes: true,
+    }],
     'no-unused-vars': 'off', // Use TypeScript version
     'no-use-before-define': 'off',
     'no-shadow': 'off',
-    'no-param-reassign': ['error', { props: false }],
-    'no-underscore-dangle': ['error', { allow: ['_id', '__REDUX_DEVTOOLS_EXTENSION__'] }],
+    'no-param-reassign': ['error', { 
+      props: true,
+      ignorePropertyModificationsFor: ['state', 'acc', 'accumulator', 'draft'],
+    }],
+    'no-underscore-dangle': ['error', { 
+      allow: ['_id', '__REDUX_DEVTOOLS_EXTENSION__', '_loading', '_error'],
+      allowAfterThis: true,
+      allowAfterSuper: true,
+    }],
     'no-plusplus': ['error', { allowForLoopAfterthoughts: true }],
     'no-nested-ternary': 'warn',
     'no-duplicate-imports': 'error',
@@ -202,9 +246,18 @@ module.exports = {
     'eqeqeq': ['error', 'always', { null: 'ignore' }],
     'curly': ['error', 'all'],
     'brace-style': ['error', '1tbs', { allowSingleLine: false }],
-    'comma-dangle': ['error', 'always-multiline'],
+    'comma-dangle': ['error', {
+      arrays: 'always-multiline',
+      objects: 'always-multiline',
+      imports: 'always-multiline',
+      exports: 'always-multiline',
+      functions: 'never',
+    }],
     'semi': ['error', 'always'],
-    'quotes': ['error', 'single', { avoidEscape: true }],
+    'quotes': ['error', 'single', { 
+      avoidEscape: true,
+      allowTemplateLiterals: true,
+    }],
     'max-len': [
       'warn',
       {
@@ -219,25 +272,52 @@ module.exports = {
     ],
     'max-depth': ['warn', 4],
     'max-params': ['warn', 4],
-    'max-lines': ['warn', { max: 500, skipBlankLines: true, skipComments: true }],
+    'max-lines': ['warn', { 
+      max: 500, 
+      skipBlankLines: true, 
+      skipComments: true,
+    }],
     'max-lines-per-function': [
       'warn',
       { max: 100, skipBlankLines: true, skipComments: true },
     ],
-    'complexity': ['warn', 10],
+    'complexity': ['warn', { max: 10 }],
     'no-restricted-syntax': [
       'error',
       {
         selector: 'ForInStatement',
-        message: 'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
+        message: 'for..in loops iterate over the entire prototype chain. Use Object.{keys,values,entries} instead.',
       },
       {
         selector: 'LabeledStatement',
-        message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
+        message: 'Labels are a form of GOTO; using them makes code confusing.',
       },
       {
         selector: 'WithStatement',
-        message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
+        message: '`with` is disallowed in strict mode.',
+      },
+      {
+        selector: "CallExpression[callee.name='setTimeout'][arguments.length<2]",
+        message: 'setTimeout must have delay argument',
+      },
+    ],
+    'no-restricted-globals': [
+      'error',
+      {
+        name: 'isNaN',
+        message: 'Use Number.isNaN instead',
+      },
+      {
+        name: 'isFinite',
+        message: 'Use Number.isFinite instead',
+      },
+    ],
+    'no-restricted-properties': [
+      'error',
+      {
+        object: 'Math',
+        property: 'pow',
+        message: 'Use the exponentiation operator (**) instead.',
       },
     ],
 
@@ -251,9 +331,13 @@ module.exports = {
         varsIgnorePattern: '^_',
         caughtErrorsIgnorePattern: '^_',
         destructuredArrayIgnorePattern: '^_',
+        ignoreRestSiblings: true,
       },
     ],
-    '@typescript-eslint/no-explicit-any': ['warn', { ignoreRestArgs: true }],
+    '@typescript-eslint/no-explicit-any': ['warn', { 
+      ignoreRestArgs: true,
+      fixToUnknown: false,
+    }],
     '@typescript-eslint/explicit-function-return-type': [
       'error',
       {
@@ -266,9 +350,21 @@ module.exports = {
     ],
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-non-null-assertion': 'warn',
-    '@typescript-eslint/no-use-before-define': ['error', { functions: false, classes: false }],
-    '@typescript-eslint/no-shadow': 'error',
-    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/no-use-before-define': ['error', { 
+      functions: false, 
+      classes: false,
+      variables: true,
+      enums: true,
+      typedefs: true,
+    }],
+    '@typescript-eslint/no-shadow': ['error', {
+      ignoreTypeValueShadow: false,
+      ignoreFunctionTypeParameterNameValueShadow: false,
+    }],
+    '@typescript-eslint/no-floating-promises': ['error', {
+      ignoreVoid: false,
+      ignoreIIFE: false,
+    }],
     '@typescript-eslint/no-misused-promises': [
       'error',
       {
@@ -279,15 +375,23 @@ module.exports = {
           returns: false,
           variables: false,
         },
+        checksConditionals: true,
+        checksSpreads: true,
       },
     ],
     '@typescript-eslint/await-thenable': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-    '@typescript-eslint/no-unnecessary-condition': 'error',
+    '@typescript-eslint/no-unnecessary-condition': ['error', {
+      allowConstantLoopConditions: false,
+      allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing: false,
+    }],
     '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
     '@typescript-eslint/no-unnecessary-qualifier': 'error',
     '@typescript-eslint/no-unnecessary-type-arguments': 'error',
-    '@typescript-eslint/prefer-nullish-coalescing': 'error',
+    '@typescript-eslint/prefer-nullish-coalescing': ['error', {
+      ignoreConditionalTests: false,
+      ignoreMixedLogicalExpressions: false,
+    }],
     '@typescript-eslint/prefer-optional-chain': 'error',
     '@typescript-eslint/prefer-readonly': 'error',
     '@typescript-eslint/prefer-reduce-type-parameter': 'error',
@@ -311,39 +415,55 @@ module.exports = {
         fixStyle: 'inline-type-imports',
       },
     ],
-    '@typescript-eslint/consistent-type-exports': 'error',
+    '@typescript-eslint/consistent-type-exports': ['error', {
+      fixMixedExportsWithInlineTypeSpecifier: true,
+    }],
     '@typescript-eslint/member-ordering': [
       'error',
       {
         default: [
+          // Index signature
           'signature',
+          'call-signature',
+          
+          // Fields
           'public-static-field',
           'protected-static-field',
           'private-static-field',
           '#private-static-field',
+          
           'public-decorated-field',
           'protected-decorated-field',
           'private-decorated-field',
+          
           'public-instance-field',
           'protected-instance-field',
           'private-instance-field',
           '#private-instance-field',
+          
           'public-abstract-field',
           'protected-abstract-field',
+          
+          // Constructors
           'public-constructor',
           'protected-constructor',
           'private-constructor',
+          
+          // Methods
           'public-static-method',
           'protected-static-method',
           'private-static-method',
           '#private-static-method',
+          
           'public-decorated-method',
           'protected-decorated-method',
           'private-decorated-method',
+          
           'public-instance-method',
           'protected-instance-method',
           'private-instance-method',
           '#private-instance-method',
+          
           'public-abstract-method',
           'protected-abstract-method',
         ],
@@ -392,7 +512,45 @@ module.exports = {
         selector: 'enumMember',
         format: ['UPPER_CASE'],
       },
+      {
+        selector: 'typeParameter',
+        format: ['PascalCase'],
+        prefix: ['T', 'K', 'V'],
+      },
     ],
+    '@typescript-eslint/no-empty-interface': ['error', {
+      allowSingleExtends: true,
+    }],
+    '@typescript-eslint/no-inferrable-types': ['error', {
+      ignoreParameters: false,
+      ignoreProperties: false,
+    }],
+    '@typescript-eslint/array-type': ['error', {
+      default: 'array-simple',
+    }],
+    '@typescript-eslint/ban-types': ['error', {
+      types: {
+        String: {
+          message: 'Use string instead',
+          fixWith: 'string',
+        },
+        Number: {
+          message: 'Use number instead',
+          fixWith: 'number',
+        },
+        Boolean: {
+          message: 'Use boolean instead',
+          fixWith: 'boolean',
+        },
+        Symbol: {
+          message: 'Use symbol instead',
+          fixWith: 'symbol',
+        },
+        Function: {
+          message: 'Use specific function type instead',
+        },
+      },
+    }],
 
     // ==========================================
     // React Rules
@@ -402,8 +560,12 @@ module.exports = {
     'react/display-name': 'off',
     'react/jsx-uses-react': 'error',
     'react/jsx-uses-vars': 'error',
-    'react/no-unescaped-entities': 'error',
-    'react/no-unknown-property': 'error',
+    'react/no-unescaped-entities': ['error', {
+      forbid: ['>', '"', '}', '\'', '`'],
+    }],
+    'react/no-unknown-property': ['error', {
+      ignore: ['css', 'tw'],
+    }],
     'react/no-deprecated': 'error',
     'react/no-direct-mutation-state': 'error',
     'react/no-is-mounted': 'error',
@@ -442,14 +604,24 @@ module.exports = {
         unnamedComponents: 'arrow-function',
       },
     ],
-    'react/hook-use-state': 'error',
+    'react/hook-use-state': ['error', {
+      allowDestructuredState: true,
+    }],
     'react/jsx-boolean-value': ['error', 'never'],
     'react/jsx-closing-bracket-location': ['error', 'line-aligned'],
     'react/jsx-closing-tag-location': 'error',
-    'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
-    'react/jsx-curly-spacing': ['error', { when: 'never', children: true }],
+    'react/jsx-curly-brace-presence': ['error', { 
+      props: 'never', 
+      children: 'never',
+    }],
+    'react/jsx-curly-spacing': ['error', { 
+      when: 'never', 
+      children: true,
+    }],
     'react/jsx-equals-spacing': ['error', 'never'],
-    'react/jsx-filename-extension': ['error', { extensions: ['.tsx'] }],
+    'react/jsx-filename-extension': ['error', { 
+      extensions: ['.tsx'] 
+    }],
     'react/jsx-first-prop-new-line': ['error', 'multiline'],
     'react/jsx-fragments': ['error', 'syntax'],
     'react/jsx-handler-names': [
@@ -471,7 +643,10 @@ module.exports = {
         warnOnDuplicates: true,
       },
     ],
-    'react/jsx-max-props-per-line': ['error', { maximum: 3, when: 'multiline' }],
+    'react/jsx-max-props-per-line': ['error', { 
+      maximum: 3, 
+      when: 'multiline',
+    }],
     'react/jsx-no-bind': [
       'error',
       {
@@ -485,9 +660,16 @@ module.exports = {
     'react/jsx-no-comment-textnodes': 'error',
     'react/jsx-no-constructed-context-values': 'error',
     'react/jsx-no-duplicate-props': 'error',
-    'react/jsx-no-leaked-render': ['error', { validStrategies: ['ternary'] }],
+    'react/jsx-no-leaked-render': ['error', { 
+      validStrategies: ['ternary', 'coerce'] 
+    }],
     'react/jsx-no-literals': 'off',
-    'react/jsx-no-script-url': 'error',
+    'react/jsx-no-script-url': ['error', [
+      {
+        name: 'Link',
+        props: ['to', 'href'],
+      },
+    ]],
     'react/jsx-no-target-blank': [
       'error',
       {
@@ -497,7 +679,9 @@ module.exports = {
     ],
     'react/jsx-no-undef': 'error',
     'react/jsx-no-useless-fragment': 'error',
-    'react/jsx-one-expression-per-line': ['error', { allow: 'single-child' }],
+    'react/jsx-one-expression-per-line': ['error', { 
+      allow: 'single-child' 
+    }],
     'react/jsx-pascal-case': [
       'error',
       {
@@ -513,7 +697,7 @@ module.exports = {
         html: 'enforce',
         custom: 'ignore',
         explicitSpread: 'ignore',
-        exceptions: ['Component', 'App'],
+        exceptions: ['Component', 'App', 'Router'],
       },
     ],
     'react/jsx-sort-props': [
@@ -536,7 +720,6 @@ module.exports = {
         beforeClosing: 'never',
       },
     ],
-    'react/jsx-uses-vars': 'error',
     'react/jsx-wrap-multilines': [
       'error',
       {
@@ -552,6 +735,12 @@ module.exports = {
     'react/state-in-constructor': ['error', 'never'],
     'react/static-property-placement': ['error', 'static public field'],
     'react/void-dom-elements-no-children': 'error',
+    'react/default-props-match-prop-types': 'off',
+    'react/no-unused-prop-types': 'error',
+    'react/prefer-stateless-function': 'error',
+    'react/require-default-props': ['error', {
+      ignoreFunctionalComponents: true,
+    }],
 
     // ==========================================
     // React Hooks Rules
@@ -560,17 +749,29 @@ module.exports = {
     'react-hooks/exhaustive-deps': [
       'warn',
       {
-        additionalHooks: '(useMyCustomHook|useAnotherHook)',
+        additionalHooks: '(useMyCustomHook|useAnotherHook|useDebounce|useThrottle)',
         enableDangerousAutofixThisMayCauseInfiniteLoops: false,
       },
     ],
+
+    // ==========================================
+    // React Performance Rules
+    // ==========================================
+    'react-perf/jsx-no-new-object-as-prop': 'error',
+    'react-perf/jsx-no-new-array-as-prop': 'error',
+    'react-perf/jsx-no-new-function-as-prop': 'error',
+    'react-perf/jsx-no-jsx-as-prop': 'error',
 
     // ==========================================
     // React Refresh (for Fast Refresh)
     // ==========================================
     'react-refresh/only-export-components': [
       'warn',
-      { allowConstantExport: true, checkJS: true },
+      { 
+        allowConstantExport: true, 
+        checkJS: true,
+        allowExportNames: ['metadata', 'loader', 'action'],
+      },
     ],
 
     // ==========================================
@@ -580,7 +781,7 @@ module.exports = {
       'error',
       {
         elements: ['img', 'object', 'area', 'input[type="image"]'],
-        img: ['Image'],
+        img: ['Image', 'Img'],
         object: ['Object'],
         area: ['Area'],
         'input[type="image"]': ['InputImage'],
@@ -590,15 +791,18 @@ module.exports = {
     'jsx-a11y/anchor-is-valid': [
       'error',
       {
-        components: ['Link'],
-        specialLink: ['to'],
+        components: ['Link', 'NavLink', 'RouterLink'],
+        specialLink: ['to', 'href'],
         aspects: ['noHref', 'invalidHref', 'preferButton'],
       },
     ],
     'jsx-a11y/aria-activedescendant-has-tabindex': 'error',
     'jsx-a11y/aria-props': 'error',
     'jsx-a11y/aria-proptypes': 'error',
-    'jsx-a11y/aria-role': ['error', { ignoreNonDOM: true }],
+    'jsx-a11y/aria-role': ['error', { 
+      ignoreNonDOM: true,
+      allowInvalid: false,
+    }],
     'jsx-a11y/aria-unsupported-elements': 'error',
     'jsx-a11y/autocomplete-valid': 'error',
     'jsx-a11y/click-events-have-key-events': 'error',
@@ -639,10 +843,10 @@ module.exports = {
     'jsx-a11y/label-has-associated-control': [
       'error',
       {
-        labelComponents: ['Label'],
-        labelAttributes: ['label'],
-        controlComponents: ['Input', 'Select', 'Textarea'],
-        assert: 'htmlFor',
+        labelComponents: ['Label', 'FormLabel'],
+        labelAttributes: ['label', 'htmlFor'],
+        controlComponents: ['Input', 'Select', 'Textarea', 'Checkbox', 'Radio'],
+        assert: 'either',
         depth: 3,
       },
     ],
@@ -650,7 +854,9 @@ module.exports = {
     'jsx-a11y/media-has-caption': 'error',
     'jsx-a11y/mouse-events-have-key-events': 'error',
     'jsx-a11y/no-access-key': 'error',
-    'jsx-a11y/no-autofocus': ['error', { ignoreNonDOM: true }],
+    'jsx-a11y/no-autofocus': ['error', { 
+      ignoreNonDOM: true 
+    }],
     'jsx-a11y/no-distracting-elements': [
       'error',
       {
@@ -696,7 +902,11 @@ module.exports = {
     // ==========================================
     // Import Rules
     // ==========================================
-    'import/no-unresolved': ['error', { commonjs: true, amd: true }],
+    'import/no-unresolved': ['error', { 
+      commonjs: true, 
+      amd: true,
+      caseSensitive: true,
+    }],
     'import/named': 'error',
     'import/default': 'error',
     'import/namespace': 'error',
@@ -716,10 +926,14 @@ module.exports = {
           '**/setupTests.{ts,tsx}',
           '**/vitest.config.{ts,js}',
           '**/cypress/**/*.{ts,js}',
+          '**/playwright/**/*.{ts,js}',
           '**/.eslintrc.{js,cjs}',
           '**/vite.config.{ts,js}',
+          '**/tailwind.config.{js,ts}',
+          '**/postcss.config.{js,ts}',
         ],
         optionalDependencies: false,
+        peerDependencies: false,
       },
     ],
     'import/no-mutable-exports': 'error',
@@ -728,7 +942,9 @@ module.exports = {
     'import/no-nodejs-modules': 'error',
     'import/first': 'error',
     'import/exports-last': 'off',
-    'import/no-duplicates': 'error',
+    'import/no-duplicates': ['error', {
+      'prefer-inline': true,
+    }],
     'import/no-namespace': 'off',
     'import/extensions': [
       'error',
@@ -738,6 +954,7 @@ module.exports = {
         jsx: 'never',
         ts: 'never',
         tsx: 'never',
+        '': 'never',
       },
     ],
     'import/order': [
@@ -775,9 +992,10 @@ module.exports = {
       },
     ],
     'import/newline-after-import': ['error', { count: 1 }],
-    'import/no-unassigned-import': ['error', { allow: ['**/*.css', '**/*.scss'] }],
+    'import/no-unassigned-import': ['error', { 
+      allow: ['**/*.css', '**/*.scss', '**/*.less', '**/*.module.css'] 
+    }],
     'import/no-named-default': 'error',
-    'import/no-default-export': 'off',
     'import/no-named-export': 'off',
     'import/no-anonymous-default-export': [
       'error',
@@ -793,6 +1011,13 @@ module.exports = {
     ],
     'import/group-exports': 'off',
     'import/dynamic-import-chunkname': 'off',
+    'import/no-self-import': 'error',
+    'import/no-cycle': ['error', { maxDepth: 10 }],
+    'import/no-useless-path-segments': ['error', {
+      noUselessIndex: true,
+    }],
+    'import/no-relative-packages': 'error',
+    'import/no-relative-parent-imports': 'off',
 
     // ==========================================
     // Jest Rules
@@ -802,7 +1027,10 @@ module.exports = {
     'jest/no-identical-title': 'error',
     'jest/prefer-to-have-length': 'warn',
     'jest/valid-expect': 'error',
-    'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
+    'jest/consistent-test-it': ['error', { 
+      fn: 'it', 
+      withinDescribe: 'it' 
+    }],
     'jest/no-test-prefixes': 'error',
     'jest/no-alias-methods': 'error',
     'jest/prefer-called-with': 'error',
@@ -816,6 +1044,11 @@ module.exports = {
     'jest/require-to-throw-message': 'error',
     'jest/require-top-level-describe': 'error',
     'jest/unbound-method': 'error',
+    'jest/no-conditional-expect': 'error',
+    'jest/no-export': 'error',
+    'jest/no-standalone-expect': 'error',
+    'jest/valid-describe-callback': 'error',
+    'jest/valid-title': 'error',
 
     // ==========================================
     // Testing Library Rules
@@ -851,12 +1084,18 @@ module.exports = {
     'cypress/assertion-before-screenshot': 'warn',
     'cypress/no-async-tests': 'error',
     'cypress/no-pause': 'error',
+    'cypress/no-force': 'warn',
 
     // ==========================================
     // Promise Rules
     // ==========================================
-    'promise/catch-or-return': ['error', { allowFinally: true }],
-    'promise/no-return-wrap': 'error',
+    'promise/catch-or-return': ['error', { 
+      allowFinally: true,
+      allowThen: true,
+    }],
+    'promise/no-return-wrap': ['error', {
+      allowReject: true,
+    }],
     'promise/param-names': 'error',
     'promise/always-return': 'error',
     'promise/no-return-in-finally': 'error',
@@ -866,6 +1105,7 @@ module.exports = {
     'promise/no-promise-in-callback': 'warn',
     'promise/no-callback-in-promise': 'warn',
     'promise/valid-params': 'warn',
+    'promise/no-multiple-resolved': 'error',
 
     // ==========================================
     // SonarJS Rules (Code Quality)
@@ -906,7 +1146,10 @@ module.exports = {
     // Unicorn Rules (Modern JavaScript)
     // ==========================================
     'unicorn/better-regex': 'error',
-    'unicorn/catch-error-name': ['error', { name: 'error' }],
+    'unicorn/catch-error-name': ['error', { 
+      name: 'error',
+      ignore: ['^_'],
+    }],
     'unicorn/consistent-destructuring': 'error',
     'unicorn/consistent-function-scoping': 'error',
     'unicorn/custom-error-definition': 'off',
@@ -980,7 +1223,9 @@ module.exports = {
     'unicorn/prefer-dom-node-dataset': 'error',
     'unicorn/prefer-dom-node-remove': 'error',
     'unicorn/prefer-dom-node-text-content': 'error',
-    'unicorn/prefer-export-from': ['error', { ignoreUsedVariables: true }],
+    'unicorn/prefer-export-from': ['error', { 
+      ignoreUsedVariables: true 
+    }],
     'unicorn/prefer-includes': 'error',
     'unicorn/prefer-json-parse-buffer': 'off',
     'unicorn/prefer-keyboard-event-key': 'error',
@@ -1035,12 +1280,54 @@ module.exports = {
     'security/detect-non-literal-require': 'error',
     'security/detect-object-injection': 'warn',
     'security/detect-pseudoRandomBytes': 'error',
-    'security/detect-possible-timing-attacks': 'error',
+
+    // ==========================================
+    // No Unsanitized Rules (XSS Prevention)
+    // ==========================================
+    'no-unsanitized/method': 'error',
+    'no-unsanitized/property': 'error',
+
+    // ==========================================
+    // XSS Rules
+    // ==========================================
+    'xss/no-mixed-html': 'error',
 
     // ==========================================
     // Optimize Regex Rules
     // ==========================================
     'optimize-regex/optimize-regex': 'warn',
+
+    // ==========================================
+    // Regexp Rules
+    // ==========================================
+    'regexp/no-dupe-disjunctions': 'error',
+    'regexp/no-empty-alternative': 'error',
+    'regexp/no-empty-capturing-group': 'error',
+    'regexp/no-invalid-regexp': 'error',
+    'regexp/no-lazy-ends': 'error',
+    'regexp/no-obscure-range': 'error',
+    'regexp/no-optional-assertion': 'error',
+    'regexp/no-super-linear-backtracking': 'error',
+    'regexp/no-trivially-nested-assertion': 'error',
+    'regexp/no-trivially-nested-quantifier': 'error',
+    'regexp/no-useless-assertions': 'error',
+    'regexp/no-useless-backreference': 'error',
+    'regexp/no-useless-character-class': 'error',
+    'regexp/no-useless-dollar-replacements': 'error',
+    'regexp/no-useless-escape': 'error',
+    'regexp/no-useless-non-capturing-group': 'error',
+    'regexp/no-useless-quantifier': 'error',
+    'regexp/no-useless-range': 'error',
+    'regexp/prefer-escape-replacement-dollar-char': 'error',
+    'regexp/prefer-predefined-assertion': 'error',
+    'regexp/prefer-quantifier': 'error',
+    'regexp/prefer-regexp-exec': 'error',
+    'regexp/prefer-regexp-test': 'error',
+    'regexp/prefer-result-array-groups': 'error',
+    'regexp/require-unicode-regexp': 'error',
+    'regexp/sort-alternatives': 'error',
+    'regexp/strict': 'error',
+    'regexp/use-ignore-case': 'error',
 
     // ==========================================
     // No Secrets Rules
@@ -1049,8 +1336,14 @@ module.exports = {
       'error',
       {
         tolerance: 4.5,
-        ignoreContent: ['example.com', 'test', 'localhost', 'example', 'sample'],
+        ignoreContent: ['example.com', 'test', 'localhost', 'example', 'sample', 'mock', 'placeholder'],
         ignoreModules: true,
+        additionalRegexes: {
+          'API[_-]?KEY': '[A-Za-z0-9_\\-]{16,}',
+          'SECRET': '[A-Za-z0-9_\\-]{16,}',
+          'PASSWORD': '.{8,}',
+          'TOKEN': '[A-Za-z0-9_\\-]{16,}',
+        },
       },
     ],
 
@@ -1060,9 +1353,82 @@ module.exports = {
     'chai-friendly/no-unused-expressions': 'error',
 
     // ==========================================
+    // ESLint Comments Rules
+    // ==========================================
+    'eslint-comments/disable-enable-pair': ['error', { 
+      allowWholeFile: true 
+    }],
+    'eslint-comments/no-aggregating-enable': 'error',
+    'eslint-comments/no-duplicate-disable': 'error',
+    'eslint-comments/no-unlimited-disable': 'error',
+    'eslint-comments/no-unused-disable': 'error',
+    'eslint-comments/no-unused-enable': 'error',
+    'eslint-comments/no-use': ['error', {
+      allow: [
+        'eslint-disable',
+        'eslint-disable-line',
+        'eslint-disable-next-line',
+        'eslint-enable',
+        'global',
+        'eslint',
+      ],
+    }],
+
+    // ==========================================
+    // Deprecation Rules
+    // ==========================================
+    'deprecation/deprecation': 'warn',
+
+    // ==========================================
+    // ETC Rules
+    // ==========================================
+    'etc/no-commented-out-code': 'error',
+    'etc/no-enum': 'warn',
+    'etc/no-t': 'error',
+    'etc/prefer-interface': 'error',
+    'etc/throw-error': 'error',
+
+    // ==========================================
+    // Canonical Rules
+    // ==========================================
+    'canonical/filename-match-exported': ['error', {
+      transform: 'kebab',
+      maxLength: 50,
+    }],
+    'canonical/filename-match-regexp': ['error', {
+      pattern: '^[a-z0-9-]+$',
+      exclude: ['__tests__', 'node_modules'],
+    }],
+    'canonical/id-match': ['error', {
+      pattern: '^[a-z][a-zA-Z0-9]*$',
+      properties: true,
+      classProperties: true,
+      parameters: true,
+    }],
+    'canonical/no-restricted-imports': ['error', {
+      patterns: ['**/node_modules/**'],
+    }],
+
+    // ==========================================
+    // Functional Rules
+    // ==========================================
+    'functional/no-conditional-statements': 'off',
+    'functional/no-let': 'warn',
+    'functional/no-loop-statements': 'warn',
+    'functional/no-mixed-type': 'off',
+    'functional/no-this-expressions': 'off',
+    'functional/no-throw-statements': 'warn',
+    'functional/no-try-statements': 'warn',
+    'functional/prefer-immutable-types': 'off',
+    'functional/prefer-readonly-type': 'off',
+
+    // ==========================================
     // Vitest Rules
     // ==========================================
-    'vitest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
+    'vitest/consistent-test-it': ['error', { 
+      fn: 'it', 
+      withinDescribe: 'it' 
+    }],
     'vitest/expect-expect': 'error',
     'vitest/max-expects': ['error', { max: 5 }],
     'vitest/no-conditional-expect': 'error',
@@ -1076,7 +1442,9 @@ module.exports = {
     'vitest/prefer-called-with': 'error',
     'vitest/prefer-expect-assertions': 'off',
     'vitest/prefer-hooks-on-top': 'error',
-    'vitest/prefer-lowercase-title': ['error', { ignore: ['describe'] }],
+    'vitest/prefer-lowercase-title': ['error', { 
+      ignore: ['describe'] 
+    }],
     'vitest/prefer-spy-on': 'error',
     'vitest/prefer-to-be': 'error',
     'vitest/prefer-to-contain': 'error',
@@ -1087,85 +1455,113 @@ module.exports = {
     'vitest/valid-describe-callback': 'error',
     'vitest/valid-expect': 'error',
     'vitest/valid-title': 'error',
-
-    // ==========================================
-    // Overrides for specific files
-    // ==========================================
-    overrides: [
-      // Configuration files
-      {
-        files: ['*.config.{js,ts}', '.eslintrc.{js,cjs}', 'vite.config.{js,ts}'],
-        rules: {
-          'import/no-extraneous-dependencies': 'off',
-          'unicorn/prefer-module': 'off',
-          '@typescript-eslint/no-var-requires': 'off',
-          'no-console': 'off',
-          'sonarjs/no-duplicate-string': 'off',
-        },
-      },
-      
-      // Test files
-      {
-        files: [
-          '**/*.test.{ts,tsx}',
-          '**/*.spec.{ts,tsx}',
-          '**/__tests__/**/*.{ts,tsx}',
-          '**/tests/**/*.{ts,tsx}',
-        ],
-        rules: {
-          '@typescript-eslint/no-explicit-any': 'off',
-          '@typescript-eslint/no-non-null-assertion': 'off',
-          'import/no-extraneous-dependencies': 'off',
-          'max-lines-per-function': 'off',
-          'sonarjs/no-duplicate-string': 'off',
-          'unicorn/consistent-function-scoping': 'off',
-          'unicorn/no-null': 'off',
-          'no-secrets/no-secrets': 'off',
-        },
-      },
-      
-      // Cypress tests
-      {
-        files: ['cypress/**/*.{js,ts}', '**/*.cy.{js,ts,jsx,tsx}'],
-        rules: {
-          'jest/valid-expect': 'off',
-          '@typescript-eslint/no-namespace': 'off',
-          'no-unused-expressions': 'off',
-          'chai-friendly/no-unused-expressions': 'off',
-        },
-      },
-      
-      // Storybook files
-      {
-        files: ['**/*.stories.{ts,tsx}'],
-        rules: {
-          'import/no-anonymous-default-export': 'off',
-          'react/jsx-props-no-spreading': 'off',
-          'max-lines-per-function': 'off',
-        },
-      },
-      
-      // API mocks
-      {
-        files: ['**/mocks/**/*.{ts,js}', '**/*.mock.{ts,js}'],
-        rules: {
-          'max-lines': 'off',
-          'sonarjs/no-duplicate-string': 'off',
-          '@typescript-eslint/no-explicit-any': 'off',
-        },
-      },
-      
-      // TypeScript declaration files
-      {
-        files: ['**/*.d.ts'],
-        rules: {
-          '@typescript-eslint/no-unused-vars': 'off',
-          '@typescript-eslint/triple-slash-reference': 'off',
-          'spaced-comment': 'off',
-        },
-      },
-    ],
   },
+
+  // ==========================================
+  // Overrides for specific files
+  // ==========================================
+  overrides: [
+    // Configuration files
+    {
+      files: ['*.config.{js,ts}', '.eslintrc.{js,cjs}', 'vite.config.{js,ts}'],
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+        'unicorn/prefer-module': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        'no-console': 'off',
+        'sonarjs/no-duplicate-string': 'off',
+        'no-secrets/no-secrets': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+      },
+    },
+    
+    // Test files
+    {
+      files: [
+        '**/*.test.{ts,tsx}',
+        '**/*.spec.{ts,tsx}',
+        '**/__tests__/**/*.{ts,tsx}',
+        '**/tests/**/*.{ts,tsx}',
+      ],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        'import/no-extraneous-dependencies': 'off',
+        'max-lines-per-function': 'off',
+        'sonarjs/no-duplicate-string': 'off',
+        'unicorn/consistent-function-scoping': 'off',
+        'unicorn/no-null': 'off',
+        'no-secrets/no-secrets': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/unbound-method': 'off',
+      },
+    },
+    
+    // Cypress tests
+    {
+      files: ['cypress/**/*.{js,ts}', '**/*.cy.{js,ts,jsx,tsx}'],
+      rules: {
+        'jest/valid-expect': 'off',
+        '@typescript-eslint/no-namespace': 'off',
+        'no-unused-expressions': 'off',
+        'chai-friendly/no-unused-expressions': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        'unicorn/filename-case': 'off',
+      },
+    },
+    
+    // Storybook files
+    {
+      files: ['**/*.stories.{ts,tsx}'],
+      rules: {
+        'import/no-anonymous-default-export': 'off',
+        'react/jsx-props-no-spreading': 'off',
+        'max-lines-per-function': 'off',
+        'no-secrets/no-secrets': 'off',
+        'unicorn/filename-case': 'off',
+      },
+    },
+    
+    // API mocks
+    {
+      files: ['**/mocks/**/*.{ts,js}', '**/*.mock.{ts,js}'],
+      rules: {
+        'max-lines': 'off',
+        'sonarjs/no-duplicate-string': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        'no-secrets/no-secrets': 'off',
+      },
+    },
+    
+    // TypeScript declaration files
+    {
+      files: ['**/*.d.ts'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': 'off',
+        '@typescript-eslint/triple-slash-reference': 'off',
+        'spaced-comment': 'off',
+        'unicorn/prevent-abbreviations': 'off',
+        'no-var': 'off',
+        'vars-on-top': 'off',
+        'unicorn/no-keyword-prefix': 'off',
+      },
+    },
+    
+    // Server-side / API routes (if any)
+    {
+      files: ['src/pages/api/**/*.{ts,js}', 'src/app/api/**/*.{ts,js}'],
+      rules: {
+        'no-console': 'off',
+        'no-secrets/no-secrets': 'off',
+      },
+    },
+  ],
 
   // ==========================================
   // Global Variables
@@ -1186,7 +1582,26 @@ module.exports = {
     after: 'readonly',
     beforeEach: 'readonly',
     afterEach: 'readonly',
+    test: 'readonly',
+    suite: 'readonly',
+    bench: 'readonly',
   },
+
+  module.exports = {
+  // ... other config
+  extends: [
+    // ... other extends
+    'prettier', // Must be last
+  ],
+  plugins: [
+    // ... other plugins
+    'prettier',
+  ],
+  rules: {
+    // ... other rules
+    'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+  },
+};
 
   // ==========================================
   // Ignore Patterns
@@ -1206,5 +1621,11 @@ module.exports = {
     'cypress/videos',
     'cypress/screenshots',
     '**/vendor/**',
+    '.cache',
+    '.vscode',
+    '.idea',
+    '*.log',
+    'temp',
+    'tmp',
   ],
 };

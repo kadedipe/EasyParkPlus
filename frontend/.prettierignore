@@ -1,0 +1,84 @@
+# ============================================
+# PRETTIER IGNORE CONFIGURATION
+# ============================================
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+.next/
+.nuxt/
+.cache/
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Configuration files
+.prettierrc
+.eslintrc.js
+.prettierignore
+.gitignore
+.editorconfig
+.husky/
+
+# Static assets
+public/
+static/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Documentation
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE.txt
+LICENSE.md
+*.txt
+
+# Test artifacts
+coverage/
+test-results/
+cypress/videos/
+cypress/screenshots/
+__snapshots__/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temp files
+.tmp/
+.temp/
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Third-party code
+vendor/
+third_party/

@@ -1,0 +1,55 @@
+# ============================================
+# PRETTIER CONFIGURATION - PARKING MANAGEMENT SYSTEM FRONTEND
+# ============================================
+
+printWidth = 100
+tabWidth = 2
+useTabs = false
+semi = true
+singleQuote = true
+quoteProps = "as-needed"
+jsxSingleQuote = false
+trailingComma = "es5"
+bracketSpacing = true
+bracketSameLine = false
+arrowParens = "always"
+proseWrap = "preserve"
+htmlWhitespaceSensitivity = "css"
+endOfLine = "lf"
+embeddedLanguageFormatting = "auto"
+singleAttributePerLine = false
+experimentalTernaries = false
+
+[[overrides]]
+files = "*.json"
+[overrides.options]
+printWidth = 200
+trailingComma = "none"
+
+[[overrides]]
+files = "*.{yml,yaml}"
+[overrides.options]
+singleQuote = false
+tabWidth = 2
+
+[[overrides]]
+files = "*.md"
+[overrides.options]
+printWidth = 80
+proseWrap = "always"
+embeddedLanguageFormatting = "off"
+
+[[overrides]]
+files = "*.{css,scss,less}"
+[overrides.options]
+singleQuote = false
+
+[[overrides]]
+files = "*.{graphql,gql}"
+[overrides.options]
+printWidth = 80
+
+[[overrides]]
+files = "*.svg"
+[overrides.options]
+parser = "html"x
