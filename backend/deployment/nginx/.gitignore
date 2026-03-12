@@ -1,0 +1,23 @@
+# SSL certificates
+ssl/
+!ssl/.gitkeep
+
+# Logs
+logs/
+!logs/.gitkeep
+
+# Cache
+cache/
+!cache/.gitkeep
+
+# Environment specific
+.env
+*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.pid
+
+# Certbot work directory
+/var/www/certbot/
