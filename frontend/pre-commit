@@ -1,0 +1,11 @@
+#!/bin/bash
+# .husky/pre-commit
+
+# Run secret check
+./scripts/check-secrets.sh || exit 1
+
+# Run gitignore validation
+node scripts/validate-gitignore.js || exit 1
+
+# Run lint-staged
+npx lint-staged

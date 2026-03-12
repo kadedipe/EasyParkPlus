@@ -1,0 +1,8 @@
+# Handle lockfile merges
+package-lock.json merge=binary linguist-generated
+yarn.lock merge=binary linguist-generated
+pnpm-lock.yaml merge=binary linguist-generated
+
+# Mark generated files
+*.js.map linguist-generated
+*.css.map linguist-generated
