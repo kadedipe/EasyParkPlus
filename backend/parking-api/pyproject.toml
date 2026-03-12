@@ -1,0 +1,94 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "parking-api"
+version = "1.0.0"
+description = "Parking Management System Backend API"
+readme = "README.md"
+authors = [
+    {name = "Parking Management Team", email = "dev@parking-management.com"}
+]
+license = {text = "Proprietary"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Framework :: FastAPI",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+keywords = ["parking", "api", "fastapi", "reservations", "payments"]
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.12.0",
+    "pydantic>=2.4.0",
+    "pydantic-settings>=2.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.6",
+    "httpx>=0.25.0",
+    "redis>=5.0.0",
+    "celery>=5.3.0",
+    "prometheus-client>=0.19.0",
+    "loguru>=0.7.0",
+    "python-dotenv>=1.0.0",
+    "psycopg2-binary>=2.9.0",
+    "aioredis>=2.0.0",
+    "alembic>=1.12.0",
+    "cryptography>=41.0.0",
+    "email-validator>=2.0.0",
+    "python-dateutil>=2.8.0",
+    "stripe>=7.0.0",
+    "paypalrestsdk>=1.13.0",
+    "boto3>=1.28.0",
+    "sentry-sdk>=1.35.0",
+    "python-slugify>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://parking-management.com"
+Documentation = "https://docs.parking-management.com"
+Repository = "https://github.com/yourcompany/parking-management"
+Issues = "https://github.com/yourcompany/parking-management/issues"
+
+[project.scripts]
+parking-api = "parking_api.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["parking_api*"]
+exclude = ["tests*", "docs*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers"
+testpaths = [
+    "tests",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
