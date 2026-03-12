@@ -1,0 +1,308 @@
+{
+  "name": "parking-management-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Modern parking management system frontend built with React, TypeScript, and Vite",
+  "author": "Parking Management System Contributors",
+  "license": "MIT",
+  "homepage": "https://parking.example.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/parking-management.git",
+    "directory": "frontend"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/parking-management/issues",
+    "email": "bugs@parking.example.com"
+  },
+  "keywords": [
+    "parking",
+    "management",
+    "react",
+    "typescript",
+    "vite",
+    "material-ui",
+    "pwa"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc && vite build",
+    "build:analyze": "vite build --mode analyze",
+    "build:staging": "tsc && vite build --mode staging",
+    "build:production": "tsc && vite build --mode production",
+    "preview": "vite preview",
+    "preview:dist": "serve dist",
+    "clean": "rimraf dist build coverage .cache .eslintcache",
+    "clean:all": "rimraf dist build coverage node_modules .cache .eslintcache",
+    
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "lint:staged": "lint-staged",
+    
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,scss,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,scss,json,md}\"",
+    
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --coverage --reporter=junit --outputFile=test-results/junit.xml",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
+    "test:e2e:ci": "cypress run --headless --browser chrome",
+    
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build",
+    
+    "generate:component": "plop component",
+    "generate:page": "plop page",
+    "generate:hook": "plop hook",
+    "generate:util": "plop util",
+    
+    "validate": "npm run lint && npm run type-check && npm run test:run",
+    "validate:ci": "npm run lint && npm run type-check && npm run test:ci",
+    
+    "prepare": "husky install",
+    "precommit": "lint-staged",
+    "prepush": "npm run validate",
+    
+    "docker:build": "docker build -t parking-frontend .",
+    "docker:run": "docker run -p 3000:3000 parking-frontend",
+    "docker:compose": "docker-compose up -d",
+    
+    "deploy": "vercel --prod",
+    "deploy:staging": "vercel",
+    
+    "serve": "serve dist -p 3000",
+    "serve:https": "serve dist -p 3000 --ssl-cert localhost.pem --ssl-key localhost-key.pem",
+    
+    "analyze": "source-map-explorer 'dist/assets/*.js' --html dist/analyze.html",
+    "bundle:analyze": "vite-bundle-visualizer",
+    
+    "postinstall": "npm run type-check",
+    "postbuild": "npm run analyze",
+    "predev": "node scripts/validate-env.js",
+    "prebuild": "node scripts/validate-env.js"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.0",
+    "@mui/icons-material": "^5.14.0",
+    "@mui/x-data-grid": "^6.18.0",
+    "@mui/x-date-pickers": "^6.18.0",
+    "@mui/lab": "^5.0.0-alpha.150",
+    
+    "@tanstack/react-query": "^5.12.0",
+    "@tanstack/react-query-devtools": "^5.12.0",
+    "zustand": "^4.4.0",
+    "zustand-middleware": "^4.4.0",
+    
+    "react-hook-form": "^7.48.0",
+    "zod": "^3.22.0",
+    "@hookform/resolvers": "^3.3.0",
+    
+    "axios": "^1.6.0",
+    "socket.io-client": "^4.5.0",
+    
+    "@react-google-maps/api": "^2.19.0",
+    "react-geolocated": "^4.1.0",
+    
+    "@stripe/stripe-js": "^2.1.0",
+    "@stripe/react-stripe-js": "^2.3.0",
+    
+    "firebase": "^10.7.0",
+    
+    "date-fns": "^2.30.0",
+    "dayjs": "^1.11.0",
+    
+    "recharts": "^2.10.0",
+    
+    "react-dropzone": "^14.2.0",
+    "react-qr-code": "^2.0.0",
+    "react-toastify": "^9.1.0",
+    
+    "i18next": "^23.7.0",
+    "react-i18next": "^14.0.0",
+    "i18next-browser-languagedetector": "^7.2.0",
+    "i18next-http-backend": "^2.4.0",
+    
+    "clsx": "^2.0.0",
+    "class-variance-authority": "^0.7.0",
+    "tailwind-merge": "^2.0.0",
+    
+    "framer-motion": "^10.16.0",
+    
+    "react-intersection-observer": "^9.5.0",
+    "react-virtualized-auto-sizer": "^1.0.0",
+    "react-window": "^1.8.0",
+    
+    "react-helmet-async": "^2.0.0",
+    
+    "workbox-core": "^7.0.0",
+    "workbox-precaching": "^7.0.0",
+    "workbox-routing": "^7.0.0",
+    "workbox-strategies": "^7.0.0",
+    "workbox-expiration": "^7.0.0",
+    "workbox-window": "^7.0.0",
+    
+    "idb": "^8.0.0",
+    
+    "localforage": "^1.10.0",
+    
+    "uuid": "^9.0.0",
+    "@types/uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/node": "^20.0.0",
+    
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.17.0",
+    "vite-plugin-html": "^3.2.0",
+    "vite-plugin-compression": "^0.5.0",
+    "vite-plugin-svgr": "^4.2.0",
+    "vite-tsconfig-paths": "^4.2.0",
+    "vite-plugin-checker": "^0.6.0",
+    "vite-bundle-visualizer": "^1.0.0",
+    
+    "typescript": "^5.2.0",
+    
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jest": "^27.6.0",
+    "eslint-plugin-testing-library": "^6.2.0",
+    "eslint-plugin-cypress": "^2.15.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-promise": "^6.1.0",
+    "eslint-plugin-sonarjs": "^0.23.0",
+    "eslint-plugin-unicorn": "^49.0.0",
+    "eslint-plugin-security": "^1.7.0",
+    "eslint-plugin-no-secrets": "^0.8.0",
+    
+    "prettier": "^3.1.0",
+    
+    "vitest": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "@testing-library/react": "^14.1.0",
+    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@testing-library/dom": "^9.3.0",
+    "msw": "^2.0.0",
+    
+    "cypress": "^13.6.0",
+    "@cypress/code-coverage": "^3.12.0",
+    
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.0",
+    
+    "rimraf": "^5.0.0",
+    "serve": "^14.0.0",
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.0",
+    "dotenv": "^16.3.0",
+    "dotenv-cli": "^7.3.0",
+    
+    "@storybook/react": "^7.6.0",
+    "@storybook/react-vite": "^7.6.0",
+    "@storybook/addon-essentials": "^7.6.0",
+    "@storybook/addon-interactions": "^7.6.0",
+    "@storybook/addon-links": "^7.6.0",
+    "@storybook/addon-a11y": "^7.6.0",
+    "@storybook/test": "^7.6.0",
+    "@storybook/blocks": "^7.6.0",
+    "storybook": "^7.6.0",
+    
+    "plop": "^4.0.0",
+    
+    "source-map-explorer": "^2.5.0",
+    
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "tailwindcss": "^3.3.0",
+    
+    "sass": "^1.69.0",
+    
+    "http-server": "^14.0.0",
+    "local-ssl-proxy": "^2.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "overrides": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "resolutions": {
+    "**/@types/react": "^18.2.0",
+    "**/@types/react-dom": "^18.2.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,scss}": [
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run validate"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "msw": {
+    "workerDirectory": "public"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/test/setup.ts"
+    ]
+  }
+}

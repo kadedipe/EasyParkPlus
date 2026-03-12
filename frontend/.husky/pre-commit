@@ -1,0 +1,8 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Ensure package-lock.json is in sync
+node scripts/validate-lockfile.js || exit 1
+
+# Run lint-staged
+npx lint-staged
