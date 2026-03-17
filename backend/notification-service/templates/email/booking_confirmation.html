@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Booking Confirmation</title>
+    
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            background-color: #f4f4f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Outlook table fix */
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            mso-table-lspace: 0;
+            mso-table-rspace: 0;
+        }
+        
+        td {
+            padding: 0;
+        }
+        
+        /* Main container */
+        .email-wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f4f4f5;
+            padding: 40px 0;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Header styles */
+        .email-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        
+        .header-title {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 400;
+        }
+        
+        .header-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+        }
+        
+        /* Content styles */
+        .email-content {
+            padding: 40px 32px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #1f2937;
+        }
+        
+        .greeting span {
+            color: #2563eb;
+        }
+        
+        .message {
+            color: #4b5563;
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+        
+        /* Booking details card */
+        .booking-card {
+            background-color: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .booking-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #2563eb;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #6b7280;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .detail-highlight {
+            color: #2563eb;
+            font-weight: 700;
+        }
+        
+        /* Pricing section */
+        .pricing-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+        
+        .price-label {
+            color: #4b5563;
+        }
+        
+        .price-amount {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0 8px;
+            margin-top: 8px;
+            border-top: 2px solid #2563eb;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .total-amount {
+            color: #2563eb;
+            font-size: 24px;
+        }
+        
+        /* QR Code section */
+        .qr-section {
+            text-align: center;
+            padding: 24px;
+            background-color: #ffffff;
+            border: 2px dashed #2563eb;
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .qr-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+        
+        .qr-code {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 16px;
+            display: block;
+        }
+        
+        .qr-note {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        /* Important info */
+        .info-section {
+            background-color: #eff6ff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .info-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 12px;
+        }
+        
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-list li {
+            color: #4b5563;
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        
+        .info-list li:before {
+            content: "✓";
+            color: #2563eb;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Action buttons */
+        .actions {
+            text-align: center;
+            margin: 32px 0;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0 8px 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .button-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        
+        .button-primary:hover {
+            background-color: #1e40af;
+        }
+        
+        .button-secondary {
+            background-color: #ffffff;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+        }
+        
+        .button-secondary:hover {
+            background-color: #f8fafc;
+        }
+        
+        /* Map link */
+        .map-link {
+            text-align: center;
+            margin: 24px 0;
+        }
+        
+        .map-link a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .map-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        .email-footer {
+            background-color: #f8fafc;
+            padding: 32px 24px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .footer-logo {
+            width: 120px;
+            margin-bottom: 16px;
+        }
+        
+        .footer-text {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-link {
+            display: inline-block;
+            margin: 0 8px;
+            text-decoration: none;
+        }
+        
+        .social-icon {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .footer-links {
+            margin-top: 20px;
+        }
+        
+        .footer-links a {
+            color: #6b7280;
+            text-decoration: none;
+            margin: 0 12px;
+            font-size: 13px;
+        }
+        
+        .footer-links a:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        
+        .copyright {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        
+        /* Utilities */
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-success {
+            color: #10b981;
+        }
+        
+        .text-warning {
+            color: #f59e0b;
+        }
+        
+        .text-danger {
+            color: #ef4444;
+        }
+        
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+        
+        /* Mobile responsive */
+        @media screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                border-radius: 0;
+            }
+            
+            .email-content {
+                padding: 24px 16px !important;
+            }
+            
+            .booking-card {
+                padding: 16px !important;
+            }
+            
+            .button {
+                display: block !important;
+                margin: 0 0 12px 0 !important;
+            }
+            
+            .detail-row {
+                flex-direction: column !important;
+                gap: 4px !important;
+            }
+            
+            .detail-label {
+                font-size: 13px !important;
+            }
+            
+            .detail-value {
+                font-size: 15px !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .email-container {
+                background-color: #1f2937;
+            }
+            
+            .greeting,
+            .booking-title,
+            .detail-value,
+            .price-amount,
+            .total-row {
+                color: #f3f4f6;
+            }
+            
+            .message,
+            .detail-label,
+            .price-label,
+            .qr-note,
+            .info-list li {
+                color: #d1d5db;
+            }
+            
+            .booking-card,
+            .pricing-section {
+                background-color: #374151;
+                border-color: #4b5563;
+            }
+            
+            .info-section {
+                background-color: #1e3a8a;
+            }
+            
+            .info-title {
+                color: #93c5fd;
+            }
+            
+            .email-footer {
+                background-color: #374151;
+                border-top-color: #4b5563;
+            }
+            
+            .footer-text,
+            .footer-links a,
+            .copyright {
+                color: #9ca3af;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <!--[if (gte mso 9)|(IE)]>
+        <table width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td>
+        <![endif]-->
+        
+        <table class="email-container" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+            <!-- Header -->
+            <tr>
+                <td class="email-header">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                        <tr>
+                            <td align="center">
+                                <!--[if gte mso 9]>
+                                <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;">
+                                    <v:fill type="gradient" color="#2563eb" color2="#1e40af" />
+                                <![endif]-->
+                                <img src="{{ app_url }}/images/success-icon.png" alt="Success" class="header-icon" width="64" height="64">
+                                <h1 class="header-title">Booking Confirmed! 🎉</h1>
+                                <p class="header-subtitle">Your parking spot has been successfully reserved</p>
+                                <!--[if gte mso 9]>
+                                </v:rect>
+                                <![endif]-->
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <!-- Content -->
+            <tr>
+                <td class="email-content">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                        <!-- Greeting -->
+                        <tr>
+                            <td class="greeting">
+                                Dear <span>{{ user_name }}</span>,
+                            </td>
+                        </tr>
+                        
+                        <!-- Message -->
+                        <tr>
+                            <td class="message">
+                                Thank you for choosing {{ app_name }}. Your parking booking has been confirmed and is ready for your arrival.
+                            </td>
+                        </tr>
+                        
+                        <!-- Booking Details Card -->
+                        <tr>
+                            <td>
+                                <table class="booking-card" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="booking-title" colspan="2">📋 Booking Details</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Booking ID:</td>
+                                        <td class="detail-value">#{{ booking_id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Booking Reference:</td>
+                                        <td class="detail-value">{{ booking_reference }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Status:</td>
+                                        <td class="detail-value"><span class="text-success">● Confirmed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Booking Date:</td>
+                                        <td class="detail-value">{{ booking_date|date("%B %d, %Y") }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Location Details -->
+                        <tr>
+                            <td>
+                                <table class="booking-card" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="booking-title" colspan="2">📍 Location Details</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Parking Facility:</td>
+                                        <td class="detail-value">{{ parking_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Address:</td>
+                                        <td class="detail-value">{{ parking_address }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Spot Number:</td>
+                                        <td class="detail-value detail-highlight">{{ spot_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Floor/Level:</td>
+                                        <td class="detail-value">{{ parking_level }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Zone/Section:</td>
+                                        <td class="detail-value">{{ parking_zone }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Near Entrance:</td>
+                                        <td class="detail-value">{{ near_entrance }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">EV Charging:</td>
+                                        <td class="detail-value">{{ ev_charging }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Vehicle & Time Details -->
+                        <tr>
+                            <td>
+                                <table class="booking-card" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="booking-title" colspan="2">🚗 Vehicle & Schedule</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Vehicle Plate:</td>
+                                        <td class="detail-value">{{ vehicle_plate }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Vehicle Model:</td>
+                                        <td class="detail-value">{{ vehicle_model }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Vehicle Color:</td>
+                                        <td class="detail-value">{{ vehicle_color }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Start Time:</td>
+                                        <td class="detail-value">{{ start_time|date("%B %d, %Y at %I:%M %p") }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">End Time:</td>
+                                        <td class="detail-value">{{ end_time|date("%B %d, %Y at %I:%M %p") }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Duration:</td>
+                                        <td class="detail-value">{{ duration }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Check-in Window:</td>
+                                        <td class="detail-value">{{ check_in_window }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Late Arrival Policy:</td>
+                                        <td class="detail-value">{{ late_arrival_policy }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Pricing Section -->
+                        <tr>
+                            <td>
+                                <table class="pricing-section" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="booking-title" colspan="2">💰 Payment Summary</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price-label">Base Rate ({{ duration }}):</td>
+                                        <td class="price-amount">{{ base_amount|currency(currency) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price-label">Service Fee:</td>
+                                        <td class="price-amount">{{ service_fee|currency(currency) }}</td>
+                                    </tr>
+                                    {% if tax_amount > 0 %}
+                                    <tr>
+                                        <td class="price-label">Tax ({{ tax_rate }}%):</td>
+                                        <td class="price-amount">{{ tax_amount|currency(currency) }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if discount_amount > 0 %}
+                                    <tr>
+                                        <td class="price-label text-success">Discount:</td>
+                                        <td class="price-amount text-success">-{{ discount_amount|currency(currency) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price-label">Coupon Applied:</td>
+                                        <td class="price-amount">{{ coupon_code }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <td class="total-row">Total Paid:</td>
+                                        <td class="total-amount">{{ total_amount|currency(currency) }}</td>
+                                    </tr>
+                                    {% if payment_method %}
+                                    <tr>
+                                        <td class="detail-label">Payment Method:</td>
+                                        <td class="detail-value">{{ payment_method }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="detail-label">Transaction ID:</td>
+                                        <td class="detail-value">{{ transaction_id }}</td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- QR Code Section -->
+                        <tr>
+                            <td>
+                                <table class="qr-section" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td align="center">
+                                            <h3 class="qr-title">📱 Entry QR Code</h3>
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ qr_data }}" 
+                                                 alt="Booking QR Code" 
+                                                 class="qr-code"
+                                                 width="160"
+                                                 height="160">
+                                            <p class="qr-note">Scan this QR code at the entrance gate for quick access</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Map Link -->
+                        <tr>
+                            <td class="map-link">
+                                <a href="{{ map_link }}" target="_blank">
+                                    <span>📍 View Parking Location on Map</span>
+                                    <span style="font-size: 18px;">→</span>
+                                </a>
+                            </td>
+                        </tr>
+                        
+                        <!-- Important Information -->
+                        <tr>
+                            <td>
+                                <table class="info-section" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="info-title">📌 Important Information</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <ul class="info-list">
+                                                <li>Please arrive at least 15 minutes before your booking time</li>
+                                                <li>Have your QR code ready at the entrance for quick access</li>
+                                                <li>Free cancellation up to 1 hour before start time</li>
+                                                <li>You can extend your session remotely via the app</li>
+                                                <li>The parking facility is monitored 24/7 by security cameras</li>
+                                                <li>Contact support at {{ support_email }} if you need assistance</li>
+                                                <li>Lost your QR code? You can access it in the app under "My Bookings"</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Action Buttons -->
+                        <tr>
+                            <td class="actions">
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td align="center">
+                                            <!--[if mso]>
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ cancel_link }}" style="height:44px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#2563eb">
+                                                <w:anchorlock/>
+                                                <center>
+                                            <![endif]-->
+                                            <a href="{{ cancel_link }}" class="button button-primary">Cancel Booking</a>
+                                            <!--[if mso]>
+                                                </center>
+                                            </v:roundrect>
+                                            <![endif]-->
+                                            
+                                            <!--[if mso]>
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ extend_link }}" style="height:44px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="t" strokecolor="#2563eb" fillcolor="#ffffff">
+                                                <w:anchorlock/>
+                                                <center>
+                                            <![endif]-->
+                                            <a href="{{ extend_link }}" class="button button-secondary">Extend Booking</a>
+                                            <!--[if mso]>
+                                                </center>
+                                            </v:roundrect>
+                                            <![endif]-->
+                                            
+                                            <!--[if mso]>
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ app_url }}/bookings/{{ booking_id }}" style="height:44px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="t" strokecolor="#6b7280" fillcolor="#ffffff">
+                                                <w:anchorlock/>
+                                                <center>
+                                            <![endif]-->
+                                            <a href="{{ app_url }}/bookings/{{ booking_id }}" class="button button-secondary">View Details</a>
+                                            <!--[if mso]>
+                                                </center>
+                                            </v:roundrect>
+                                            <![endif]-->
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Additional Info -->
+                        <tr>
+                            <td style="padding-top: 20px;">
+                                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                                <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                                    Need to make changes? You can modify your booking up to 2 hours before start time.<br>
+                                    Download our app for easy access and real-time updates.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <!-- Footer -->
+            <tr>
+                <td class="email-footer">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                        <!-- Logo -->
+                        <tr>
+                            <td align="center">
+                                <img src="{{ app_url }}/images/logo-white.png" alt="{{ app_name }}" class="footer-logo" width="120" height="40">
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer Text -->
+                        <tr>
+                            <td class="footer-text">
+                                Your trusted partner for hassle-free parking
+                            </td>
+                        </tr>
+                        
+                        <!-- Social Links -->
+                        <tr>
+                            <td class="social-links">
+                                <a href="{{ facebook_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="social-icon" width="32" height="32">
+                                </a>
+                                <a href="{{ twitter_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" class="social-icon" width="32" height="32">
+                                </a>
+                                <a href="{{ instagram_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="social-icon" width="32" height="32">
+                                </a>
+                                <a href="{{ linkedin_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733561.png" alt="LinkedIn" class="social-icon" width="32" height="32">
+                                </a>
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer Links -->
+                        <tr>
+                            <td class="footer-links">
+                                <a href="{{ app_url }}/about">About Us</a>
+                                <a href="{{ app_url }}/contact">Contact</a>
+                                <a href="{{ app_url }}/privacy">Privacy Policy</a>
+                                <a href="{{ app_url }}/terms">Terms of Service</a>
+                                <a href="{{ app_url }}/help">Help Center</a>
+                            </td>
+                        </tr>
+                        
+                        <!-- Copyright -->
+                        <tr>
+                            <td class="copyright">
+                                &copy; {{ current_year }} {{ app_name }}. All rights reserved.<br>
+                                123 Parking Avenue, San Francisco, CA 94105
+                            </td>
+                        </tr>
+                        
+                        <!-- Unsubscribe (optional) -->
+                        <tr>
+                            <td style="padding-top: 20px;">
+                                <p style="color: #9ca3af; font-size: 12px;">
+                                    You're receiving this email because you made a booking with {{ app_name }}.<br>
+                                    Not expecting this email? <a href="{{ app_url }}/contact" style="color: #9ca3af;">Contact us</a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        
+        <!--[if (gte mso 9)|(IE)]>
+                </td>
+            </tr>
+        </table>
+        <![endif]-->
+    </div>
+</body>
+</html>

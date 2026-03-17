@@ -1,0 +1,89 @@
+PAYMENT CONFIRMATION
+====================
+Your transaction has been completed successfully
+
+Thank you for your payment, {{ user_name }}
+
+We've successfully received your payment. Your transaction has been processed securely and the funds have been transferred. A receipt has been sent to your email address.
+
+PAYMENT SUMMARY
+---------------
+Total Amount: {{ total_amount|currency(currency) }}
+Transaction ID: {{ transaction_id }}
+Payment ID: {{ payment_id }}
+Date & Time: {{ payment_date|date("%B %d, %Y at %I:%M %p") }}
+Status: COMPLETED
+Payment Method: {{ payment_method }}
+{% if payment_method_details %}Card Details: {{ payment_method_details }}{% endif %}
+
+{% if show_breakdown %}
+PRICE BREAKDOWN
+---------------
+Subtotal: {{ subtotal|currency(currency) }}
+{% if tax_amount > 0 %}Tax ({{ tax_rate }}%): {{ tax_amount|currency(currency) }}{% endif %}
+{% if fee_amount > 0 %}Processing Fee: {{ fee_amount|currency(currency) }}{% endif %}
+{% if discount_amount > 0 %}Discount: -{{ discount_amount|currency(currency) }}{% endif %}
+----------------------------------------
+TOTAL PAID: {{ total_amount|currency(currency) }}
+{% endif %}
+
+{% if booking_id %}
+BOOKING DETAILS
+---------------
+Booking ID: {{ booking_id }}
+Reference: {{ booking_reference }}
+Location: {{ parking_name }}
+Spot Number: {{ spot_number }}
+Vehicle Plate: {{ vehicle_plate }}
+Duration: {{ duration }}
+{% endif %}
+
+RECEIPT
+-------
+Download PDF: {{ receipt_pdf_url }}
+View Online: {{ receipt_html_url }}
+Email Receipt: {{ receipt_email_url }}
+
+TRANSACTION REFERENCE
+---------------------
+Transaction Hash: {{ transaction_hash }}
+Authorization Code: {{ auth_code }}
+Merchant ID: {{ merchant_id }}
+Terminal ID: {{ terminal_id }}
+
+MANAGE YOUR TRANSACTION
+-----------------------
+View Details: {{ transaction_url }}
+View Invoice: {{ invoice_url }}
+
+SECURITY FEATURES
+-----------------
+• 256-bit SSL Encryption
+• Real-time Processing
+• Mobile Ready
+• Fraud Protection
+
+Need help with this transaction?
+Contact our support team:
+Email: {{ support_email }}
+Phone: {{ support_phone }}
+
+This transaction will appear on your statement as "{{ statement_descriptor }}"
+
+---
+{{ app_name }} - Secure payments powered by {{ payment_gateway }}
+{{ app_url }}
+
+Connect with us:
+Facebook: {{ facebook_url }}
+Twitter: {{ twitter_url }}
+Instagram: {{ instagram_url }}
+LinkedIn: {{ linkedin_url }}
+
+&copy; {{ current_year }} {{ app_name }}. All rights reserved.
+Payments processed securely by {{ payment_processor }}
+PCI DSS Compliant | 256-bit SSL Encryption
+
+This is a transactional email related to your payment.
+Notification preferences: {{ preferences_url }}
+Unsubscribe from marketing: {{ unsubscribe_url }}
