@@ -1,0 +1,96 @@
+BOOKING CONFIRMATION
+====================
+Your parking spot has been successfully reserved
+
+Dear {{ user_name }},
+
+Thank you for choosing {{ app_name }}. Your parking booking has been confirmed and is ready for your arrival.
+
+BOOKING DETAILS
+---------------
+Booking ID: #{{ booking_id }}
+Booking Reference: {{ booking_reference }}
+Status: CONFIRMED
+Booking Date: {{ booking_date|date("%B %d, %Y") }}
+
+LOCATION DETAILS
+----------------
+Parking Facility: {{ parking_name }}
+Address: {{ parking_address }}
+Spot Number: {{ spot_number }}
+Floor/Level: {{ parking_level }}
+Zone/Section: {{ parking_zone }}
+Near Entrance: {{ near_entrance }}
+EV Charging: {{ ev_charging }}
+
+VEHICLE & SCHEDULE
+------------------
+Vehicle Plate: {{ vehicle_plate }}
+Vehicle Model: {{ vehicle_model }}
+Vehicle Color: {{ vehicle_color }}
+Start Time: {{ start_time|date("%B %d, %Y at %I:%M %p") }}
+End Time: {{ end_time|date("%B %d, %Y at %I:%M %p") }}
+Duration: {{ duration }}
+Check-in Window: {{ check_in_window }}
+Late Arrival Policy: {{ late_arrival_policy }}
+
+PAYMENT SUMMARY
+---------------
+Base Rate ({{ duration }}): {{ base_amount|currency(currency) }}
+Service Fee: {{ service_fee|currency(currency) }}{% if tax_amount > 0 %}
+Tax ({{ tax_rate }}%): {{ tax_amount|currency(currency) }}{% endif %}{% if discount_amount > 0 %}
+Discount: -{{ discount_amount|currency(currency) }}
+Coupon Applied: {{ coupon_code }}{% endif %}
+----------------------------------------
+TOTAL PAID: {{ total_amount|currency(currency) }}{% if payment_method %}
+
+Payment Method: {{ payment_method }}
+Transaction ID: {{ transaction_id }}{% endif %}
+
+QR CODE ACCESS
+--------------
+Your QR code for entry is available in the app or at:
+{{ app_url }}/qr/{{ booking_id }}
+
+Scan this QR code at the entrance gate for quick access.
+
+VIEW ON MAP
+-----------
+{{ map_link }}
+
+IMPORTANT INFORMATION
+---------------------
+• Please arrive at least 15 minutes before your booking time
+• Have your QR code ready at the entrance for quick access
+• Free cancellation up to 1 hour before start time
+• You can extend your session remotely via the app
+• The parking facility is monitored 24/7 by security cameras
+• Contact support at {{ support_email }} if you need assistance
+• Lost your QR code? You can access it in the app under "My Bookings"
+
+MANAGE YOUR BOOKING
+-------------------
+Cancel: {{ cancel_link }}
+Extend: {{ extend_link }}
+View Details: {{ app_url }}/bookings/{{ booking_id }}
+
+Need to make changes? You can modify your booking up to 2 hours before start time.
+Download our app for easy access and real-time updates.
+
+---
+{{ app_name }} - Your trusted partner for hassle-free parking
+{{ app_url }}
+
+Connect with us:
+Facebook: {{ facebook_url }}
+Twitter: {{ twitter_url }}
+Instagram: {{ instagram_url }}
+LinkedIn: {{ linkedin_url }}
+
+Support: {{ support_email }} | Phone: {{ support_phone }}
+
+&copy; {{ current_year }} {{ app_name }}. All rights reserved.
+123 Parking Avenue, San Francisco, CA 94105
+
+You're receiving this email because you made a booking with {{ app_name }}.
+Not expecting this email? Contact us at {{ support_email }} to resolve any issues.

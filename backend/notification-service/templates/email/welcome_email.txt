@@ -1,0 +1,97 @@
+WELCOME TO {{ app_name|upper }}!
+===============================
+Your journey to hassle-free parking starts here
+
+Hello {{ user_name }}!
+
+We're absolutely thrilled to have you on board! {{ app_name }} is your one-stop solution for all parking needs. Whether you're commuting to work, heading out for shopping, or planning a weekend getaway, we've got you covered with the best parking spots in town.
+
+VERIFY YOUR EMAIL ADDRESS
+-------------------------
+To start using all features and ensure the security of your account, please verify your email address:
+
+{{ verify_link }}
+
+This link expires in {{ verify_expiry_hours }} hours.
+
+WHAT YOU CAN DO WITH {{ app_name|upper }}
+----------------------------------------
+
+🔍 FIND PARKING
+   Discover available parking spots near you in real-time with our smart search
+
+📱 BOOK IN ADVANCE
+   Reserve your spot ahead of time and never worry about finding parking again
+
+💳 EASY PAYMENTS
+   Secure and seamless payment options including cards, PayPal, and digital wallets
+
+⏰ EXTEND REMOTELY
+   Running late? Extend your parking session from anywhere with just a tap
+
+🎫 DIGITAL RECEIPTS
+   Get instant digital receipts for all your transactions, never lose a receipt again
+
+⭐ REWARDS PROGRAM
+   Earn points with every booking and redeem them for free parking sessions
+
+QUICK STATS
+-----------
+• 500+ Parking Locations
+• 50K+ Happy Customers
+• 24/7 Customer Support
+
+QUICK START GUIDE
+-----------------
+1. Complete Your Profile
+   Add your vehicle details and payment methods for faster bookings
+
+2. Find Your Perfect Spot
+   Use our smart search to find available parking near your destination
+
+3. Book & Pay Securely
+   Reserve your spot and complete payment with our secure checkout
+
+4. Park with Ease
+   Use your QR code for entry and enjoy your parking experience
+
+WHAT OUR CUSTOMERS SAY
+----------------------
+"{{ app_name }} has completely transformed how I park in the city. I used to spend 20 minutes looking for parking, now I just book in advance and drive straight to my spot. The app is incredibly user-friendly and reliable!"
+- Sarah Johnson, Verified Customer (50+ bookings)
+
+GET THE {{ app_name|upper }} APP
+-------------------------------
+Download our mobile app for the best experience:
+
+App Store: {{ app_store_link }}
+Google Play: {{ play_store_link }}
+
+GET STARTED TODAY
+-----------------
+Explore Parking: {{ explore_link }}
+Learn More: {{ learn_more_link }}
+
+Questions? We're here to help!
+Email: {{ support_email }}
+Phone: {{ support_phone }}
+
+Connect with us on social media for updates and offers:
+Facebook: {{ facebook_url }}
+Twitter: {{ twitter_url }}
+Instagram: {{ instagram_url }}
+LinkedIn: {{ linkedin_url }}
+
+---
+{{ app_name }} - Making parking simple, smart, and stress-free.
+Join thousands of happy customers who park with us every day.
+
+{{ company_address }}
+{{ company_city }}, {{ company_state }} {{ company_zip }}
+{{ company_country }}
+
+&copy; {{ current_year }} {{ app_name }}. All rights reserved.
+
+This email was sent to {{ user_email }} because you created an account with {{ app_name }}.
+Notification preferences: {{ preferences_url }}
+Unsubscribe: {{ unsubscribe_url }}

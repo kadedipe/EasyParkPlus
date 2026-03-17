@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Payment Confirmation</title>
+    
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            background-color: #f4f4f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Outlook table fix */
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            mso-table-lspace: 0;
+            mso-table-rspace: 0;
+        }
+        
+        td {
+            padding: 0;
+        }
+        
+        /* Main container */
+        .email-wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f4f4f5;
+            padding: 40px 0;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* Header styles */
+        .email-header {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            padding: 40px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .email-header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+        
+        .header-title {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 18px;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Success badge */
+        .success-badge {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 8px 20px;
+            border-radius: 40px;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+        
+        /* Content styles */
+        .email-content {
+            padding: 48px 32px;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        
+        .greeting span {
+            color: #059669;
+            border-bottom: 2px solid #059669;
+            padding-bottom: 2px;
+        }
+        
+        .message {
+            color: #4b5563;
+            margin-bottom: 32px;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        /* Amount card */
+        .amount-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            text-align: center;
+            border: 1px solid #86efac;
+        }
+        
+        .amount-label {
+            color: #065f46;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .amount-value {
+            color: #059669;
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        
+        .amount-currency {
+            color: #047857;
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .amount-status {
+            color: #065f46;
+            font-size: 14px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #059669;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Payment details card */
+        .payment-card {
+            background-color: #f9fafb;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #059669;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-title-icon {
+            font-size: 24px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .detail-item {
+            margin-bottom: 16px;
+        }
+        
+        .detail-item.full-width {
+            grid-column: span 2;
+        }
+        
+        .detail-label {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-value {
+            color: #1f2937;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .detail-value.highlight {
+            color: #059669;
+            font-size: 18px;
+        }
+        
+        .detail-value.success {
+            color: #059669;
+        }
+        
+        .detail-value.warning {
+            color: #d97706;
+        }
+        
+        /* Payment method icons */
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .payment-info {
+            flex: 1;
+        }
+        
+        .payment-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+        
+        .payment-desc {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        
+        /* Price breakdown */
+        .price-breakdown {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        
+        .price-row:last-child {
+            border-bottom: none;
+        }
+        
+        .price-label {
+            color: #4b5563;
+        }
+        
+        .price-value {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .price-row.total {
+            border-top: 2px solid #059669;
+            margin-top: 8px;
+            padding-top: 16px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .total-label {
+            color: #1f2937;
+        }
+        
+        .total-value {
+            color: #059669;
+        }
+        
+        /* Receipt section */
+        .receipt-section {
+            background-color: #f0f9ff;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            border-left: 4px solid #0284c7;
+        }
+        
+        .receipt-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 12px;
+        }
+        
+        .receipt-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        /* Action buttons */
+        .actions {
+            text-align: center;
+            margin: 32px 0;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0 8px 16px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+        }
+        
+        .button-primary:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(5, 150, 105, 0.4);
+        }
+        
+        .button-secondary {
+            background-color: #ffffff;
+            color: #059669;
+            border: 2px solid #059669;
+        }
+        
+        .button-secondary:hover {
+            background-color: #f0fdf4;
+            transform: translateY(-1px);
+        }
+        
+        .button-outline {
+            background-color: transparent;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+            padding: 10px 24px;
+        }
+        
+        .button-outline:hover {
+            border-color: #059669;
+            color: #059669;
+        }
+        
+        /* Transaction details */
+        .transaction-details {
+            background-color: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .transaction-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            color: #4b5563;
+        }
+        
+        .transaction-label {
+            font-weight: 500;
+        }
+        
+        .transaction-value {
+            font-family: monospace;
+            background-color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        /* Features grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .feature-item {
+            text-align: center;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 12px;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .feature-text {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        /* Footer */
+        .email-footer {
+            background-color: #f9fafb;
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .footer-logo {
+            width: 120px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        
+        .footer-text {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+        
+        .social-links {
+            margin: 24px 0;
+        }
+        
+        .social-link {
+            display: inline-block;
+            margin: 0 8px;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+        
+        .social-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-links {
+            margin-top: 24px;
+        }
+        
+        .footer-links a {
+            color: #6b7280;
+            text-decoration: none;
+            margin: 0 16px;
+            font-size: 13px;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #059669;
+            text-decoration: underline;
+        }
+        
+        .copyright {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Utilities */
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-success {
+            color: #059669;
+        }
+        
+        .text-warning {
+            color: #d97706;
+        }
+        
+        .text-danger {
+            color: #dc2626;
+        }
+        
+        .mt-4 {
+            margin-top: 16px;
+        }
+        
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+            margin: 24px 0;
+        }
+        
+        /* Mobile responsive */
+        @media screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                border-radius: 0;
+            }
+            
+            .email-content {
+                padding: 32px 20px !important;
+            }
+            
+            .amount-value {
+                font-size: 36px !important;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr !important;
+                gap: 8px !important;
+            }
+            
+            .detail-item.full-width {
+                grid-column: span 1 !important;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .button {
+                display: block !important;
+                margin: 0 0 12px 0 !important;
+                width: 100% !important;
+            }
+            
+            .receipt-actions {
+                flex-direction: column !important;
+            }
+            
+            .footer-links a {
+                display: block !important;
+                margin: 8px 0 !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #111827;
+            }
+            
+            .email-wrapper {
+                background-color: #111827;
+            }
+            
+            .email-container {
+                background-color: #1f2937;
+            }
+            
+            .greeting,
+            .card-title,
+            .detail-value,
+            .price-label,
+            .price-value,
+            .total-label,
+            .feature-title {
+                color: #f3f4f6;
+            }
+            
+            .message,
+            .detail-label,
+            .price-label,
+            .feature-text,
+            .transaction-label {
+                color: #9ca3af;
+            }
+            
+            .payment-card,
+            .price-breakdown,
+            .transaction-details,
+            .feature-item {
+                background-color: #374151;
+                border-color: #4b5563;
+            }
+            
+            .detail-value.highlight {
+                color: #34d399;
+            }
+            
+            .email-footer {
+                background-color: #374151;
+                border-top-color: #4b5563;
+            }
+            
+            .footer-text,
+            .footer-links a,
+            .copyright {
+                color: #9ca3af;
+            }
+            
+            .button-secondary {
+                background-color: transparent;
+                color: #34d399;
+                border-color: #34d399;
+            }
+            
+            .button-outline {
+                border-color: #4b5563;
+                color: #9ca3af;
+            }
+            
+            .divider {
+                background: linear-gradient(to right, transparent, #4b5563, transparent);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <!--[if (gte mso 9)|(IE)]>
+        <table width="600" align="center" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td>
+        <![endif]-->
+        
+        <table class="email-container" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+            <!-- Header -->
+            <tr>
+                <td class="email-header">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                        <tr>
+                            <td align="center">
+                                <!--[if gte mso 9]>
+                                <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;">
+                                    <v:fill type="gradient" color="#059669" color2="#047857" />
+                                <![endif]-->
+                                <img src="{{ app_url }}/images/payment-success-icon.png" 
+                                     alt="Payment Success" 
+                                     class="header-icon" 
+                                     width="80" 
+                                     height="80"
+                                     style="display: block;">
+                                <h1 class="header-title">Payment Successful! 🎉</h1>
+                                <p class="header-subtitle">Your transaction has been completed</p>
+                                <div class="success-badge">
+                                    ✓ Payment Verified & Secured
+                                </div>
+                                <!--[if gte mso 9]>
+                                </v:rect>
+                                <![endif]-->
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <!-- Content -->
+            <tr>
+                <td class="email-content">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                        <!-- Greeting -->
+                        <tr>
+                            <td class="greeting">
+                                Thank you for your payment, <span>{{ user_name }}</span>
+                            </td>
+                        </tr>
+                        
+                        <!-- Message -->
+                        <tr>
+                            <td class="message">
+                                We've successfully received your payment. Your transaction has been processed securely and the funds have been transferred. A receipt has been sent to your email address.
+                            </td>
+                        </tr>
+                        
+                        <!-- Amount Card -->
+                        <tr>
+                            <td>
+                                <table class="amount-card" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td align="center">
+                                            <div class="amount-label">Total Amount</div>
+                                            <div class="amount-value">{{ total_amount|currency(currency) }}</div>
+                                            <div class="amount-currency">{{ currency }}</div>
+                                            <div class="amount-status">
+                                                <span class="status-dot"></span>
+                                                Payment Completed
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Payment Details Card -->
+                        <tr>
+                            <td>
+                                <table class="payment-card" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="card-title" colspan="2">
+                                            <span class="card-title-icon">💳</span>
+                                            Payment Details
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="detail-grid">
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Transaction ID</div>
+                                                    <div class="detail-value highlight">{{ transaction_id }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Payment ID</div>
+                                                    <div class="detail-value">{{ payment_id }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Date & Time</div>
+                                                    <div class="detail-value">{{ payment_date|date("%B %d, %Y at %I:%M %p") }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Status</div>
+                                                    <div class="detail-value success">✓ Completed</div>
+                                                </div>
+                                                <div class="detail-item full-width">
+                                                    <div class="detail-label">Payment Method</div>
+                                                    <div class="payment-method">
+                                                        <img src="{{ payment_method_icon }}" 
+                                                             alt="{{ payment_method }}" 
+                                                             class="payment-icon"
+                                                             width="40"
+                                                             height="40">
+                                                        <div class="payment-info">
+                                                            <div class="payment-name">{{ payment_method }}</div>
+                                                            <div class="payment-desc">{{ payment_method_details }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Price Breakdown -->
+                        {% if show_breakdown %}
+                        <tr>
+                            <td>
+                                <table class="payment-card" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="card-title" colspan="2">
+                                            <span class="card-title-icon">📊</span>
+                                            Price Breakdown
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="price-breakdown">
+                                                <div class="price-row">
+                                                    <span class="price-label">Subtotal</span>
+                                                    <span class="price-value">{{ subtotal|currency(currency) }}</span>
+                                                </div>
+                                                {% if tax_amount > 0 %}
+                                                <div class="price-row">
+                                                    <span class="price-label">Tax ({{ tax_rate }}%)</span>
+                                                    <span class="price-value">{{ tax_amount|currency(currency) }}</span>
+                                                </div>
+                                                {% endif %}
+                                                {% if fee_amount > 0 %}
+                                                <div class="price-row">
+                                                    <span class="price-label">Processing Fee</span>
+                                                    <span class="price-value">{{ fee_amount|currency(currency) }}</span>
+                                                </div>
+                                                {% endif %}
+                                                {% if discount_amount > 0 %}
+                                                <div class="price-row">
+                                                    <span class="price-label text-success">Discount</span>
+                                                    <span class="price-value text-success">-{{ discount_amount|currency(currency) }}</span>
+                                                </div>
+                                                {% endif %}
+                                                <div class="price-row total">
+                                                    <span class="total-label">Total Paid</span>
+                                                    <span class="total-value">{{ total_amount|currency(currency) }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        
+                        <!-- Booking/Service Details -->
+                        {% if booking_id %}
+                        <tr>
+                            <td>
+                                <table class="payment-card" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="card-title" colspan="2">
+                                            <span class="card-title-icon">🚗</span>
+                                            Booking Details
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="detail-grid">
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Booking ID</div>
+                                                    <div class="detail-value">{{ booking_id }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Reference</div>
+                                                    <div class="detail-value">{{ booking_reference }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Location</div>
+                                                    <div class="detail-value">{{ parking_name }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Spot Number</div>
+                                                    <div class="detail-value">{{ spot_number }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Vehicle Plate</div>
+                                                    <div class="detail-value">{{ vehicle_plate }}</div>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <div class="detail-label">Duration</div>
+                                                    <div class="detail-value">{{ duration }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        
+                        <!-- Receipt Section -->
+                        <tr>
+                            <td>
+                                <table class="receipt-section" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="receipt-title">🧾 Download Your Receipt</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="receipt-actions">
+                                            <a href="{{ receipt_pdf_url }}" class="button button-outline" style="margin: 0 4px;">📥 Download PDF</a>
+                                            <a href="{{ receipt_html_url }}" class="button button-outline" style="margin: 0 4px;">🖨️ View Online</a>
+                                            <a href="{{ receipt_email_url }}" class="button button-outline" style="margin: 0 4px;">📧 Email Receipt</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-top: 12px;">
+                                            <p style="color: #6b7280; font-size: 13px; margin: 0;">
+                                                A copy of this receipt has been sent to {{ user_email }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Transaction Details (for reference) -->
+                        <tr>
+                            <td>
+                                <table class="transaction-details" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td colspan="2" style="padding-bottom: 12px; font-weight: 600; color: #1f2937;">
+                                            🔒 Transaction Details
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="transaction-row">
+                                            <span class="transaction-label">Transaction Hash:</span>
+                                            <span class="transaction-value">{{ transaction_hash }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="transaction-row">
+                                            <span class="transaction-label">Authorization Code:</span>
+                                            <span class="transaction-value">{{ auth_code }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="transaction-row">
+                                            <span class="transaction-label">Merchant ID:</span>
+                                            <span class="transaction-value">{{ merchant_id }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="transaction-row">
+                                            <span class="transaction-label">Terminal ID:</span>
+                                            <span class="transaction-value">{{ terminal_id }}</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Features Grid -->
+                        <tr>
+                            <td>
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td class="features-grid" style="display: table; width: 100%;">
+                                            <table width="48%" cellpadding="0" cellspacing="0" border="0" style="float: left; margin-right: 4%;" role="presentation">
+                                                <tr>
+                                                    <td class="feature-item">
+                                                        <div class="feature-icon">🔒</div>
+                                                        <div class="feature-title">Secure Payment</div>
+                                                        <div class="feature-text">256-bit SSL encryption</div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table width="48%" cellpadding="0" cellspacing="0" border="0" style="float: left;" role="presentation">
+                                                <tr>
+                                                    <td class="feature-item">
+                                                        <div class="feature-icon">⚡</div>
+                                                        <div class="feature-title">Instant Processing</div>
+                                                        <div class="feature-text">Real-time transaction</div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="features-grid" style="display: table; width: 100%; margin-top: 16px;">
+                                            <table width="48%" cellpadding="0" cellspacing="0" border="0" style="float: left; margin-right: 4%;" role="presentation">
+                                                <tr>
+                                                    <td class="feature-item">
+                                                        <div class="feature-icon">📱</div>
+                                                        <div class="feature-title">Mobile Ready</div>
+                                                        <div class="feature-text">Access on any device</div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table width="48%" cellpadding="0" cellspacing="0" border="0" style="float: left;" role="presentation">
+                                                <tr>
+                                                    <td class="feature-item">
+                                                        <div class="feature-icon">🛡️</div>
+                                                        <div class="feature-title">Fraud Protection</div>
+                                                        <div class="feature-text">Advanced security</div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Action Buttons -->
+                        <tr>
+                            <td class="actions">
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                                    <tr>
+                                        <td align="center">
+                                            <!--[if mso]>
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ transaction_url }}" style="height:48px;v-text-anchor:middle;width:200px;" arcsize="25%" stroke="f" fillcolor="#059669">
+                                                <w:anchorlock/>
+                                                <center>
+                                            <![endif]-->
+                                            <a href="{{ transaction_url }}" class="button button-primary">View Transaction</a>
+                                            <!--[if mso]>
+                                                </center>
+                                            </v:roundrect>
+                                            <![endif]-->
+                                            
+                                            <!--[if mso]>
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ invoice_url }}" style="height:48px;v-text-anchor:middle;width:200px;" arcsize="25%" stroke="t" strokecolor="#059669" fillcolor="#ffffff">
+                                                <w:anchorlock/>
+                                                <center>
+                                            <![endif]-->
+                                            <a href="{{ invoice_url }}" class="button button-secondary">View Invoice</a>
+                                            <!--[if mso]>
+                                                </center>
+                                            </v:roundrect>
+                                            <![endif]-->
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <!-- Support Information -->
+                        <tr>
+                            <td>
+                                <div class="divider"></div>
+                                <p style="color: #6b7280; font-size: 14px; text-align: center; margin: 24px 0 0;">
+                                    Need help with this transaction? Contact our support team<br>
+                                    <a href="mailto:{{ support_email }}" style="color: #059669; text-decoration: none; font-weight: 500;">{{ support_email }}</a> 
+                                    or call <a href="tel:{{ support_phone }}" style="color: #059669; text-decoration: none; font-weight: 500;">{{ support_phone }}</a>
+                                </p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Additional Info -->
+                        <tr>
+                            <td>
+                                <p style="color: #9ca3af; font-size: 13px; text-align: center; margin-top: 24px;">
+                                    This transaction will appear on your statement as "{{ statement_descriptor }}"
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <!-- Footer -->
+            <tr>
+                <td class="email-footer">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                        <!-- Logo -->
+                        <tr>
+                            <td align="center">
+                                <img src="{{ app_url }}/images/logo-dark.png" alt="{{ app_name }}" class="footer-logo" width="120" height="40">
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer Text -->
+                        <tr>
+                            <td class="footer-text">
+                                Secure payments powered by {{ payment_gateway }}<br>
+                                Your trusted partner for hassle-free transactions
+                            </td>
+                        </tr>
+                        
+                        <!-- Social Links -->
+                        <tr>
+                            <td class="social-links">
+                                <a href="{{ facebook_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="social-icon" width="36" height="36">
+                                </a>
+                                <a href="{{ twitter_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" class="social-icon" width="36" height="36">
+                                </a>
+                                <a href="{{ instagram_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="social-icon" width="36" height="36">
+                                </a>
+                                <a href="{{ linkedin_url }}" class="social-link" target="_blank">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733561.png" alt="LinkedIn" class="social-icon" width="36" height="36">
+                                </a>
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer Links -->
+                        <tr>
+                            <td class="footer-links">
+                                <a href="{{ app_url }}/about">About Us</a>
+                                <a href="{{ app_url }}/contact">Contact</a>
+                                <a href="{{ app_url }}/privacy">Privacy</a>
+                                <a href="{{ app_url }}/terms">Terms</a>
+                                <a href="{{ app_url }}/security">Security</a>
+                                <a href="{{ app_url }}/help">Help</a>
+                            </td>
+                        </tr>
+                        
+                        <!-- Trust Badges -->
+                        <tr>
+                            <td style="padding: 24px 0;">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3495/3495810.png" alt="PCI Compliant" width="50" height="50" style="margin: 0 5px; opacity: 0.6;">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3495/3495808.png" alt="SSL Secure" width="50" height="50" style="margin: 0 5px; opacity: 0.6;">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3495/3495806.png" alt="Verified" width="50" height="50" style="margin: 0 5px; opacity: 0.6;">
+                            </td>
+                        </tr>
+                        
+                        <!-- Copyright -->
+                        <tr>
+                            <td class="copyright">
+                                &copy; {{ current_year }} {{ app_name }}. All rights reserved.<br>
+                                Payments processed securely by {{ payment_processor }}<br>
+                                <span style="font-size: 11px;">PCI DSS Compliant | 256-bit SSL Encryption</span>
+                            </td>
+                        </tr>
+                        
+                        <!-- Unsubscribe/Preferences -->
+                        <tr>
+                            <td style="padding-top: 24px;">
+                                <p style="color: #9ca3af; font-size: 12px;">
+                                    This is a transactional email related to your payment.<br>
+                                    <a href="{{ preferences_url }}" style="color: #9ca3af;">Notification preferences</a> | 
+                                    <a href="{{ unsubscribe_url }}" style="color: #9ca3af;">Unsubscribe from marketing</a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        
+        <!--[if (gte mso 9)|(IE)]>
+                </td>
+            </tr>
+        </table>
+        <![endif]-->
+    </div>
+</body>
+</html>
