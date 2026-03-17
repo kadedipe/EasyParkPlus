@@ -1,0 +1,5 @@
+✅ {{ parking_name }} confirmed
+Spot {{ spot_number }} | {{ vehicle_plate }}
+{{ start_time|date("%b %d, %I:%M %p") }} - {{ end_time|date("%I:%M %p") }}
+{{ total_amount|currency(currency) }}
+🔑 {{ qr_short_url }}

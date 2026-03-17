@@ -1,0 +1,9 @@
+✅ Subscription Payment Successful
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Plan: {{ plan_name }}
+Amount: {{ amount|currency(currency) }}/{{ billing_cycle }}
+Next billing: {{ next_billing_date|date("%b %d, %Y") }}
+
+Manage: {{ subscription_short_url }}
+Receipt: {{ receipt_short_url }}
+Support: {{ support_phone }}

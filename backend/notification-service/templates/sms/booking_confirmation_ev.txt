@@ -1,0 +1,9 @@
+✅ EV Charging Booking Confirmed
+⚡ {{ parking_name }} - EV Spot {{ spot_number }}
+🔋 Charger: {{ charger_type }} ({{ charger_power }}kW)
+📅 {{ start_time|date("%b %d, %I:%M %p") }} - {{ end_time|date("%I:%M %p") }}
+🚗 {{ vehicle_plate }}
+💰 {{ total_amount|currency(currency) }}
+
+QR for entry/charging: {{ qr_short_url }}
+EV Support: {{ support_phone }}

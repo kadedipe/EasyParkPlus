@@ -1,0 +1,5 @@
+✅ Instant Spot Confirmed!
+{{ parking_name }} - {{ spot_number }}
+{{ start_time|date("%I:%M %p") }} - {{ end_time|date("%I:%M %p") }}
+{{ total_amount|currency(currency) }}
+QR: {{ qr_short_url }}

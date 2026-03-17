@@ -1,0 +1,8 @@
+✅ Card Payment Successful
+━━━━━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+Card: {{ card_brand }} •••• {{ card_last4 }}
+Auth Code: {{ auth_code }}
+
+Receipt: {{ receipt_short_url }}
+Support: {{ support_phone }}

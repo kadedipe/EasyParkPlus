@@ -1,0 +1,5 @@
+✅ Payment Successful / Pago Exitoso
+EN: {{ amount|currency(currency) }} via {{ payment_method }}
+ES: {{ amount|currency(currency) }} por {{ payment_method_es }}
+Ref: {{ transaction_short_id }}
+Receipt/Recibo: {{ receipt_short_url }}

@@ -1,0 +1,11 @@
+{{ app_name }} verification
+━━━━━━━━━━━━━━━━━━━━
+Code: {{ code }}
+Expires: {{ expires_in }} minutes
+
+Instructions:
+1. Enter this code in the app
+2. Complete your verification
+3. Never share this code
+
+Questions? Call {{ support_phone }}

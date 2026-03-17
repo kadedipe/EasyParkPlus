@@ -1,0 +1,7 @@
+✅ Parking Confirmed / Confirmado
+EN: {{ parking_name }} - Spot {{ spot_number }}
+ES: {{ parking_name_es }} - Espacio {{ spot_number }}
+⏰ {{ start_time|date("%b %d, %I:%M %p") }}
+🚗 {{ vehicle_plate }}
+🔑 {{ qr_short_url }}
+📞 {{ support_phone }}

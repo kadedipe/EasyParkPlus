@@ -1,0 +1,5 @@
+📱 {{ app_name }} phone verification
+Code: {{ code }}
+Valid for: {{ expires_in }} minutes
+
+This confirms your phone number for account security.

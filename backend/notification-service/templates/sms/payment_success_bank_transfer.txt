@@ -1,0 +1,8 @@
+✅ Bank Transfer Received
+━━━━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+From: {{ account_name }}
+Reference: {{ bank_reference }}
+
+Receipt: {{ receipt_short_url }}
+Settles: {{ settlement_date|date("%b %d, %Y") }}

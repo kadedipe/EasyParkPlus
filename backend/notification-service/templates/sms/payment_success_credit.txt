@@ -1,0 +1,8 @@
+✅ Credit Applied
+━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+To: {{ account_name }}
+Reference: {{ reference_short_id }}
+
+New balance: {{ new_balance|currency(currency) }}
+Receipt: {{ receipt_short_url }}

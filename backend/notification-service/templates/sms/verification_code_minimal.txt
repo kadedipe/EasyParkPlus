@@ -1,0 +1,3 @@
+{{ code }}
+{{ expires_in }}min
+{{ app_name }}

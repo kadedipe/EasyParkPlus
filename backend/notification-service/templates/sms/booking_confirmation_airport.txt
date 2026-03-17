@@ -1,0 +1,10 @@
+✅ Airport Parking Confirmed
+✈️ {{ airport_name }} - {{ parking_name }}
+🅿️ Spot {{ spot_number }}
+📅 {{ start_time|date("%b %d, %I:%M %p") }} - {{ end_time|date("%b %d, %I:%M %p") }}
+🚗 {{ vehicle_plate }}
+💰 {{ total_amount|currency(currency) }}
+
+Shuttle: {{ shuttle_info }}
+QR: {{ qr_short_url }}
+Support: {{ support_phone }}

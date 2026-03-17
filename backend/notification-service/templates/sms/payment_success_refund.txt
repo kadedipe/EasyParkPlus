@@ -1,0 +1,8 @@
+↩️ Refund Processed
+━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+Original Transaction: #{{ original_transaction_short }}
+Refund ID: {{ refund_short_id }}
+
+Refund will appear in {{ refund_timeframe }}
+Questions? {{ support_phone }}

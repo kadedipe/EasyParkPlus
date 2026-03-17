@@ -1,0 +1,3 @@
+✅ Paid {{ amount|currency(currency) }}
+Ref {{ transaction_short_id }}
+Receipt {{ receipt_short_url }}

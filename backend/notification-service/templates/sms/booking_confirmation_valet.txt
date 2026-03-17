@@ -1,0 +1,9 @@
+✅ Valet Booking Confirmed
+🎩 {{ parking_name }} - Valet Service
+📍 Drop-off: {{ valet_location }}
+📅 {{ start_time|date("%b %d, %I:%M %p") }}
+🚗 {{ vehicle_plate }}
+💰 {{ total_amount|currency(currency) }}
+
+Valet pickup: {{ valet_phone }}
+Questions? {{ support_phone }}

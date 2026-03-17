@@ -1,0 +1,11 @@
+✨ PREMIUM BOOKING CONFIRMED
+━━━━━━━━━━━━━━━━━━━━━━━
+📍 {{ parking_name }} (Premium Zone)
+🎯 Spot {{ spot_number }}
+📅 {{ start_time|date("%b %d, %Y") }}
+⏰ {{ start_time|date("%I:%M %p") }} - {{ end_time|date("%I:%M %p") }}
+🚗 {{ vehicle_plate }}
+💰 {{ total_amount|currency(currency) }}
+🔑 VIP Access: {{ qr_short_url }}
+
+Concierge: {{ support_phone }}

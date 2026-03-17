@@ -1,0 +1,8 @@
+✅ Monthly Pass Confirmed
+📆 {{ parking_name }} - Spot {{ spot_number }}
+🗓️ {{ start_date|date("%b %d") }} - {{ end_date|date("%b %d, %Y") }}
+🚗 {{ vehicle_plate }}
+💰 {{ total_amount|currency(currency) }}/month
+🔑 Pass QR: {{ qr_short_url }}
+
+24/7 Access | Support: {{ support_phone }}

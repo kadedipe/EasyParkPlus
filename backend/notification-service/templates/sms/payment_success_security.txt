@@ -1,0 +1,10 @@
+✅ SECURE PAYMENT CONFIRMED
+━━━━━━━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+Transaction ID: {{ transaction_id }}
+Timestamp: {{ payment_date|date("%Y-%m-%d %H:%M UTC") }}
+Status: Verified ✓
+
+This is an official payment confirmation.
+Receipt: {{ receipt_short_url }}
+Support: {{ support_phone }}

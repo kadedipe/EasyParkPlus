@@ -1,0 +1,5 @@
+{{ app_name }} security code: {{ code }}
+
+Enter this code to complete your verification. Code expires in {{ expires_in }} minutes.
+
+Not you? Reply STOP to block all messages from {{ app_name }}. For help, reply HELP or contact support.

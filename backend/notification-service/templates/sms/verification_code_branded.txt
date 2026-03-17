@@ -1,0 +1,1 @@
+[{{ app_name }}] Your verification code is {{ code }}. Valid for {{ expires_in }} minutes. Reply HELP for assistance.

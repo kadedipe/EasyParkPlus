@@ -1,0 +1,9 @@
+✅ Event Parking Confirmed
+🎫 {{ event_name }} @ {{ venue_name }}
+📍 {{ parking_name }} - Spot {{ spot_number }}
+📅 {{ start_time|date("%b %d, %I:%M %p") }}
+🚗 {{ vehicle_plate }}
+💰 {{ total_amount|currency(currency) }}
+
+Prepaid event parking - QR: {{ qr_short_url }}
+Event hotline: {{ support_phone }}
