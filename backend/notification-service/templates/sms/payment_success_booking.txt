@@ -1,0 +1,10 @@
+✅ Payment Received for Booking
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Booking: #{{ booking_short_id }}
+Amount: {{ amount|currency(currency) }}
+Location: {{ parking_name }}
+Date: {{ booking_date|date("%b %d, %I:%M %p") }}
+
+View booking: {{ booking_short_url }}
+Receipt: {{ receipt_short_url }}
+Support: {{ support_phone }}

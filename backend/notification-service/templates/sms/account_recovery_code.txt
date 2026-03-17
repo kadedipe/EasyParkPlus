@@ -1,0 +1,5 @@
+🆘 {{ app_name }} account recovery
+Code: {{ code }}
+Expires: {{ expires_in }} minutes
+
+Use this code to recover access to your account. If you did not request this code, please ignore this message or contact support if you have concerns.

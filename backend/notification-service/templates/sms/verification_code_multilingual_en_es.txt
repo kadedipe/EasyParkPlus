@@ -1,0 +1,3 @@
+🔐 {{ app_name }} verification
+EN: Code {{ code }} - Expires {{ expires_in }} min
+ES: Código {{ code }} - Vence {{ expires_in }} min

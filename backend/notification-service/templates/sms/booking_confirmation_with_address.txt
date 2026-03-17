@@ -1,0 +1,10 @@
+✅ Booking Confirmed!
+Parking: {{ parking_name }}
+Address: {{ parking_address }}
+Spot: {{ spot_number }}
+Time: {{ start_time|date("%b %d, %I:%M %p") }} - {{ end_time|date("%I:%M %p") }}
+Vehicle: {{ vehicle_plate }}
+Amount: {{ total_amount|currency(currency) }}
+
+Entry QR: {{ qr_short_url }}
+Support: {{ support_phone }}

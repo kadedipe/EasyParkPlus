@@ -1,0 +1,10 @@
+✅ Invoice Paid
+━━━━━━━━━━━━━
+Invoice #: {{ invoice_number }}
+Amount: {{ amount|currency(currency) }}
+Due Date: {{ due_date|date("%b %d, %Y") }}
+Paid: {{ payment_date|date("%b %d, %Y") }}
+
+View invoice: {{ invoice_short_url }}
+Receipt: {{ receipt_short_url }}
+Support: {{ support_phone }}

@@ -1,0 +1,5 @@
+🔐 {{ app_name }} login code: {{ code }}
+
+This code grants access to your account. Valid for {{ expires_in }} minutes. If you didn't attempt to login, please secure your account immediately.
+
+-{{ app_name }} Security Team

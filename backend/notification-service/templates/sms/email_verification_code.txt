@@ -1,0 +1,5 @@
+📧 {{ app_name }} email verification
+Code: {{ code }}
+Valid: {{ expires_in }} min
+
+Verify your email address to enable all features.

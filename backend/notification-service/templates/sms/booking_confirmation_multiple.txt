@@ -1,0 +1,11 @@
+✅ Multiple Vehicle Booking Confirmed
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📍 {{ parking_name }}
+🅿️ Spots: {% for spot in spots %}{{ spot }}{% if not loop.last %}, {% endif %}{% endfor %}
+📅 {{ start_time|date("%b %d, %I:%M %p") }} - {{ end_time|date("%I:%M %p") }}
+🚗 Vehicles: {{ vehicle_count }}
+💰 Total: {{ total_amount|currency(currency) }}
+
+Group QR: {{ qr_short_url }}
+Coordinator: {{ coordinator_phone }}
+Support: {{ support_phone }}

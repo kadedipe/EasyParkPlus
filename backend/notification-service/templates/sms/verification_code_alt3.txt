@@ -1,0 +1,5 @@
+🔑 {{ app_name }} verification
+Code: {{ code }}
+Expires: {{ expires_in }} min
+
+Never share this code. If not requested, ignore.

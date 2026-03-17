@@ -1,0 +1,9 @@
+✅ Security Deposit Paid
+━━━━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+Booking: #{{ booking_short_id }}
+Property: {{ parking_name }}
+
+Refundable upon checkout
+Receipt: {{ receipt_short_url }}
+Questions? {{ support_phone }}

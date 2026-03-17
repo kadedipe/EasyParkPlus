@@ -1,0 +1,7 @@
+🔐 {{ app_name }} Verification
+━━━━━━━━━━━━━━━━
+Code: {{ code }}
+⏱️ Valid: {{ expires_in }} min
+━━━━━━━━━━━━━━━━
+⚠️ Never share this code
+❓ Help: {{ support_phone }}

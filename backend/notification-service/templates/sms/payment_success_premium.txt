@@ -1,0 +1,8 @@
+✨ PREMIUM PAYMENT CONFIRMED
+━━━━━━━━━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+Membership: {{ membership_level }}
+Valid until: {{ valid_until|date("%b %d, %Y") }}
+
+Receipt: {{ receipt_short_url }}
+Concierge: {{ concierge_phone }}

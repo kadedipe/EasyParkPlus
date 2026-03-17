@@ -1,0 +1,8 @@
+✅ Cash Payment Recorded
+━━━━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+Location: {{ payment_location }}
+Cashier: {{ cashier_name }}
+Ref: {{ transaction_short_id }}
+
+Receipt: {{ receipt_short_url }}

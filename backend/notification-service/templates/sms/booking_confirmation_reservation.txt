@@ -1,0 +1,10 @@
+✅ Parking Reserved
+━━━━━━━━━━━━━━━━━
+Ref: #{{ booking_short_id }}
+{{ parking_name }} - Spot {{ spot_number }}
+{{ start_time|date("%b %d, %I:%M %p") }}
+{{ vehicle_plate }}
+
+Entry code: {{ entry_code }}
+View: {{ short_url }}
+Support: {{ support_phone }}

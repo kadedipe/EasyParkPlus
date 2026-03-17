@@ -1,0 +1,7 @@
+✅ Payment Successful!
+💰 Amount: {{ amount|currency(currency) }}
+💳 Method: {{ payment_method }}
+🆔 Ref: #{{ transaction_short_id }}
+📧 Receipt: {{ receipt_short_url }}
+
+Thank you for your payment!

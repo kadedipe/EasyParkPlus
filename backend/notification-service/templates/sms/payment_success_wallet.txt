@@ -1,0 +1,9 @@
+✅ Wallet Top-up Successful
+━━━━━━━━━━━━━━━━━━━━━━━
+Amount Added: {{ amount|currency(currency) }}
+New Balance: {{ new_balance|currency(currency) }}
+Method: {{ payment_method }}
+Ref: {{ transaction_short_id }}
+
+View wallet: {{ wallet_short_url }}
+Receipt: {{ receipt_short_url }}

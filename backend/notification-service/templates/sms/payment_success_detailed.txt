@@ -1,0 +1,10 @@
+✅ PAYMENT CONFIRMED
+━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+Payment Method: {{ payment_method }}
+Transaction ID: {{ transaction_id }}
+Date: {{ payment_date|date("%b %d, %Y") }}
+Time: {{ payment_date|date("%I:%M %p") }}
+
+Receipt: {{ receipt_short_url }}
+Questions? {{ support_phone }}

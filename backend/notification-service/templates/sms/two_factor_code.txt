@@ -1,0 +1,5 @@
+🔐 {{ app_name }} 2FA code: {{ code }}
+
+This is your two-factor authentication code. Valid for {{ expires_in }} minutes. Never share this code with anyone.
+
+-{{ app_name }} Security

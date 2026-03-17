@@ -1,0 +1,9 @@
+✅ Installment Payment Received
+━━━━━━━━━━━━━━━━━━━━━━━━━
+Plan: {{ plan_name }}
+Installment: {{ installment_number }}/{{ total_installments }}
+Amount: {{ amount|currency(currency) }}
+Next Payment: {{ next_payment_date|date("%b %d, %Y") }}
+
+Receipt: {{ receipt_short_url }}
+Support: {{ support_phone }}

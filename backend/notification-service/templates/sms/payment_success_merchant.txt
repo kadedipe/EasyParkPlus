@@ -1,0 +1,8 @@
+✅ Payment to {{ merchant_name }}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+Amount: {{ amount|currency(currency) }}
+For: {{ description }}
+Receipt: {{ receipt_short_url }}
+Merchant Ref: {{ merchant_reference }}
+
+Questions? {{ merchant_phone }}

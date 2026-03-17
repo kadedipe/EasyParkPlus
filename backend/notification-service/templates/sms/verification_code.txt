@@ -1,0 +1,7 @@
+🔐 {{ app_name }} Verification Code: {{ code }}
+
+This code will expire in {{ expires_in }} minutes. For your security, never share this code with anyone.
+
+If you didn't request this code, please ignore this message or contact support.
+
+-{{ app_name }} Team

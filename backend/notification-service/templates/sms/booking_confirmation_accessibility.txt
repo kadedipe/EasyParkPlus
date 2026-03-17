@@ -1,0 +1,9 @@
+✅ Accessible Parking Confirmed
+♿ {{ parking_name }} - Accessible Spot {{ spot_number }}
+📍 Near entrance: {{ entrance_location }}
+📅 {{ start_time|date("%b %d, %I:%M %p") }} - {{ end_time|date("%I:%M %p") }}
+🚗 {{ vehicle_plate }}
+💰 {{ total_amount|currency(currency) }}
+
+Assistance available: {{ assistance_phone }}
+QR: {{ qr_short_url }}
