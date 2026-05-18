@@ -1,0 +1,26 @@
+{
+  "scripts": {
+    "seed": "node seeds/run-seeds.js seed",
+    "seed:dry": "node seeds/run-seeds.js seed --dry-run",
+    "seed:force": "node seeds/run-seeds.js seed --force",
+    "seed:users": "node seeds/run-seeds.js seed users",
+    "seed:reset": "node seeds/run-seeds.js reset",
+    "seed:status": "node seeds/run-seeds.js status"
+  },
+  "dependencies": {
+    "pg": "^8.11.0",
+    "dotenv": "^16.0.3"
+  }
+}
+
+
+## 7. Package.json Scripts (Updated)
+
+```json
+{
+  "scripts": {
+    "seed:vehicles": "node seeds/run-seeds.js seed vehicles",
+    "seed:vehicles:reset": "node seeds/run-seeds.js reset --force && npm run seed:vehicles",
+    "validate:vehicles": "psql -d parking_management -f seeds/validate_vehicles.sql"
+  }
+}
