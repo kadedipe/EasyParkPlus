@@ -1,0 +1,123 @@
+/* parking-management/frontend/src/assets/styles/themes/light.css */
+
+/* ==========================================================================
+   Light Theme - Clean & Minimal
+   A bright, clean theme for better readability in well-lit environments
+   ========================================================================== */
+
+:root,
+[data-theme="light"],
+.theme-light {
+    /* Theme Identification */
+    --theme-name: 'light';
+    --theme-version: '1.0.0';
+    --theme-description: 'Clean Light Theme';
+    
+    /* Primary Colors - Soft Blue */
+    --theme-primary: #3B82F6;
+    --theme-primary-dark: #2563EB;
+    --theme-primary-light: #60A5FA;
+    --theme-primary-bg: #EFF6FF;
+    --theme-primary-text: #FFFFFF;
+    
+    /* Secondary Colors - Gray */
+    --theme-secondary: #6B7280;
+    --theme-secondary-dark: #4B5563;
+    --theme-secondary-light: #9CA3AF;
+    --theme-secondary-bg: #F3F4F6;
+    --theme-secondary-text: #FFFFFF;
+    
+    /* Background Colors - Pure Light */
+    --theme-bg-primary: #FFFFFF;
+    --theme-bg-secondary: #F9FAFB;
+    --theme-bg-tertiary: #F3F4F6;
+    --theme-bg-sidebar: #F9FAFB;
+    --theme-bg-header: #FFFFFF;
+    --theme-bg-footer: #F9FAFB;
+    --theme-bg-card: #FFFFFF;
+    --theme-bg-modal: #FFFFFF;
+    --theme-bg-dropdown: #FFFFFF;
+    
+    /* Text Colors - High Contrast */
+    --theme-text-primary: #111827;
+    --theme-text-secondary: #374151;
+    --theme-text-tertiary: #6B7280;
+    --theme-text-disabled: #9CA3AF;
+    --theme-text-link: #3B82F6;
+    --theme-text-link-hover: #2563EB;
+    
+    /* Border Colors - Subtle */
+    --theme-border-light: #F3F4F6;
+    --theme-border-default: #E5E7EB;
+    --theme-border-dark: #D1D5DB;
+    --theme-border-focus: #3B82F6;
+    
+    /* Status Colors - Soft */
+    --theme-success: #10B981;
+    --theme-warning: #F59E0B;
+    --theme-error: #EF4444;
+    --theme-info: #3B82F6;
+    
+    /* Gradients - Subtle */
+    --theme-gradient-primary: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    --theme-gradient-secondary: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+    --theme-gradient-hero: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    
+    /* Shadows - Light & Airy */
+    --theme-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --theme-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --theme-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    --theme-shadow-primary: 0 4px 14px 0 rgba(59, 130, 246, 0.2);
+    
+    /* Overlay Colors */
+    --theme-overlay-light: rgba(255, 255, 255, 0.98);
+    --theme-overlay-dark: rgba(0, 0, 0, 0.4);
+    --theme-overlay-primary: rgba(59, 130, 246, 0.9);
+    
+    /* Button Styles - Clean */
+    --theme-btn-primary-bg: #3B82F6;
+    --theme-btn-primary-hover: #2563EB;
+    --theme-btn-primary-active: #1D4ED8;
+    
+    /* Input Styles - Minimal */
+    --theme-input-bg: #FFFFFF;
+    --theme-input-border: #E5E7EB;
+    --theme-input-focus: #3B82F6;
+    --theme-input-placeholder: #9CA3AF;
+    
+    /* Card Styles - Elevated */
+    --theme-card-bg: #FFFFFF;
+    --theme-card-border: #F3F4F6;
+    --theme-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    --theme-card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    
+    /* Navbar Styles */
+    --theme-navbar-bg: rgba(255, 255, 255, 0.98);
+    --theme-navbar-text: #374151;
+    --theme-navbar-hover: #3B82F6;
+    
+    /* Footer Styles */
+    --theme-footer-bg: #F9FAFB;
+    --theme-footer-text: #6B7280;
+    
+    /* Scrollbar - Light */
+    --theme-scrollbar-track: #F3F4F6;
+    --theme-scrollbar-thumb: #D1D5DB;
+    --theme-scrollbar-thumb-hover: #9CA3AF;
+    
+    /* Code Blocks */
+    --theme-code-bg: #F3F4F6;
+    --theme-code-text: #111827;
+    --theme-code-border: #E5E7EB;
+    
+    /* Table Styles */
+    --theme-table-header-bg: #F9FAFB;
+    --theme-table-row-hover: #F9FAFB;
+    --theme-table-border: #E5E7EB;
+    
+    /* Map Styles */
+    --theme-map-marker-bg: #3B82F6;
+    --theme-map-marker-border: #FFFFFF;
+    --theme-map-popup-bg: #FFFFFF;
+    --theme-map-popup-text: #111827;
+}

@@ -1,0 +1,626 @@
+/* parking-management/frontend/src/assets/styles/variables.css */
+
+/* ==========================================================================
+   Design Tokens - CSS Custom Properties
+   This file contains all design variables for the Parking Management System
+   ========================================================================== */
+
+:root {
+    /* ==========================================================================
+       1. Color System
+       ========================================================================== */
+
+    /* Primary Color Palette - Indigo/Purple Theme */
+    --color-primary-50: #EEF2FF;
+    --color-primary-100: #E0E7FF;
+    --color-primary-200: #C7D2FE;
+    --color-primary-300: #A5B4FC;
+    --color-primary-400: #818CF8;
+    --color-primary-500: #667EEA;
+    --color-primary-600: #5A67D8;
+    --color-primary-700: #4C51BF;
+    --color-primary-800: #434190;
+    --color-primary-900: #3C366B;
+    
+    /* Secondary Color Palette - Purple/Violet Theme */
+    --color-secondary-50: #F5F3FF;
+    --color-secondary-100: #EDE9FE;
+    --color-secondary-200: #DDD6FE;
+    --color-secondary-300: #C4B5FD;
+    --color-secondary-400: #A78BFA;
+    --color-secondary-500: #8B5CF6;
+    --color-secondary-600: #7C3AED;
+    --color-secondary-700: #6D28D9;
+    --color-secondary-800: #5B21B6;
+    --color-secondary-900: #4C1D95;
+    
+    /* Accent Color Palette - Teal/Green Theme */
+    --color-accent-50: #F0FDFA;
+    --color-accent-100: #CCFBF1;
+    --color-accent-200: #99F6E4;
+    --color-accent-300: #5EEAD4;
+    --color-accent-400: #2DD4BF;
+    --color-accent-500: #14B8A6;
+    --color-accent-600: #0D9488;
+    --color-accent-700: #0F766E;
+    --color-accent-800: #115E59;
+    --color-accent-900: #134E4A;
+    
+    /* Neutral/Grayscale Palette */
+    --color-gray-0: #FFFFFF;
+    --color-gray-50: #F9FAFB;
+    --color-gray-100: #F3F4F6;
+    --color-gray-200: #E5E7EB;
+    --color-gray-300: #D1D5DB;
+    --color-gray-400: #9CA3AF;
+    --color-gray-500: #6B7280;
+    --color-gray-600: #4B5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1F2937;
+    --color-gray-900: #111827;
+    --color-gray-950: #030712;
+    
+    /* Semantic Colors - Success */
+    --color-success-50: #ECFDF5;
+    --color-success-100: #D1FAE5;
+    --color-success-200: #A7F3D0;
+    --color-success-300: #6EE7B7;
+    --color-success-400: #34D399;
+    --color-success-500: #10B981;
+    --color-success-600: #059669;
+    --color-success-700: #047857;
+    --color-success-800: #065F46;
+    --color-success-900: #064E3B;
+    
+    /* Semantic Colors - Warning */
+    --color-warning-50: #FFFBEB;
+    --color-warning-100: #FEF3C7;
+    --color-warning-200: #FDE68A;
+    --color-warning-300: #FCD34D;
+    --color-warning-400: #FBBF24;
+    --color-warning-500: #F59E0B;
+    --color-warning-600: #D97706;
+    --color-warning-700: #B45309;
+    --color-warning-800: #92400E;
+    --color-warning-900: #78350F;
+    
+    /* Semantic Colors - Error */
+    --color-error-50: #FEF2F2;
+    --color-error-100: #FEE2E2;
+    --color-error-200: #FECACA;
+    --color-error-300: #FCA5A5;
+    --color-error-400: #F87171;
+    --color-error-500: #EF4444;
+    --color-error-600: #DC2626;
+    --color-error-700: #B91C1C;
+    --color-error-800: #991B1B;
+    --color-error-900: #7F1D1D;
+    
+    /* Semantic Colors - Info */
+    --color-info-50: #EFF6FF;
+    --color-info-100: #DBEAFE;
+    --color-info-200: #BFDBFE;
+    --color-info-300: #93C5FD;
+    --color-info-400: #60A5FA;
+    --color-info-500: #3B82F6;
+    --color-info-600: #2563EB;
+    --color-info-700: #1D4ED8;
+    --color-info-800: #1E40AF;
+    --color-info-900: #1E3A8A;
+    
+    /* Status Colors for Parking */
+    --color-status-available: #10B981;
+    --color-status-occupied: #EF4444;
+    --color-status-reserved: #F59E0B;
+    --color-status-maintenance: #6B7280;
+    --color-status-expiring: #F97316;
+    --color-status-disabled: #9CA3AF;
+    
+    /* ==========================================================================
+       2. Typography System
+       ========================================================================== */
+    
+    /* Font Family */
+    --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+                           Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', 
+                           sans-serif;
+    --font-family-fallback: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+                           Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', 
+                       Consolas, 'Courier New', monospace;
+    
+    /* Font Weights */
+    --font-weight-thin: 100;
+    --font-weight-extralight: 200;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    --font-weight-black: 900;
+    
+    /* Font Sizes (rem-based) */
+    --font-size-xs: 0.75rem;     /* 12px */
+    --font-size-sm: 0.875rem;    /* 14px */
+    --font-size-base: 1rem;      /* 16px */
+    --font-size-lg: 1.125rem;    /* 18px */
+    --font-size-xl: 1.25rem;     /* 20px */
+    --font-size-2xl: 1.5rem;     /* 24px */
+    --font-size-3xl: 1.875rem;   /* 30px */
+    --font-size-4xl: 2.25rem;    /* 36px */
+    --font-size-5xl: 3rem;       /* 48px */
+    --font-size-6xl: 3.75rem;    /* 60px */
+    --font-size-7xl: 4.5rem;     /* 72px */
+    --font-size-8xl: 6rem;       /* 96px */
+    --font-size-9xl: 8rem;       /* 128px */
+    
+    /* Line Heights */
+    --line-height-none: 1;
+    --line-height-tight: 1.25;
+    --line-height-snug: 1.375;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
+    
+    /* Letter Spacing */
+    --letter-spacing-tighter: -0.05em;
+    --letter-spacing-tight: -0.025em;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide: 0.025em;
+    --letter-spacing-wider: 0.05em;
+    --letter-spacing-widest: 0.1em;
+    
+    /* ==========================================================================
+       3. Spacing System
+       ========================================================================== */
+    
+    /* Base spacing unit: 0.25rem = 4px */
+    --spacing-0: 0;
+    --spacing-px: 1px;
+    --spacing-0_5: 0.125rem;   /* 2px */
+    --spacing-1: 0.25rem;      /* 4px */
+    --spacing-1_5: 0.375rem;    /* 6px */
+    --spacing-2: 0.5rem;       /* 8px */
+    --spacing-2_5: 0.625rem;    /* 10px */
+    --spacing-3: 0.75rem;      /* 12px */
+    --spacing-3_5: 0.875rem;    /* 14px */
+    --spacing-4: 1rem;         /* 16px */
+    --spacing-5: 1.25rem;      /* 20px */
+    --spacing-6: 1.5rem;       /* 24px */
+    --spacing-7: 1.75rem;      /* 28px */
+    --spacing-8: 2rem;         /* 32px */
+    --spacing-9: 2.25rem;      /* 36px */
+    --spacing-10: 2.5rem;      /* 40px */
+    --spacing-11: 2.75rem;     /* 44px */
+    --spacing-12: 3rem;        /* 48px */
+    --spacing-14: 3.5rem;      /* 56px */
+    --spacing-16: 4rem;        /* 64px */
+    --spacing-20: 5rem;        /* 80px */
+    --spacing-24: 6rem;        /* 96px */
+    --spacing-28: 7rem;        /* 112px */
+    --spacing-32: 8rem;        /* 128px */
+    --spacing-36: 9rem;        /* 144px */
+    --spacing-40: 10rem;       /* 160px */
+    --spacing-44: 11rem;       /* 176px */
+    --spacing-48: 12rem;       /* 192px */
+    --spacing-52: 13rem;       /* 208px */
+    --spacing-56: 14rem;       /* 224px */
+    --spacing-60: 15rem;       /* 240px */
+    --spacing-64: 16rem;       /* 256px */
+    --spacing-72: 18rem;       /* 288px */
+    --spacing-80: 20rem;       /* 320px */
+    --spacing-96: 24rem;       /* 384px */
+    
+    /* ==========================================================================
+       4. Border Radius
+       ========================================================================== */
+    
+    --radius-none: 0;
+    --radius-sm: 0.125rem;     /* 2px */
+    --radius-base: 0.25rem;    /* 4px */
+    --radius-md: 0.375rem;     /* 6px */
+    --radius-lg: 0.5rem;       /* 8px */
+    --radius-xl: 0.75rem;      /* 12px */
+    --radius-2xl: 1rem;        /* 16px */
+    --radius-3xl: 1.5rem;      /* 24px */
+    --radius-4xl: 2rem;        /* 32px */
+    --radius-full: 9999px;
+    
+    /* ==========================================================================
+       5. Shadows
+       ========================================================================== */
+    
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    --shadow-none: none;
+    
+    /* Colored Shadows */
+    --shadow-primary: 0 4px 14px 0 rgba(102, 126, 234, 0.4);
+    --shadow-secondary: 0 4px 14px 0 rgba(139, 92, 246, 0.4);
+    --shadow-success: 0 4px 14px 0 rgba(16, 185, 129, 0.4);
+    --shadow-warning: 0 4px 14px 0 rgba(245, 158, 11, 0.4);
+    --shadow-error: 0 4px 14px 0 rgba(239, 68, 68, 0.4);
+    
+    /* ==========================================================================
+       6. Gradients
+       ========================================================================== */
+    
+    --gradient-primary: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+    --gradient-secondary: linear-gradient(135deg, var(--color-secondary-500) 0%, var(--color-accent-500) 100%);
+    --gradient-success: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+    --gradient-warning: linear-gradient(135deg, var(--color-warning-500) 0%, var(--color-warning-600) 100%);
+    --gradient-error: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+    --gradient-info: linear-gradient(135deg, var(--color-info-500) 0%, var(--color-info-600) 100%);
+    --gradient-dark: linear-gradient(135deg, var(--color-gray-800) 0%, var(--color-gray-900) 100%);
+    
+    /* ==========================================================================
+       7. Transitions & Animations
+       ========================================================================== */
+    
+    --transition-duration-fast: 150ms;
+    --transition-duration-base: 250ms;
+    --transition-duration-slow: 350ms;
+    --transition-duration-slower: 500ms;
+    
+    --transition-timing-default: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-timing-linear: linear;
+    --transition-timing-in: cubic-bezier(0.4, 0, 1, 1);
+    --transition-timing-out: cubic-bezier(0, 0, 0.2, 1);
+    --transition-timing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    --transition-all: all var(--transition-duration-base) var(--transition-timing-default);
+    --transition-transform: transform var(--transition-duration-base) var(--transition-timing-default);
+    --transition-opacity: opacity var(--transition-duration-base) var(--transition-timing-default);
+    --transition-colors: colors var(--transition-duration-base) var(--transition-timing-default);
+    
+    /* ==========================================================================
+       8. Z-Index Layers
+       ========================================================================== */
+    
+    --z-negative: -1;
+    --z-0: 0;
+    --z-10: 10;
+    --z-20: 20;
+    --z-30: 30;
+    --z-40: 40;
+    --z-50: 50;
+    --z-auto: auto;
+    
+    /* Semantic Z-Indices */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
+    
+    /* ==========================================================================
+       9. Container Widths
+       ========================================================================== */
+    
+    --container-xs: 320px;
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    --container-2xl: 1536px;
+    
+    /* ==========================================================================
+       10. Grid System
+       ========================================================================== */
+    
+    --grid-gutter-width: var(--spacing-4);
+    --grid-columns: 12;
+    --grid-breakpoint-sm: 640px;
+    --grid-breakpoint-md: 768px;
+    --grid-breakpoint-lg: 1024px;
+    --grid-breakpoint-xl: 1280px;
+    --grid-breakpoint-2xl: 1536px;
+    
+    /* ==========================================================================
+       11. Component Specific Variables
+       ========================================================================== */
+    
+    /* Cards */
+    --card-padding: var(--spacing-6);
+    --card-border-radius: var(--radius-lg);
+    --card-shadow: var(--shadow-md);
+    --card-shadow-hover: var(--shadow-lg);
+    
+    /* Buttons */
+    --button-padding-x: var(--spacing-4);
+    --button-padding-y: var(--spacing-2);
+    --button-border-radius: var(--radius-md);
+    --button-font-weight: var(--font-weight-medium);
+    
+    /* Inputs */
+    --input-padding-x: var(--spacing-3);
+    --input-padding-y: var(--spacing-2);
+    --input-border-radius: var(--radius-md);
+    --input-border-width: 1px;
+    
+    /* Modals */
+    --modal-padding: var(--spacing-6);
+    --modal-border-radius: var(--radius-xl);
+    --modal-max-width: 500px;
+    
+    /* Tooltips */
+    --tooltip-background: var(--color-gray-900);
+    --tooltip-color: var(--color-gray-0);
+    --tooltip-border-radius: var(--radius-md);
+    --tooltip-padding: var(--spacing-1) var(--spacing-2);
+    
+    /* ==========================================================================
+       12. Parking Specific Variables
+       ========================================================================== */
+    
+    /* Parking Spot Card */
+    --parking-spot-card-width: 320px;
+    --parking-spot-image-height: 200px;
+    --parking-spot-card-gap: var(--spacing-4);
+    
+    /* Time Slots */
+    --time-slot-width: 100px;
+    --time-slot-height: 48px;
+    --time-slot-border-radius: var(--radius-md);
+    
+    /* Maps */
+    --map-height: 400px;
+    --map-border-radius: var(--radius-lg);
+    --map-marker-size: 30px;
+    
+    /* ==========================================================================
+       13. Dark Mode Variables
+       ========================================================================== */
+    
+    /* Light Mode (Default) */
+    --bg-primary: var(--color-gray-0);
+    --bg-secondary: var(--color-gray-50);
+    --bg-tertiary: var(--color-gray-100);
+    --bg-overlay: rgba(0, 0, 0, 0.5);
+    --bg-glass: rgba(255, 255, 255, 0.95);
+    
+    --text-primary: var(--color-gray-900);
+    --text-secondary: var(--color-gray-700);
+    --text-tertiary: var(--color-gray-500);
+    --text-disabled: var(--color-gray-400);
+    --text-inverse: var(--color-gray-0);
+    
+    --border-light: var(--color-gray-200);
+    --border-default: var(--color-gray-300);
+    --border-dark: var(--color-gray-400);
+    --border-focus: var(--color-primary-500);
+    
+    --icon-primary: var(--color-gray-700);
+    --icon-secondary: var(--color-gray-500);
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: var(--color-gray-900);
+        --bg-secondary: var(--color-gray-800);
+        --bg-tertiary: var(--color-gray-700);
+        --bg-overlay: rgba(0, 0, 0, 0.7);
+        --bg-glass: rgba(17, 24, 39, 0.95);
+        
+        --text-primary: var(--color-gray-100);
+        --text-secondary: var(--color-gray-300);
+        --text-tertiary: var(--color-gray-400);
+        --text-disabled: var(--color-gray-500);
+        --text-inverse: var(--color-gray-900);
+        
+        --border-light: var(--color-gray-800);
+        --border-default: var(--color-gray-700);
+        --border-dark: var(--color-gray-600);
+        --border-focus: var(--color-primary-400);
+        
+        --icon-primary: var(--color-gray-300);
+        --icon-secondary: var(--color-gray-400);
+    }
+}
+
+/* ==========================================================================
+   High Contrast Mode Support
+   ========================================================================== */
+
+@media (prefers-contrast: high) {
+    :root {
+        --border-default: currentColor;
+        --border-light: currentColor;
+        --shadow-xs: none;
+        --shadow-sm: none;
+        --shadow-md: none;
+        --shadow-lg: none;
+        --shadow-xl: none;
+    }
+}
+
+/* ==========================================================================
+   Reduced Motion Support
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --transition-duration-fast: 0ms;
+        --transition-duration-base: 0ms;
+        --transition-duration-slow: 0ms;
+        --transition-duration-slower: 0ms;
+    }
+}
+
+/* ==========================================================================
+   CSS Custom Properties Utility Classes
+   ========================================================================== */
+
+/* Color Utility Classes */
+.bg-primary-50 { background-color: var(--color-primary-50); }
+.bg-primary-100 { background-color: var(--color-primary-100); }
+.bg-primary-200 { background-color: var(--color-primary-200); }
+.bg-primary-300 { background-color: var(--color-primary-300); }
+.bg-primary-400 { background-color: var(--color-primary-400); }
+.bg-primary-500 { background-color: var(--color-primary-500); }
+.bg-primary-600 { background-color: var(--color-primary-600); }
+.bg-primary-700 { background-color: var(--color-primary-700); }
+.bg-primary-800 { background-color: var(--color-primary-800); }
+.bg-primary-900 { background-color: var(--color-primary-900); }
+
+.text-primary-50 { color: var(--color-primary-50); }
+.text-primary-100 { color: var(--color-primary-100); }
+.text-primary-200 { color: var(--color-primary-200); }
+.text-primary-300 { color: var(--color-primary-300); }
+.text-primary-400 { color: var(--color-primary-400); }
+.text-primary-500 { color: var(--color-primary-500); }
+.text-primary-600 { color: var(--color-primary-600); }
+.text-primary-700 { color: var(--color-primary-700); }
+.text-primary-800 { color: var(--color-primary-800); }
+.text-primary-900 { color: var(--color-primary-900); }
+
+/* Background Semantic Colors */
+.bg-success { background-color: var(--color-success-500); }
+.bg-warning { background-color: var(--color-warning-500); }
+.bg-error { background-color: var(--color-error-500); }
+.bg-info { background-color: var(--color-info-500); }
+
+/* Text Semantic Colors */
+.text-success { color: var(--color-success-500); }
+.text-warning { color: var(--color-warning-500); }
+.text-error { color: var(--color-error-500); }
+.text-info { color: var(--color-info-500); }
+
+/* Border Colors */
+.border-primary { border-color: var(--color-primary-500); }
+.border-success { border-color: var(--color-success-500); }
+.border-warning { border-color: var(--color-warning-500); }
+.border-error { border-color: var(--color-error-500); }
+.border-info { border-color: var(--color-info-500); }
+
+/* Font Size Utility Classes */
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-2xl { font-size: var(--font-size-2xl); }
+.text-3xl { font-size: var(--font-size-3xl); }
+.text-4xl { font-size: var(--font-size-4xl); }
+.text-5xl { font-size: var(--font-size-5xl); }
+
+/* Font Weight Utility Classes */
+.font-thin { font-weight: var(--font-weight-thin); }
+.font-extralight { font-weight: var(--font-weight-extralight); }
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+.font-extrabold { font-weight: var(--font-weight-extrabold); }
+.font-black { font-weight: var(--font-weight-black); }
+
+/* Spacing Utility Classes (Margin) */
+.m-0 { margin: var(--spacing-0); }
+.m-1 { margin: var(--spacing-1); }
+.m-2 { margin: var(--spacing-2); }
+.m-3 { margin: var(--spacing-3); }
+.m-4 { margin: var(--spacing-4); }
+.m-5 { margin: var(--spacing-5); }
+.m-6 { margin: var(--spacing-6); }
+.m-8 { margin: var(--spacing-8); }
+.m-10 { margin: var(--spacing-10); }
+.m-12 { margin: var(--spacing-12); }
+
+/* Padding Utility Classes */
+.p-0 { padding: var(--spacing-0); }
+.p-1 { padding: var(--spacing-1); }
+.p-2 { padding: var(--spacing-2); }
+.p-3 { padding: var(--spacing-3); }
+.p-4 { padding: var(--spacing-4); }
+.p-5 { padding: var(--spacing-5); }
+.p-6 { padding: var(--spacing-6); }
+.p-8 { padding: var(--spacing-8); }
+.p-10 { padding: var(--spacing-10); }
+.p-12 { padding: var(--spacing-12); }
+
+/* Gap Utility Classes */
+.gap-0 { gap: var(--spacing-0); }
+.gap-1 { gap: var(--spacing-1); }
+.gap-2 { gap: var(--spacing-2); }
+.gap-3 { gap: var(--spacing-3); }
+.gap-4 { gap: var(--spacing-4); }
+.gap-5 { gap: var(--spacing-5); }
+.gap-6 { gap: var(--spacing-6); }
+.gap-8 { gap: var(--spacing-8); }
+
+/* Border Radius Utility Classes */
+.rounded-none { border-radius: var(--radius-none); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded { border-radius: var(--radius-base); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-2xl { border-radius: var(--radius-2xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* Shadow Utility Classes */
+.shadow-none { box-shadow: var(--shadow-none); }
+.shadow-xs { box-shadow: var(--shadow-xs); }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+.shadow-2xl { box-shadow: var(--shadow-2xl); }
+.shadow-primary { box-shadow: var(--shadow-primary); }
+
+/* Z-Index Utility Classes */
+.z-0 { z-index: var(--z-0); }
+.z-10 { z-index: var(--z-10); }
+.z-20 { z-index: var(--z-20); }
+.z-30 { z-index: var(--z-30); }
+.z-40 { z-index: var(--z-40); }
+.z-50 { z-index: var(--z-50); }
+.z-auto { z-index: var(--z-auto); }
+
+/* ==========================================================================
+   CSS Custom Properties Documentation
+   
+   Usage Examples:
+   
+   1. Colors:
+      color: var(--color-primary-500);
+      background: var(--gradient-primary);
+   
+   2. Typography:
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+   
+   3. Spacing:
+      padding: var(--spacing-4);
+      margin: var(--spacing-6);
+      gap: var(--spacing-3);
+   
+   4. Borders:
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+   
+   5. Transitions:
+      transition: var(--transition-all);
+   
+   6. Dark Mode:
+      Uses prefers-color-scheme media query automatically
+   
+   7. Responsive:
+      Combine with media queries for responsive design
+   
+   ========================================================================== */

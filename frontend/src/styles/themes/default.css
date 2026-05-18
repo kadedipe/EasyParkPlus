@@ -1,0 +1,135 @@
+/* parking-management/frontend/src/assets/styles/themes/default.css */
+
+/* ==========================================================================
+   Default Theme - Indigo/Purple Gradient
+   This is the primary theme for the Parking Management System
+   ========================================================================== */
+
+:root,
+[data-theme="default"],
+.theme-default {
+    /* Theme Identification */
+    --theme-name: 'default';
+    --theme-version: '1.0.0';
+    --theme-description: 'Default Indigo/Purple Theme';
+    
+    /* Primary Colors */
+    --theme-primary: var(--color-primary-500);
+    --theme-primary-dark: var(--color-primary-600);
+    --theme-primary-light: var(--color-primary-400);
+    --theme-primary-bg: var(--color-primary-50);
+    --theme-primary-text: #FFFFFF;
+    
+    /* Secondary Colors */
+    --theme-secondary: var(--color-secondary-500);
+    --theme-secondary-dark: var(--color-secondary-600);
+    --theme-secondary-light: var(--color-secondary-400);
+    --theme-secondary-bg: var(--color-secondary-50);
+    --theme-secondary-text: #FFFFFF;
+    
+    /* Background Colors */
+    --theme-bg-primary: #FFFFFF;
+    --theme-bg-secondary: var(--color-gray-50);
+    --theme-bg-tertiary: var(--color-gray-100);
+    --theme-bg-sidebar: var(--color-gray-50);
+    --theme-bg-header: #FFFFFF;
+    --theme-bg-footer: var(--color-gray-50);
+    --theme-bg-card: #FFFFFF;
+    --theme-bg-modal: #FFFFFF;
+    --theme-bg-dropdown: #FFFFFF;
+    
+    /* Text Colors */
+    --theme-text-primary: var(--color-gray-900);
+    --theme-text-secondary: var(--color-gray-700);
+    --theme-text-tertiary: var(--color-gray-500);
+    --theme-text-disabled: var(--color-gray-400);
+    --theme-text-link: var(--color-primary-600);
+    --theme-text-link-hover: var(--color-primary-700);
+    
+    /* Border Colors */
+    --theme-border-light: var(--color-gray-200);
+    --theme-border-default: var(--color-gray-300);
+    --theme-border-dark: var(--color-gray-400);
+    --theme-border-focus: var(--color-primary-500);
+    
+    /* Status Colors */
+    --theme-success: var(--color-success-500);
+    --theme-warning: var(--color-warning-500);
+    --theme-error: var(--color-error-500);
+    --theme-info: var(--color-info-500);
+    
+    /* Gradients */
+    --theme-gradient-primary: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+    --theme-gradient-secondary: linear-gradient(135deg, var(--color-secondary-500) 0%, var(--color-accent-500) 100%);
+    --theme-gradient-hero: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-secondary-600) 100%);
+    
+    /* Shadows */
+    --theme-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --theme-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --theme-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --theme-shadow-primary: 0 4px 14px 0 rgba(102, 126, 234, 0.4);
+    
+    /* Overlay Colors */
+    --theme-overlay-light: rgba(255, 255, 255, 0.95);
+    --theme-overlay-dark: rgba(0, 0, 0, 0.5);
+    --theme-overlay-primary: rgba(102, 126, 234, 0.9);
+    
+    /* Button Styles */
+    --theme-btn-primary-bg: var(--color-primary-600);
+    --theme-btn-primary-hover: var(--color-primary-700);
+    --theme-btn-primary-active: var(--color-primary-800);
+    
+    /* Input Styles */
+    --theme-input-bg: #FFFFFF;
+    --theme-input-border: var(--color-gray-300);
+    --theme-input-focus: var(--color-primary-500);
+    --theme-input-placeholder: var(--color-gray-400);
+    
+    /* Card Styles */
+    --theme-card-bg: #FFFFFF;
+    --theme-card-border: var(--color-gray-200);
+    --theme-card-shadow: var(--theme-shadow-md);
+    --theme-card-hover-shadow: var(--theme-shadow-lg);
+    
+    /* Navbar Styles */
+    --theme-navbar-bg: rgba(255, 255, 255, 0.95);
+    --theme-navbar-text: var(--color-gray-700);
+    --theme-navbar-hover: var(--color-primary-600);
+    
+    /* Footer Styles */
+    --theme-footer-bg: var(--color-gray-50);
+    --theme-footer-text: var(--color-gray-600);
+    
+    /* Scrollbar */
+    --theme-scrollbar-track: var(--color-gray-100);
+    --theme-scrollbar-thumb: var(--color-gray-400);
+    --theme-scrollbar-thumb-hover: var(--color-gray-500);
+    
+    /* Code Blocks */
+    --theme-code-bg: var(--color-gray-100);
+    --theme-code-text: var(--color-gray-800);
+    --theme-code-border: var(--color-gray-300);
+    
+    /* Table Styles */
+    --theme-table-header-bg: var(--color-gray-50);
+    --theme-table-row-hover: var(--color-gray-50);
+    --theme-table-border: var(--color-gray-200);
+    
+    /* Map Styles */
+    --theme-map-marker-bg: var(--color-primary-600);
+    --theme-map-marker-border: #FFFFFF;
+    --theme-map-popup-bg: #FFFFFF;
+    --theme-map-popup-text: var(--color-gray-900);
+}
+
+/* Map specific overrides for default theme */
+[data-theme="default"] .mapboxgl-popup-content,
+.theme-default .mapboxgl-popup-content {
+    background: var(--theme-map-popup-bg);
+    color: var(--theme-map-popup-text);
+}
+
+[data-theme="default"] .mapboxgl-popup-tip,
+.theme-default .mapboxgl-popup-tip {
+    border-top-color: var(--theme-map-popup-bg);
+}

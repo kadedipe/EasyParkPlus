@@ -1,0 +1,122 @@
+/* parking-management/frontend/src/assets/styles/themes/ocean.css */
+
+/* ==========================================================================
+   Ocean Theme - Calm & Refreshing
+   A blue, ocean-inspired theme for coastal parking locations
+   ========================================================================== */
+
+[data-theme="ocean"],
+.theme-ocean {
+    /* Theme Identification */
+    --theme-name: 'ocean';
+    --theme-version: '1.0.0';
+    --theme-description: 'Calm Ocean Theme';
+    
+    /* Primary Colors - Deep Blue */
+    --theme-primary: #0EA5E9;
+    --theme-primary-dark: #0284C7;
+    --theme-primary-light: #38BDF8;
+    --theme-primary-bg: #E0F2FE;
+    --theme-primary-text: #FFFFFF;
+    
+    /* Secondary Colors - Teal */
+    --theme-secondary: #14B8A6;
+    --theme-secondary-dark: #0D9488;
+    --theme-secondary-light: #5EEAD4;
+    --theme-secondary-bg: #F0FDFA;
+    --theme-secondary-text: #FFFFFF;
+    
+    /* Background Colors - Fresh */
+    --theme-bg-primary: #FFFFFF;
+    --theme-bg-secondary: #F0F9FF;
+    --theme-bg-tertiary: #E0F2FE;
+    --theme-bg-sidebar: #F0F9FF;
+    --theme-bg-header: #FFFFFF;
+    --theme-bg-footer: #F0F9FF;
+    --theme-bg-card: #FFFFFF;
+    --theme-bg-modal: #FFFFFF;
+    --theme-bg-dropdown: #FFFFFF;
+    
+    /* Text Colors - Clear */
+    --theme-text-primary: #0C4A6E;
+    --theme-text-secondary: #0369A1;
+    --theme-text-tertiary: #0284C7;
+    --theme-text-disabled: #7DD3FC;
+    --theme-text-link: #0EA5E9;
+    --theme-text-link-hover: #0284C7;
+    
+    /* Border Colors - Aquatic */
+    --theme-border-light: #BAE6FD;
+    --theme-border-default: #7DD3FC;
+    --theme-border-dark: #38BDF8;
+    --theme-border-focus: #0EA5E9;
+    
+    /* Status Colors */
+    --theme-success: #10B981;
+    --theme-warning: #F59E0B;
+    --theme-error: #EF4444;
+    --theme-info: #0EA5E9;
+    
+    /* Gradients - Oceanic */
+    --theme-gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+    --theme-gradient-secondary: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
+    --theme-gradient-hero: linear-gradient(135deg, #0369A1 0%, #0C4A6E 100%);
+    
+    /* Shadows - Refreshing */
+    --theme-shadow-sm: 0 1px 2px 0 rgba(14, 165, 233, 0.05);
+    --theme-shadow-md: 0 4px 6px -1px rgba(14, 165, 233, 0.1);
+    --theme-shadow-lg: 0 10px 15px -3px rgba(14, 165, 233, 0.1);
+    --theme-shadow-primary: 0 4px 14px 0 rgba(14, 165, 233, 0.2);
+    
+    /* Overlay Colors */
+    --theme-overlay-light: rgba(255, 255, 255, 0.98);
+    --theme-overlay-dark: rgba(12, 74, 110, 0.5);
+    --theme-overlay-primary: rgba(14, 165, 233, 0.9);
+    
+    /* Button Styles */
+    --theme-btn-primary-bg: #0EA5E9;
+    --theme-btn-primary-hover: #0284C7;
+    --theme-btn-primary-active: #0369A1;
+    
+    /* Input Styles */
+    --theme-input-bg: #FFFFFF;
+    --theme-input-border: #7DD3FC;
+    --theme-input-focus: #0EA5E9;
+    --theme-input-placeholder: #7DD3FC;
+    
+    /* Card Styles */
+    --theme-card-bg: #FFFFFF;
+    --theme-card-border: #BAE6FD;
+    --theme-card-shadow: 0 1px 3px 0 rgba(14, 165, 233, 0.05);
+    --theme-card-hover-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.1);
+    
+    /* Navbar Styles */
+    --theme-navbar-bg: rgba(255, 255, 255, 0.98);
+    --theme-navbar-text: #0369A1;
+    --theme-navbar-hover: #0EA5E9;
+    
+    /* Footer Styles */
+    --theme-footer-bg: #F0F9FF;
+    --theme-footer-text: #0284C7;
+    
+    /* Scrollbar */
+    --theme-scrollbar-track: #BAE6FD;
+    --theme-scrollbar-thumb: #7DD3FC;
+    --theme-scrollbar-thumb-hover: #38BDF8;
+    
+    /* Code Blocks */
+    --theme-code-bg: #E0F2FE;
+    --theme-code-text: #0C4A6E;
+    --theme-code-border: #BAE6FD;
+    
+    /* Table Styles */
+    --theme-table-header-bg: #F0F9FF;
+    --theme-table-row-hover: #F0F9FF;
+    --theme-table-border: #BAE6FD;
+    
+    /* Map Styles */
+    --theme-map-marker-bg: #0EA5E9;
+    --theme-map-marker-border: #FFFFFF;
+    --theme-map-popup-bg: #FFFFFF;
+    --theme-map-popup-text: #0C4A6E;
+}

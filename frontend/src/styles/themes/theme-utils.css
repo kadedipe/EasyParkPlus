@@ -1,0 +1,138 @@
+/* parking-management/frontend/src/assets/styles/themes/theme-utils.css */
+
+/* ==========================================================================
+   Theme Utilities
+   Helper classes and utilities for theme management
+   ========================================================================== */
+
+/* Theme Switcher Styles */
+.theme-switcher {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-1);
+    background: var(--theme-bg-secondary);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--theme-border-light);
+}
+
+.theme-switcher-option {
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    color: var(--theme-text-secondary);
+}
+
+.theme-switcher-option:hover {
+    background: var(--theme-bg-tertiary);
+    color: var(--theme-text-primary);
+}
+
+.theme-switcher-option.active {
+    background: var(--theme-primary);
+    color: var(--theme-primary-text);
+}
+
+/* Theme Preview Cards */
+.theme-preview {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border: 2px solid transparent;
+}
+
+.theme-preview:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--theme-shadow-lg);
+}
+
+.theme-preview.active {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow-primary);
+}
+
+.theme-preview-header {
+    height: 80px;
+    background: var(--theme-gradient-primary);
+}
+
+.theme-preview-body {
+    padding: var(--spacing-4);
+    background: var(--theme-bg-card);
+}
+
+.theme-preview-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--theme-text-primary);
+    margin-bottom: var(--spacing-1);
+}
+
+.theme-preview-description {
+    font-size: var(--font-size-sm);
+    color: var(--theme-text-tertiary);
+}
+
+/* Theme Transition Overlay */
+.theme-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--theme-overlay-dark);
+    z-index: var(--z-toast);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-duration-fast);
+}
+
+.theme-transition-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Theme Attribute Support */
+[data-theme] {
+    background-color: var(--theme-bg-primary);
+    color: var(--theme-text-primary);
+}
+
+/* Theme Class Support */
+.theme-default,
+.theme-light,
+.theme-dark,
+.theme-corporate,
+.theme-nature,
+.theme-ocean,
+.theme-sunset {
+    background-color: var(--theme-bg-primary);
+    color: var(--theme-text-primary);
+}
+
+/* Responsive Theme Adjustments */
+@media (max-width: 768px) {
+    .theme-switcher {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .theme-preview {
+        margin-bottom: var(--spacing-4);
+    }
+}
+
+/* Print Theme Override */
+@media print {
+    [data-theme="dark"],
+    .theme-dark {
+        --theme-bg-primary: #FFFFFF;
+        --theme-text-primary: #000000;
+        --theme-border-default: #E5E7EB;
+    }
+}

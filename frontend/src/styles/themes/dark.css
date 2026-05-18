@@ -1,0 +1,140 @@
+/* parking-management/frontend/src/assets/styles/themes/dark.css */
+
+/* ==========================================================================
+   Dark Theme - Modern & Sleek
+   A dark theme for reduced eye strain in low-light environments
+   ========================================================================== */
+
+[data-theme="dark"],
+.theme-dark {
+    /* Theme Identification */
+    --theme-name: 'dark';
+    --theme-version: '1.0.0';
+    --theme-description: 'Modern Dark Theme';
+    
+    /* Primary Colors - Vibrant Purple */
+    --theme-primary: #8B5CF6;
+    --theme-primary-dark: #7C3AED;
+    --theme-primary-light: #A78BFA;
+    --theme-primary-bg: #4C1D95;
+    --theme-primary-text: #FFFFFF;
+    
+    /* Secondary Colors - Cool Gray */
+    --theme-secondary: #6B7280;
+    --theme-secondary-dark: #4B5563;
+    --theme-secondary-light: #9CA3AF;
+    --theme-secondary-bg: #374151;
+    --theme-secondary-text: #FFFFFF;
+    
+    /* Background Colors - Deep Dark */
+    --theme-bg-primary: #111827;
+    --theme-bg-secondary: #1F2937;
+    --theme-bg-tertiary: #374151;
+    --theme-bg-sidebar: #1F2937;
+    --theme-bg-header: #111827;
+    --theme-bg-footer: #1F2937;
+    --theme-bg-card: #1F2937;
+    --theme-bg-modal: #1F2937;
+    --theme-bg-dropdown: #1F2937;
+    
+    /* Text Colors - Light & Readable */
+    --theme-text-primary: #F9FAFB;
+    --theme-text-secondary: #E5E7EB;
+    --theme-text-tertiary: #9CA3AF;
+    --theme-text-disabled: #6B7280;
+    --theme-text-link: #A78BFA;
+    --theme-text-link-hover: #C4B5FD;
+    
+    /* Border Colors - Subtle Dark */
+    --theme-border-light: #374151;
+    --theme-border-default: #4B5563;
+    --theme-border-dark: #6B7280;
+    --theme-border-focus: #8B5CF6;
+    
+    /* Status Colors - Bright */
+    --theme-success: #34D399;
+    --theme-warning: #FBBF24;
+    --theme-error: #F87171;
+    --theme-info: #60A5FA;
+    
+    /* Gradients - Dark & Moody */
+    --theme-gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+    --theme-gradient-secondary: linear-gradient(135deg, #6B7280 0%, #374151 100%);
+    --theme-gradient-hero: linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%);
+    
+    /* Shadows - Glowing Effects */
+    --theme-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --theme-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --theme-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    --theme-shadow-primary: 0 4px 14px 0 rgba(139, 92, 246, 0.3);
+    
+    /* Overlay Colors - Dark */
+    --theme-overlay-light: rgba(31, 41, 55, 0.95);
+    --theme-overlay-dark: rgba(0, 0, 0, 0.7);
+    --theme-overlay-primary: rgba(139, 92, 246, 0.9);
+    
+    /* Button Styles */
+    --theme-btn-primary-bg: #8B5CF6;
+    --theme-btn-primary-hover: #7C3AED;
+    --theme-btn-primary-active: #6D28D9;
+    
+    /* Input Styles - Dark */
+    --theme-input-bg: #374151;
+    --theme-input-border: #4B5563;
+    --theme-input-focus: #8B5CF6;
+    --theme-input-placeholder: #6B7280;
+    
+    /* Card Styles - Elevated Dark */
+    --theme-card-bg: #1F2937;
+    --theme-card-border: #374151;
+    --theme-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --theme-card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    
+    /* Navbar Styles */
+    --theme-navbar-bg: rgba(17, 24, 39, 0.95);
+    --theme-navbar-text: #E5E7EB;
+    --theme-navbar-hover: #A78BFA;
+    
+    /* Footer Styles */
+    --theme-footer-bg: #1F2937;
+    --theme-footer-text: #9CA3AF;
+    
+    /* Scrollbar - Dark */
+    --theme-scrollbar-track: #374151;
+    --theme-scrollbar-thumb: #6B7280;
+    --theme-scrollbar-thumb-hover: #9CA3AF;
+    
+    /* Code Blocks */
+    --theme-code-bg: #374151;
+    --theme-code-text: #E5E7EB;
+    --theme-code-border: #4B5563;
+    
+    /* Table Styles */
+    --theme-table-header-bg: #374151;
+    --theme-table-row-hover: #374151;
+    --theme-table-border: #4B5563;
+    
+    /* Map Styles */
+    --theme-map-marker-bg: #8B5CF6;
+    --theme-map-marker-border: #FFFFFF;
+    --theme-map-popup-bg: #1F2937;
+    --theme-map-popup-text: #F9FAFB;
+}
+
+/* Map specific overrides for dark theme */
+[data-theme="dark"] .mapboxgl-popup-content,
+.theme-dark .mapboxgl-popup-content {
+    background: var(--theme-map-popup-bg);
+    color: var(--theme-map-popup-text);
+}
+
+[data-theme="dark"] .mapboxgl-popup-tip,
+.theme-dark .mapboxgl-popup-tip {
+    border-top-color: var(--theme-map-popup-bg);
+}
+
+/* Map styles for dark theme */
+[data-theme="dark"] .mapboxgl-map,
+.theme-dark .mapboxgl-map {
+    filter: brightness(0.8) contrast(1.2);
+}

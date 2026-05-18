@@ -1,0 +1,122 @@
+/* parking-management/frontend/src/assets/styles/themes/sunset.css */
+
+/* ==========================================================================
+   Sunset Theme - Warm & Energetic
+   A warm, sunset-inspired theme for evening parking experiences
+   ========================================================================== */
+
+[data-theme="sunset"],
+.theme-sunset {
+    /* Theme Identification */
+    --theme-name: 'sunset';
+    --theme-version: '1.0.0';
+    --theme-description: 'Warm Sunset Theme';
+    
+    /* Primary Colors - Warm Orange */
+    --theme-primary: #F97316;
+    --theme-primary-dark: #EA580C;
+    --theme-primary-light: #FB923C;
+    --theme-primary-bg: #FFF7ED;
+    --theme-primary-text: #FFFFFF;
+    
+    /* Secondary Colors - Pink/Purple */
+    --theme-secondary: #EC4899;
+    --theme-secondary-dark: #DB2777;
+    --theme-secondary-light: #F472B6;
+    --theme-secondary-bg: #FDF2F8;
+    --theme-secondary-text: #FFFFFF;
+    
+    /* Background Colors - Warm */
+    --theme-bg-primary: #FFFFFF;
+    --theme-bg-secondary: #FFF7ED;
+    --theme-bg-tertiary: #FFEDD5;
+    --theme-bg-sidebar: #FFF7ED;
+    --theme-bg-header: #FFFFFF;
+    --theme-bg-footer: #FFF7ED;
+    --theme-bg-card: #FFFFFF;
+    --theme-bg-modal: #FFFFFF;
+    --theme-bg-dropdown: #FFFFFF;
+    
+    /* Text Colors - Warm */
+    --theme-text-primary: #7C2D12;
+    --theme-text-secondary: #9A3412;
+    --theme-text-tertiary: #C2410C;
+    --theme-text-disabled: #FDBA74;
+    --theme-text-link: #F97316;
+    --theme-text-link-hover: #EA580C;
+    
+    /* Border Colors - Sunset */
+    --theme-border-light: #FFEDD5;
+    --theme-border-default: #FED7AA;
+    --theme-border-dark: #FDBA74;
+    --theme-border-focus: #F97316;
+    
+    /* Status Colors */
+    --theme-success: #10B981;
+    --theme-warning: #F59E0B;
+    --theme-error: #EF4444;
+    --theme-info: #8B5CF6;
+    
+    /* Gradients - Sunset */
+    --theme-gradient-primary: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    --theme-gradient-secondary: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+    --theme-gradient-hero: linear-gradient(135deg, #EA580C 0%, #9A3412 100%);
+    
+    /* Shadows - Warm */
+    --theme-shadow-sm: 0 1px 2px 0 rgba(249, 115, 22, 0.05);
+    --theme-shadow-md: 0 4px 6px -1px rgba(249, 115, 22, 0.1);
+    --theme-shadow-lg: 0 10px 15px -3px rgba(249, 115, 22, 0.1);
+    --theme-shadow-primary: 0 4px 14px 0 rgba(249, 115, 22, 0.2);
+    
+    /* Overlay Colors */
+    --theme-overlay-light: rgba(255, 255, 255, 0.98);
+    --theme-overlay-dark: rgba(124, 45, 18, 0.5);
+    --theme-overlay-primary: rgba(249, 115, 22, 0.9);
+    
+    /* Button Styles */
+    --theme-btn-primary-bg: #F97316;
+    --theme-btn-primary-hover: #EA580C;
+    --theme-btn-primary-active: #C2410C;
+    
+    /* Input Styles */
+    --theme-input-bg: #FFFFFF;
+    --theme-input-border: #FED7AA;
+    --theme-input-focus: #F97316;
+    --theme-input-placeholder: #FDBA74;
+    
+    /* Card Styles */
+    --theme-card-bg: #FFFFFF;
+    --theme-card-border: #FFEDD5;
+    --theme-card-shadow: 0 1px 3px 0 rgba(249, 115, 22, 0.05);
+    --theme-card-hover-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.1);
+    
+    /* Navbar Styles */
+    --theme-navbar-bg: rgba(255, 255, 255, 0.98);
+    --theme-navbar-text: #9A3412;
+    --theme-navbar-hover: #F97316;
+    
+    /* Footer Styles */
+    --theme-footer-bg: #FFF7ED;
+    --theme-footer-text: #C2410C;
+    
+    /* Scrollbar */
+    --theme-scrollbar-track: #FFEDD5;
+    --theme-scrollbar-thumb: #FDBA74;
+    --theme-scrollbar-thumb-hover: #FB923C;
+    
+    /* Code Blocks */
+    --theme-code-bg: #FFF7ED;
+    --theme-code-text: #7C2D12;
+    --theme-code-border: #FFEDD5;
+    
+    /* Table Styles */
+    --theme-table-header-bg: #FFF7ED;
+    --theme-table-row-hover: #FFF7ED;
+    --theme-table-border: #FFEDD5;
+    
+    /* Map Styles */
+    --theme-map-marker-bg: #F97316;
+    --theme-map-marker-border: #FFFFFF;
+    --theme-map-popup-bg: #FFFFFF;
+    --theme-map-popup-text: #7C2D12;
+}
