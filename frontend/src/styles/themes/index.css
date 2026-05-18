@@ -1,0 +1,83 @@
+/* parking-management/frontend/src/assets/styles/themes/index.css */
+
+/* ==========================================================================
+   Theme System - Entry Point
+   This file manages all theme imports and theme switching functionality
+   ========================================================================== */
+
+/* Import all themes */
+@import './default.css';
+@import './light.css';
+@import './dark.css';
+@import './corporate.css';
+@import './nature.css';
+@import './ocean.css';
+@import './sunset.css';
+
+/* Theme Variables - Base */
+:root {
+    /* Theme configuration */
+    --theme-transition-duration: 300ms;
+    --theme-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Default theme (will be overridden by active theme) */
+    --theme-name: 'default';
+    --theme-primary: var(--color-primary-500);
+    --theme-secondary: var(--color-secondary-500);
+    --theme-background: var(--bg-primary);
+    --theme-text: var(--text-primary);
+}
+
+/* Smooth theme transition */
+* {
+    transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
+                color var(--theme-transition-duration) var(--theme-transition-timing),
+                border-color var(--theme-transition-duration) var(--theme-transition-timing),
+                box-shadow var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Disable transitions during theme switch for performance */
+.theme-switching * {
+    transition: none !important;
+}
+
+/* Theme attribute selector support */
+[data-theme] {
+    transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Theme class support */
+.theme-default,
+.theme-light,
+.theme-dark,
+.theme-corporate,
+.theme-nature,
+.theme-ocean,
+.theme-sunset {
+    transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Theme Utility Classes */
+.theme-transition-enabled {
+    transition: background-color var(--theme-transition-duration) ease,
+                color var(--theme-transition-duration) ease,
+                border-color var(--theme-transition-duration) ease;
+}
+
+/* High contrast theme support */
+@media (prefers-contrast: high) {
+    [data-theme="auto"] {
+        --color-primary-500: #0000EE;
+        --color-secondary-500: #0000EE;
+        --text-primary: #000000;
+        --bg-primary: #FFFFFF;
+        --border-default: #000000;
+    }
+}
+
+/* Reduced motion theme support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        --theme-transition-duration: 0ms !important;
+    }
+}

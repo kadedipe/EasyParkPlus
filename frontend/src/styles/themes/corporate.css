@@ -1,0 +1,122 @@
+/* parking-management/frontend/src/assets/styles/themes/corporate.css */
+
+/* ==========================================================================
+   Corporate Theme - Professional & Trustworthy
+   A business-oriented theme for corporate parking solutions
+   ========================================================================== */
+
+[data-theme="corporate"],
+.theme-corporate {
+    /* Theme Identification */
+    --theme-name: 'corporate';
+    --theme-version: '1.0.0';
+    --theme-description: 'Professional Corporate Theme';
+    
+    /* Primary Colors - Navy Blue */
+    --theme-primary: #1E40AF;
+    --theme-primary-dark: #1E3A8A;
+    --theme-primary-light: #3B82F6;
+    --theme-primary-bg: #DBEAFE;
+    --theme-primary-text: #FFFFFF;
+    
+    /* Secondary Colors - Slate Gray */
+    --theme-secondary: #475569;
+    --theme-secondary-dark: #334155;
+    --theme-secondary-light: #64748B;
+    --theme-secondary-bg: #F1F5F9;
+    --theme-secondary-text: #FFFFFF;
+    
+    /* Background Colors - Clean White */
+    --theme-bg-primary: #FFFFFF;
+    --theme-bg-secondary: #F8FAFC;
+    --theme-bg-tertiary: #F1F5F9;
+    --theme-bg-sidebar: #F8FAFC;
+    --theme-bg-header: #FFFFFF;
+    --theme-bg-footer: #F8FAFC;
+    --theme-bg-card: #FFFFFF;
+    --theme-bg-modal: #FFFFFF;
+    --theme-bg-dropdown: #FFFFFF;
+    
+    /* Text Colors - Professional */
+    --theme-text-primary: #0F172A;
+    --theme-text-secondary: #334155;
+    --theme-text-tertiary: #64748B;
+    --theme-text-disabled: #94A3B8;
+    --theme-text-link: #1E40AF;
+    --theme-text-link-hover: #1E3A8A;
+    
+    /* Border Colors - Clean */
+    --theme-border-light: #E2E8F0;
+    --theme-border-default: #CBD5E1;
+    --theme-border-dark: #94A3B8;
+    --theme-border-focus: #1E40AF;
+    
+    /* Status Colors - Standard */
+    --theme-success: #059669;
+    --theme-warning: #D97706;
+    --theme-error: #DC2626;
+    --theme-info: #2563EB;
+    
+    /* Gradients - Professional */
+    --theme-gradient-primary: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%);
+    --theme-gradient-secondary: linear-gradient(135deg, #475569 0%, #334155 100%);
+    --theme-gradient-hero: linear-gradient(135deg, #1E3A8A 0%, #0F172A 100%);
+    
+    /* Shadows - Subtle */
+    --theme-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --theme-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --theme-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    --theme-shadow-primary: 0 4px 14px 0 rgba(30, 64, 175, 0.15);
+    
+    /* Overlay Colors */
+    --theme-overlay-light: rgba(255, 255, 255, 0.98);
+    --theme-overlay-dark: rgba(15, 23, 42, 0.5);
+    --theme-overlay-primary: rgba(30, 64, 175, 0.9);
+    
+    /* Button Styles */
+    --theme-btn-primary-bg: #1E40AF;
+    --theme-btn-primary-hover: #1E3A8A;
+    --theme-btn-primary-active: #172554;
+    
+    /* Input Styles */
+    --theme-input-bg: #FFFFFF;
+    --theme-input-border: #CBD5E1;
+    --theme-input-focus: #1E40AF;
+    --theme-input-placeholder: #94A3B8;
+    
+    /* Card Styles */
+    --theme-card-bg: #FFFFFF;
+    --theme-card-border: #E2E8F0;
+    --theme-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    --theme-card-hover-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    
+    /* Navbar Styles */
+    --theme-navbar-bg: rgba(255, 255, 255, 0.98);
+    --theme-navbar-text: #334155;
+    --theme-navbar-hover: #1E40AF;
+    
+    /* Footer Styles */
+    --theme-footer-bg: #F8FAFC;
+    --theme-footer-text: #64748B;
+    
+    /* Scrollbar */
+    --theme-scrollbar-track: #F1F5F9;
+    --theme-scrollbar-thumb: #CBD5E1;
+    --theme-scrollbar-thumb-hover: #94A3B8;
+    
+    /* Code Blocks */
+    --theme-code-bg: #F1F5F9;
+    --theme-code-text: #0F172A;
+    --theme-code-border: #E2E8F0;
+    
+    /* Table Styles */
+    --theme-table-header-bg: #F8FAFC;
+    --theme-table-row-hover: #F8FAFC;
+    --theme-table-border: #E2E8F0;
+    
+    /* Map Styles */
+    --theme-map-marker-bg: #1E40AF;
+    --theme-map-marker-border: #FFFFFF;
+    --theme-map-popup-bg: #FFFFFF;
+    --theme-map-popup-text: #0F172A;
+}
