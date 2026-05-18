@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#667EEA">
+    <meta name="description" content="Parking Management System - Hassle-free parking reservation and management platform">
+    <meta name="keywords" content="parking, reservation, parking management, smart parking, parking spots">
+    <meta name="author" content="Parking Management Team">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Parking Management System">
+    <meta property="og:description" content="Hassle-free parking reservation and management platform">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://parking.example.com">
+    <meta property="og:image" content="/images/og-image.jpg">
+    <meta property="og:site_name" content="Parking Management System">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Parking Management System">
+    <meta name="twitter:description" content="Hassle-free parking reservation and management platform">
+    <meta name="twitter:image" content="/images/twitter-image.jpg">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#667EEA">
+    
+    <!-- Preconnect to Google Fonts for better performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Optimized Google Fonts - Inter with specific weights and display swap -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Fallback for older browsers -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Mapbox GL JS for maps -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+    
+    <!-- Stripe for payments -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Font loading optimization */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+                         Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', 
+                         sans-serif;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: #1F2937;
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Optional: Font loading states */
+        .fonts-loading body {
+            opacity: 0;
+        }
+        
+        .fonts-loaded body {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Loading Animation */
+        #root {
+            min-height: 100vh;
+        }
+        
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .loading-spinner svg {
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        .loading-spinner p {
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        
+        .toast {
+            pointer-events: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease-out;
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+        }
+        
+        .toast.success { border-left: 4px solid #10B981; }
+        .toast.error { border-left: 4px solid #EF4444; }
+        .toast.warning { border-left: 4px solid #F59E0B; }
+        .toast.info { border-left: 4px solid #3B82F6; }
+        
+        .toast i {
+            font-size: 1.25rem;
+        }
+        
+        .toast.success i { color: #10B981; }
+        .toast.error i { color: #EF4444; }
+        .toast.warning i { color: #F59E0B; }
+        .toast.info i { color: #3B82F6; }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1F2937;
+        }
+        
+        .toast-message {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+            
+            .toast {
+                min-width: auto;
+                width: calc(100vw - 20px);
+            }
+        }
+        
+        /* Accessibility - Skip to main content */
+        .skip-to-content {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #667EEA;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+        
+        .skip-to-content:focus {
+            top: 0;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Selection Color */
+        ::selection {
+            background: #667EEA;
+            color: white;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+    
+    <title>Parking Management System - Hassle-Free Parking Reservations</title>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+    
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading-container">
+        <div class="loading-spinner">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+                <path d="M12 2 L12 6 M12 18 L12 22 M2 12 L6 12 M18 12 L22 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <p>Loading Parking Management System...</p>
+        </div>
+    </div>
+    
+    <!-- Main application container -->
+    <div id="root"></div>
+    
+    <!-- Toast notification container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Hidden elements for SEO and analytics -->
+    <div style="display: none;">
+        <!-- Schema.org structured data for local business -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            "name": "Parking Management System",
+            "description": "Smart parking reservation and management platform",
+            "url": "https://parking.example.com",
+            "logo": "/images/logo.png",
+            "sameAs": [
+                "https://www.facebook.com/parkingmanagement",
+                "https://twitter.com/parkingmanagement",
+                "https://www.instagram.com/parkingmanagement"
+            ],
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "New York",
+                "addressRegion": "NY",
+                "addressCountry": "USA"
+            },
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://parking.example.com/search?spot={search_term_string}",
+                "query-input": "required name=search_term_string"
+            }
+        }
+        </script>
+        
+        <!-- FAQ Schema for better search visibility -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "How do I reserve a parking spot?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "You can reserve a parking spot by creating an account, searching for available spots, selecting your preferred time slot, and completing the payment process."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Can I cancel my reservation?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Yes, you can cancel your reservation up to 2 hours before the start time for a full refund. Late cancellations may incur a fee."
+                    }
+                }
+            ]
+        }
+        </script>
+    </div>
+    
+    <!-- Font loading optimization script -->
+    <script>
+        // Check if fonts are loaded
+        if ('fonts' in document) {
+            document.documentElement.classList.add('fonts-loading');
+            
+            Promise.all([
+                document.fonts.load('400 1em Inter'),
+                document.fonts.load('500 1em Inter'),
+                document.fonts.load('600 1em Inter'),
+                document.fonts.load('700 1em Inter')
+            ]).then(() => {
+                document.documentElement.classList.remove('fonts-loading');
+                document.documentElement.classList.add('fonts-loaded');
+                console.log('Google Fonts (Inter) loaded successfully');
+            }).catch(err => {
+                console.warn('Font loading error:', err);
+                document.documentElement.classList.remove('fonts-loading');
+            });
+        }
+    </script>
+    
+    <!-- Main application script -->
+    <script type="module">
+        // Check if running in development or production
+        const isDev = import.meta.env.MODE === 'development';
+        const apiUrl = isDev ? 'http://localhost:3000/api' : '/api';
+        
+        // Hide loading screen when app is ready
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.style.opacity = '0';
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                    }, 300);
+                }
+            }, 500);
+        });
+        
+        // Register Service Worker for PWA functionality
+        if ('serviceWorker' in navigator && !isDev) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+        
+        // Handle online/offline events
+        window.addEventListener('online', () => {
+            console.log('Application is online');
+            // Dispatch custom event for app to handle
+            window.dispatchEvent(new CustomEvent('app-online'));
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('Application is offline');
+            window.dispatchEvent(new CustomEvent('app-offline'));
+        });
+        
+        // Performance monitoring
+        if ('performance' in window && 'PerformanceObserver' in window) {
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (entry.entryType === 'largest-contentful-paint') {
+                        console.log('LCP:', entry.renderTime || entry.loadTime);
+                    }
+                }
+            });
+            observer.observe({ entryTypes: ['largest-contentful-paint'] });
+        }
+        
+        // Error handling for uncaught errors
+        window.addEventListener('error', (event) => {
+            console.error('Uncaught error:', event.error);
+            // Could send to error tracking service
+            if (!isDev) {
+                // Send to error tracking API
+                fetch(`${apiUrl}/logs/client-error`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: event.message,
+                        filename: event.filename,
+                        lineno: event.lineno,
+                        colno: event.colno,
+                        stack: event.error?.stack,
+                        userAgent: navigator.userAgent,
+                        url: window.location.href
+                    })
+                }).catch(e => console.error('Failed to log error:', e));
+            }
+        });
+        
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            if (!isDev) {
+                fetch(`${apiUrl}/logs/client-rejection`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reason: String(event.reason),
+                        stack: event.reason?.stack,
+                        userAgent: navigator.userAgent,
+                        url: window.location.href
+                    })
+                }).catch(e => console.error('Failed to log rejection:', e));
+            }
+        });
+        
+        // Export API URL for app use
+        window.__APP_CONFIG__ = {
+            apiUrl,
+            isDev,
+            version: '1.0.0',
+            mapboxToken: '{{MAPBOX_TOKEN}}', // Will be replaced at build time
+            stripeKey: '{{STRIPE_KEY}}'      // Will be replaced at build time
+        };
+        
+        console.log(`Parking Management System v1.0.0 - ${isDev ? 'Development' : 'Production'} mode`);
+    </script>
+    
+    <!-- Main app script - will be replaced by build system -->
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

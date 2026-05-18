@@ -1,0 +1,36 @@
+# robots.txt for Parking Management System
+# https://parking.example.com/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /payment/
+Disallow: /reservations/cancel
+Disallow: /auth/reset-password
+
+# Sitemap location
+Sitemap: https://parking.example.com/sitemap.xml
+
+# Crawl delay for heavy crawlers
+Crawl-delay: 1
+
+# Host directive (for search engines that support it)
+Host: https://parking.example.com
+
+# Allow important bots while blocking spam bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
