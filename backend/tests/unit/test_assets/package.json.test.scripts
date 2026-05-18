@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "test:assets": "jest --config tests/unit/test_assets/jest.config.js",
+    "test:assets:watch": "jest --config tests/unit/test_assets/jest.config.js --watch",
+    "test:assets:coverage": "jest --config tests/unit/test_assets/jest.config.js --coverage",
+    "test:assets:verbose": "jest --config tests/unit/test_assets/jest.config.js --verbose",
+    "test:assets:services": "jest --config tests/unit/test_assets/jest.config.js tests/unit/test_assets/services",
+    "test:assets:controllers": "jest --config tests/unit/test_assets/jest.config.js tests/unit/test_assets/controllers",
+    "test:assets:models": "jest --config tests/unit/test_assets/jest.config.js tests/unit/test_assets/models",
+    "test:assets:middleware": "jest --config tests/unit/test_assets/jest.config.js tests/unit/test_assets/middleware"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.0.0",
+    "canvas": "^2.11.0",
+    "form-data": "^4.0.0",
+    "fs-extra": "^11.1.0",
+    "pdf-lib": "^1.17.1",
+    "sharp": "^0.32.0",
+    "supertest": "^6.3.0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "scripts": {
+    "test:services": "jest --config tests/unit/test_services/jest.config.js",
+    "test:services:watch": "jest --config tests/unit/test_services/jest.config.js --watch",
+    "test:services:coverage": "jest --config tests/unit/test_services/jest.config.js --coverage",
+    "test:services:verbose": "jest --config tests/unit/test_services/jest.config.js --verbose",
+    "test:services:auth": "jest --config tests/unit/test_services/jest.config.js tests/unit/test_services/auth",
+    "test:services:user": "jest --config tests/unit/test_services/jest.config.js tests/unit/test_services/user",
+    "test:services:parking": "jest --config tests/unit/test_services/jest.config.js tests/unit/test_services/parking",
+    "test:services:reservation": "jest --config tests/unit/test_services/jest.config.js tests/unit/test_services/reservation",
+    "test:services:payment": "jest --config tests/unit/test_services/jest.config.js tests/unit/test_services/payment",
+    "test:services:notification": "jest --config tests/unit/test_services/jest.config.js tests/unit/test_services/notification",
+    "test:services:report": "jest --config tests/unit/test_services/jest.config.js tests/unit/test_services/report"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongodb-memory-server": "^8.12.0",
+    "redis-mock": "^0.56.0",
+    "supertest": "^6.3.0"
+  }
+}
