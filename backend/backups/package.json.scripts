@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "backup:pre": "./scripts/db/pre_migration_backup.sh",
+    "backup:pre:migration": "./scripts/db/pre_migration_backup.sh --migration",
+    "restore:pre": "./scripts/db/restore_pre_migration.sh",
+    "migrate:with-backup": "npm run backup:pre && npm run migrate",
+    "migrate:rollback:with-backup": "npm run restore:pre"
+  }
+}

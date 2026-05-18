@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test:fixtures": "jest --config tests/fixtures/jest.config.js",
+    "test:fixtures:validate": "node tests/fixtures/validate.js"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.0.0",
+    "mongodb-memory-server": "^8.12.0"
+  }
+}
