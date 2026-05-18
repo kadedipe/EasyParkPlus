@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "test:e2e": "jest --config tests/e2e/jest.config.js",
+    "test:e2e:auth": "jest --config tests/e2e/jest.config.js tests/e2e/auth",
+    "test:e2e:parking": "jest --config tests/e2e/jest.config.js tests/e2e/parking",
+    "test:e2e:reservations": "jest --config tests/e2e/jest.config.js tests/e2e/reservations",
+    "test:e2e:payments": "jest --config tests/e2e/jest.config.js tests/e2e/payments",
+    "test:e2e:admin": "jest --config tests/e2e/jest.config.js tests/e2e/admin",
+    "test:e2e:workflows": "jest --config tests/e2e/jest.config.js tests/e2e/workflows",
+    "test:e2e:performance": "jest --config tests/e2e/jest.config.js tests/e2e/performance",
+    "test:e2e:security": "jest --config tests/e2e/jest.config.js tests/e2e/security",
+    "test:e2e:all": "npm run test:e2e:auth && npm run test:e2e:parking && npm run test:e2e:reservations && npm run test:e2e:payments && npm run test:e2e:admin && npm run test:e2e:workflows",
+    "test:e2e:ci": "jest --config tests/e2e/jest.config.js --ci --runInBand --forceExit"
+  }
+}
