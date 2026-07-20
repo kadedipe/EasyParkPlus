@@ -1,0 +1,74 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":preserveSemverRanges",
+    "group:allNonMajor",
+    "schedule:weekly",
+    ":automergeMinor",
+    ":automergeRequireAllStatusChecks"
+  ],
+  "baseBranches": ["develop"],
+  "labels": ["dependencies", "automated-pr"],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["^@mui/", "^@emotion/"],
+      "groupName": "MUI packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^@tanstack/"],
+      "groupName": "TanStack packages",
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^@storybook/"],
+      "groupName": "Storybook packages",
+      "automerge": false,
+      "schedule": ["before 5am on monday"]
+    },
+    {
+      "matchPackagePatterns": ["^@types/"],
+      "groupName": "TypeScript types",
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "React packages",
+      "automerge": false,
+      "schedule": ["before 5am on monday"]
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "devDependencies",
+      "automerge": true,
+      "schedule": ["before 5am on monday"]
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major-update"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "branch"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": true,
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["before 5am on monday"]
+  },
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "rangeStrategy": "bump",
+  "separateMultipleMajor": true,
+  "separateMinorPatch": true,
+  "timezone": "America/New_York"
+}

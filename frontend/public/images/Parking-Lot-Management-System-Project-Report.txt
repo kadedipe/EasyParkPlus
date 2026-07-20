@@ -1,0 +1,456 @@
+Project Template: Parking Lot Management System
+1) Architecture Diagram (Client → Server → Database → API)
+Show the request flow from Client (SPA/Web/Mobile) → REST API (Controllers) → Service → Repository →
+Database. Include external services (Auth, Storage, Payments) if applicable.
+
+
+  Client (SPA/Web/Mobile)
+     ↓
+  REST API (Controllers)
+        ↓
+  Service Layer
+     ↓
+  Repository Layer
+        ↓
+  Database (MySQL/PostgreSQL)
+
+
+  External Services:
+  - Payment Gateway (Stripe/PayPal)
+  - SMS/Email Service
+  - Authentication Service (JWT)
+
+
+
+2) ER Diagram / Database Schema
+Present entities, attributes, PK/FK relationships, and cardinalities. Provide ER image and tabular schema.
+
+2.1 Table Schema (add rows per entity)
+ Entity     Field           Type                                   Constraints              Notes
+
+ Slot       id              BIGINT                                 PK, AUTO_INCREMENT       Primary key
+
+                                                                                            Slot identifier
+ Slot       code            VARCHAR(10)                            NOT NULL, UNIQUE
+                                                                                            (A1, B2, etc.)
+
+                                                                                            Vehicle size
+ Slot       type            ENUM('COMPACT','REGULAR','LARGE')      NOT NULL
+                                                                                            category
+
+                                                                   NOT NULL, DEFAULT        Availability
+ Slot       is_free         BOOLEAN
+                                                                   TRUE                     status
+
+ Slot       hourly_rate     DECIMAL(8,2)                           NOT NULL                 Cost per hour
+
+                                                                   NOT NULL, DEFAULT        Record creation
+ Slot       created_at      TIMESTAMP
+                                                                   NOW()                    time
+
+                                                                                            Last
+                                                                   NOT NULL, DEFAULT
+ Slot       updated_at      TIMESTAMP                                                       modification
+                                                                   NOW() ON UPDATE
+                                                                                            time
+Entity   Field            Type                                     Constraints              Notes
+
+Ticket   id               BIGINT                                   PK, AUTO_INCREMENT       Primary key
+
+                                                                                            Reference to
+Ticket   slot_id          BIGINT                                   FK → Slot.id, NOT NULL
+                                                                                            parking slot
+
+                                                                                            Vehicle
+Ticket   vehicle_no       VARCHAR(20)                              NOT NULL                 registration
+                                                                                            number
+
+Ticket   vehicle_type     ENUM('CAR','BIKE','TRUCK')               NOT NULL                 Type of vehicle
+
+                                                                   NOT NULL, DEFAULT
+Ticket   check_in_time    TIMESTAMP                                                         Entry timestamp
+                                                                   NOW()
+
+Ticket   check_out_time   TIMESTAMP                                NULL                     Exit timestamp
+
+                                                                                            Total parking
+Ticket   amount           DECIMAL(8,2)                             NULL
+                                                                                            fee
+
+                                                                   NOT NULL, DEFAULT        Parking session
+Ticket   status           ENUM('ACTIVE','COMPLETED','CANCELLED')
+                                                                   'ACTIVE'                 status
+
+                                                                                            Payment
+                                                                   NOT NULL, DEFAULT
+Ticket   payment_status   ENUM('PENDING','PAID','FAILED')                                   completion
+                                                                   'PENDING'
+                                                                                            status
+
+                                                                   NOT NULL, DEFAULT        Record creation
+Ticket   created_at       TIMESTAMP
+                                                                   NOW()                    time
+
+                                                                                            Last
+                                                                   NOT NULL, DEFAULT
+Ticket   updated_at       TIMESTAMP                                                         modification
+                                                                   NOW() ON UPDATE
+                                                                                            time
+
+User     id               BIGINT                                   PK, AUTO_INCREMENT       Primary key
+
+User     username         VARCHAR(50)                              NOT NULL, UNIQUE         Login identifier
+
+User     email            VARCHAR(100)                             NOT NULL, UNIQUE         Email address
+
+                                                                                            Encrypted
+User     password_hash    VARCHAR(255)                             NOT NULL
+                                                                                            password
+
+                                                                   NOT NULL, DEFAULT
+User     role             ENUM('ADMIN','OPERATOR','USER')                                   Access level
+                                                                   'USER'
+
+                                                                   NOT NULL, DEFAULT
+User     is_active        BOOLEAN                                                           Account status
+                                                                   TRUE
+
+                                                                   NOT NULL, DEFAULT        Record creation
+User     created_at       TIMESTAMP
+                                                                   NOW()                    time
+
+                                                                                            Last
+                                                                   NOT NULL, DEFAULT
+User     updated_at       TIMESTAMP                                                         modification
+                                                                   NOW() ON UPDATE
+                                                                                            time
+                                                                                                              
+Add additional entities/tables and constraints as needed.
+
+3) Functional Requirements
+
+3.1 Controller and its Functions (fill for each controller)
+ Controller            Function Name      Input                     Output                      Validation / Notes
+
+ SlotController        list               —                         List<SlotDTO>               Pagination/filters optional
+
+ SlotController        create             SlotDTO                   SlotDTO                     Validate required fields
+
+ SlotController        update             SlotDTO                   SlotDTO                     ID must exist
+
+ SlotController        view               id (PathVariable)         SlotDTO                     404 if not found
+
+ SlotController        delete             id (PathVariable)         { success: true }           Return true/false
+
+ SlotController        getFreeSlots       type (optional)           List<SlotDTO>               Filter available slots
+
+ TicketController      list               —                         List<TicketDTO>             Pagination/filters optional
+
+TicketController      create             TicketDTO                 TicketDTO                   Validate required fields          
+
+
+ TicketController      update             TicketDTO                 TicketDTO                   ID must exist
+
+ TicketController      view               id (PathVariable)         TicketDTO                   404 if not found
+
+ TicketController      delete             id (PathVariable)         { success: true }           Return true/false
+
+ TicketController      checkIn            CheckInDTO                TicketDTO                   Vehicle not already parked
+
+ TicketController      checkOut           id, CheckOutDTO           CheckOutDTO                 Calculate fees automatically
+
+ TicketController      getActiveTickets   —                         List<TicketDTO>             Only active parking sessions
+
+ UserController        list               —                         List<UserDTO>               Pagination/filters optional
+
+ UserController        create             UserDTO                   UserDTO                     Validate required fields
+
+ UserController        update             UserDTO                   UserDTO                     ID must exist
+
+ UserController        view               id (PathVariable)         UserDTO                     404 if not found
+
+ UserController        delete             id (PathVariable)         { success: true }           Return true/false
+
+ ReportController      getRevenue         startDate, endDate        RevenueReportDTO            Date range validation
+
+ ReportController      getOccupancy       date (optional)           OccupancyReportDTO          Current or specific date stats
+                                                                                                                                 
+
+
+
+
+3.2 Methods, URL, Description (use plural resource names, e.g., /api/items)
+ HTTP                                                                                                                    Status
+              URL                         Purpose          Request Body (JSON)                Response (JSON)
+ Method                                                                                                                  Codes
+
+ GET          /api/slots                  List all slots   —                                  Array<SlotDTO>             200
+
+                                                           { "code": "A1", "type":
+                                          Create a                                                                       201 /
+ POST         /api/slots                                   "COMPACT", "hourlyRate":           SlotDTO
+                                          slot                                                                           400
+                                                           5.00 }
+
+ PUT          /api/slots                  Update a         { "id": 1, "code": "A1", "type":   SlotDTO                    200 /
+                                          slot             "COMPACT", "hourlyRate":                                      400 /
+HTTP                                                                                                   Status
+         URL                          Purpose        Request Body (JSON)           Response (JSON)
+Method                                                                                                 Codes
+                                                     6.00 }                                            404
+
+                                      Get a slot                                                       200 /
+GET      /api/slots/{id}                             —                             SlotDTO
+                                      by id                                                            404
+
+                                      Delete a                                                         200 /
+DELETE   /api/slots/{id}                             —                             { success: true }
+                                      slot                                                             404
+
+                                      List
+GET      /api/slots/free              available      —                             Array<SlotDTO>      200
+                                      slots
+
+                                      List all
+GET      /api/tickets                                —                             Array<TicketDTO>    200
+                                      tickets
+
+                                                     { "slotId": 1, "vehicleNo":
+                                      Create a                                                         201 /
+POST     /api/tickets                                "ABC123", "vehicleType":      TicketDTO
+                                      ticket                                                           400
+                                                     "CAR" }
+
+                                                                                                       200 /
+                                      Update a       { "id": 1, "amount": 25.50,
+PUT      /api/tickets                                                              TicketDTO           400 /
+                                      ticket         "status": "COMPLETED" }
+                                                                                                       404
+
+                                      Get a ticket                                                     200 /
+GET      /api/tickets/{id}                           —                             TicketDTO
+                                      by id                                                            404
+
+                                      Delete a                                                         200 /
+DELETE   /api/tickets/{id}                           —                             { success: true }
+                                      ticket                                                           404
+
+                                                     { "vehicleNo": "ABC123",
+                                      Check-in                                                         201 /
+POST     /api/tickets/checkin                        "vehicleType": "CAR",         TicketDTO
+                                      vehicle                                                          400
+                                                     "slotId": 1 }
+
+                                                                                                       200 /
+                                      Check-out      { "paymentMethod": "CASH"
+POST     /api/tickets/{id}/checkout                                                CheckOutDTO         400 /
+                                      vehicle        }
+                                                                                                       404
+
+                                      List active
+GET      /api/tickets/active                         —                             Array<TicketDTO>    200
+                                      tickets
+
+                                      List all
+GET      /api/users                                  —                             Array<UserDTO>      200
+                                      users
+
+                                                     { "username": "admin",
+                                                     "email":
+                                      Create a                                                         201 /
+POST     /api/users                                  "admin@example.com",          UserDTO
+                                      user                                                             400
+                                                     "password": "password123",
+                                                     "role": "ADMIN" }
+ HTTP                                                                                                      Status
+               URL                            Purpose        Request Body (JSON)      Response (JSON)
+ Method                                                                                                    Codes
+
+                                                             { "id": 1, "username":
+                                                                                                           200 /
+                                              Update a       "admin", "email":
+ PUT           /api/users                                                             UserDTO              400 /
+                                              user           "admin@example.com",
+                                                                                                           404
+                                                             "role": "ADMIN" }
+
+                                              Get a user                                                   200 /
+ GET           /api/users/{id}                               —                        UserDTO
+                                              by id                                                        404
+
+                                              Delete a                                                     200 /
+ DELETE        /api/users/{id}                               —                        { success: true }
+                                              user                                                         404
+
+                                              Revenue
+ GET           /api/reports/revenue                          —                        RevenueReportDTO     200
+                                              report
+
+                                              Occupancy
+ GET           /api/reports/occupancy                        —                        OccupancyReportDTO   200
+                                              report
+
+
+
+4) UI Wireframes / Mockups
+Provide low-fidelity wireframes. Keep layout and actions explicit.
+
+4.1 List Screen (Index)
+Slots Management Screen:
+
+      Table: ID | Code | Type | Rate/Hr | Status | Actions (View/Edit/Delete)
+                                                                                                                   
+      Search/Filter (optional), Pagination
+
+      Add New button
+
+
+    ┌─────────────────────────────────────────────────────────────┐
+    │ Parking Slots Management                       [Add New] │
+    ├─────────────────────────────────────────────────────────────┤
+    │ Search: [________________] Type: [All ▼] Status: [All ▼] │
+    ├─────────────────────────────────────────────────────────────┤
+    │ ID | Code | Type   | Rate/Hr | Status    | Actions     │
+    ├─────────────────────────────────────────────────────────────┤
+    │ 1 | A1 | COMPACT | ₹5.00 | FREE          | View Edit Delete│
+    │ 2 | A2 | COMPACT | ₹5.00 | OCCUPIED | View Edit Delete│
+    │ 3 | B1 | REGULAR | ₹8.00 | FREE          | View Edit Delete│
+    │ 4 | C1 | LARGE | ₹12.00 | FREE          | View Edit Delete│
+    └─────────────────────────────────────────────────────────────┘
+    │ Showing 1-10 of 50         [Previous] [1][2][3][4] [Next] │
+
+
+Tickets Management Screen:
+      Table: ID | Vehicle No | Slot | Check-In Time | Status | Actions (View/Edit/Delete)
+      Search/Filter (optional), Pagination
+
+      Add New button
+
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │ Parking Tickets Management                   [Add New] │
+  ├─────────────────────────────────────────────────────────────┤
+  │ Search: [________________] Status: [All ▼] Date: [Today ▼] │
+  ├─────────────────────────────────────────────────────────────┤
+  │ ID | Vehicle No | Slot | Check-In Time | Status | Actions │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 1 | KA01AB123 | A1 | 09:30 AM          | ACTIVE | View Edit Delete│
+  │ 2 | TN07CD456 | B2 | 10:15 AM          | ACTIVE | View Edit Delete│
+  │ 3 | MH12EF789 | C1 | 08:45 AM          | COMPLETED| View Edit Delete│
+  │ 4 | KL09GH012 | A3 | 11:20 AM          | ACTIVE | View Edit Delete│
+  └─────────────────────────────────────────────────────────────┘
+  │ Showing 1-10 of 150         [Previous] [1][2][3][4] [Next] │
+
+
+
+4.2 Create / Edit Form
+Slot Create/Edit Form:
+
+      Fields: Code (text), Type (enum), HourlyRate (number), Status (enum)
+
+      Buttons: Save, Cancel; Inline validation messages
+
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │ Create/Edit Slot                     [Cancel] [Save]│
+  ├─────────────────────────────────────────────────────────────┤
+  │                       │
+  │ Slot Code: [_______] *                         │
+  │        (Required field validation message)                   │
+  │                                        │
+  │ Type: [🔽 COMPACT           ▼] *                          │
+  │                                        │
+  │ Hourly Rate: [_______] *                         │
+  │         (Must be greater than 0)                     │
+  │                                        │
+  │ Status: [🔽 FREE      ▼]                          │
+  │                                        │
+  │              [Cancel] [Save]                 │
+  └─────────────────────────────────────────────────────────────┘
+
+
+Ticket Create/Edit Form:
+      Fields: VehicleNo (text), VehicleType (enum), SlotId (enum), CheckInTime (datetime), Amount
+      (number), Status (enum)
+
+      Buttons: Save, Cancel; Inline validation messages
+
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │ Create/Edit Ticket                  [Cancel] [Save]│
+  ├─────────────────────────────────────────────────────────────┤
+  │                                       │
+  │ Vehicle Number: [_____________] *                       │
+  │           (Required field validation message)               │
+  │                                       │
+  │ Vehicle Type: [🔽 CAR       ▼] *                     │
+  │                                       │
+  │ Slot: [🔽 A1 - COMPACT ▼] *                              │
+  │                                       │
+  │ Check-in Time: [2024-01-15 09:30] *                         │
+  │                                       │
+  │ Amount: [_______] (Auto-calculated on checkout)                 │
+  │                                       │
+  │ Status: [🔽 ACTIVE     ▼]                        │
+  │                                       │
+  │              [Cancel] [Save]               │
+  └─────────────────────────────────────────────────────────────┘
+
+
+
+4.3 Detail View (Optional)
+Slot Detail View:
+
+      Read-only fields with back to list
+  ┌─────────────────────────────────────────────────────────────┐
+  │ Slot Details                      [Back to List]│
+  ├─────────────────────────────────────────────────────────────┤
+  │                                          │
+  │ Slot ID: 1                                   │
+  │                                          │
+  │ Slot Code: A1                                    │
+  │                                          │
+  │ Type: COMPACT                                        │
+  │                                          │
+  │ Hourly Rate: ₹5.00                                   │
+  │                                          │
+  │ Status: FREE                                     │
+  │                                          │
+  │ Created: 2024-01-01 10:00 AM                             │
+  │                                          │
+  │ Last Updated: 2024-01-15 02:30 PM                            │
+  │                                          │
+  │                  [Edit] [Back to List]           │
+  └─────────────────────────────────────────────────────────────┘
+
+
+Ticket Detail View:
+
+      Read-only fields with back to list
+┌─────────────────────────────────────────────────────────────┐
+│ Ticket Details                      [Back to List]│
+├─────────────────────────────────────────────────────────────┤
+│                                           │
+│ Ticket ID: #001                               │
+│                                           │
+│ Vehicle Number: KA01AB123                                     │
+│                                           │
+│ Vehicle Type: CAR                                 │
+│                                           │
+│ Slot: A1 (COMPACT)                                    │
+│                                           │
+│ Check-in Time: 2024-01-15 09:30 AM                                │
+│                                           │
+│ Check-out Time: 2024-01-15 12:15 PM                               │
+│                                           │
+│ Duration: 2 hours 45 minutes                              │
+│                                           │
+│ Amount: ₹13.75                                    │
+│                                           │
+│ Status: COMPLETED                                     │
+│                                           │
+│ Payment Status: PAID                                  │
+│                                           │
+│                   [Edit] [Back to List]       │
+└─────────────────────────────────────────────────────────────┘
+
