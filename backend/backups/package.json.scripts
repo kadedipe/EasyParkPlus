@@ -2,6 +2,14 @@
   "scripts": {
     "backup:pre": "./scripts/db/pre_migration_backup.sh",
     "backup:pre:migration": "./scripts/db/pre_migration_backup.sh --migration",
+    "backup:create": "node src/scripts/backup-cli.js create",
+    "backup:list": "node src/scripts/backup-cli.js list",
+    "backup:restore": "node src/scripts/backup-cli.js restore",
+    "backup:status": "node src/scripts/backup-cli.js status",
+    "backup:cleanup": "node src/scripts/backup-cli.js cleanup",
+    "performance:test": "node src/scripts/performance-test.js",
+    "optimize:indexes": "node src/scripts/optimize-indexes.js",
+    "db:health": "node src/scripts/db-health.js",
     "restore:pre": "./scripts/db/restore_pre_migration.sh",
     "migrate:with-backup": "npm run backup:pre && npm run migrate",
     "migrate:rollback:with-backup": "npm run restore:pre"

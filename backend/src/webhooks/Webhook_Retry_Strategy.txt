@@ -1,0 +1,6 @@
+Attempt 1: Immediate
+Attempt 2: After 60 seconds
+Attempt 3: After 300 seconds (5 minutes)
+Attempt 4: After 900 seconds (15 minutes)
+Attempt 5: After 3600 seconds (1 hour)
+→ Mark as FAILED after 5 attempts

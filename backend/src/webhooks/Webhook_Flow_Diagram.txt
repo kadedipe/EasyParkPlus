@@ -1,0 +1,11 @@
+Stripe → Webhook Endpoint → Verify Signature → Queue → Process → Update Status
+                                    ↓
+                            Duplicate Check
+                                    ↓
+                            Store in Database
+                                    ↓
+                            Process Payment
+                                    ↓
+                            Update Booking
+                                    ↓
+                            Send Notifications
