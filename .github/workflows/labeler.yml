@@ -1,0 +1,346 @@
+name: "Pull Request Labeler"
+
+on:
+  - pull_request_target
+  - issues
+  - pull_request
+
+jobs:
+  # Label PRs based on file changes
+  label-pr:
+    name: Label PR by Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler-config.yml
+          sync-labels: true
+
+  # Label issues based on content
+  label-issue:
+    name: Label Issue by Content
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            if (!issue) return;
+            
+            const body = (issue.body || '').toLowerCase();
+            const title = (issue.title || '').toLowerCase();
+            
+            const labels = [];
+            
+            // Type detection
+            if (body.includes('bug') || body.includes('error') || body.includes('fix')) {
+              labels.push('type: bug');
+            }
+            if (body.includes('feature') || body.includes('enhancement') || body.includes('request')) {
+              labels.push('type: feature');
+            }
+            if (body.includes('documentation') || body.includes('docs')) {
+              labels.push('type: documentation');
+            }
+            if (body.includes('security') || body.includes('vulnerability')) {
+              labels.push('type: security');
+            }
+            if (body.includes('performance') || body.includes('slow')) {
+              labels.push('type: performance');
+            }
+            
+            // Priority detection
+            if (body.includes('critical') || body.includes('urgent') || body.includes('blocker')) {
+              labels.push('priority: critical');
+            } else if (body.includes('high priority') || body.includes('important')) {
+              labels.push('priority: high');
+            } else if (body.includes('low priority')) {
+              labels.push('priority: low');
+            }
+            
+            // Area detection
+            if (body.includes('backend') || body.includes('api') || body.includes('server')) {
+              labels.push('area: backend');
+            }
+            if (body.includes('frontend') || body.includes('ui') || body.includes('ux')) {
+              labels.push('area: frontend');
+            }
+            if (body.includes('database') || body.includes('db') || body.includes('sql')) {
+              labels.push('area: database');
+            }
+            if (body.includes('payment') || body.includes('stripe') || body.includes('paypal')) {
+              labels.push('area: payment');
+            }
+            if (body.includes('notification') || body.includes('email') || body.includes('sms')) {
+              labels.push('area: notification');
+            }
+            
+            // Size detection
+            if (issue.body && issue.body.length < 100) {
+              labels.push('size: xs');
+            } else if (issue.body && issue.body.length < 500) {
+              labels.push('size: s');
+            } else if (issue.body && issue.body.length < 2000) {
+              labels.push('size: m');
+            } else {
+              labels.push('size: l');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+            }
+
+  # Label based on PR size
+  label-pr-size:
+    name: Label PR by Size
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+            
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+            
+            let additions = 0;
+            let deletions = 0;
+            let changes = 0;
+            
+            for (const file of files) {
+              additions += file.additions;
+              deletions += file.deletions;
+              changes += file.changes;
+            }
+            
+            const labels = [];
+            
+            // Size labels
+            if (changes < 10) {
+              labels.push('size: xs');
+            } else if (changes < 50) {
+              labels.push('size: s');
+            } else if (changes < 200) {
+              labels.push('size: m');
+            } else if (changes < 500) {
+              labels.push('size: l');
+            } else {
+              labels.push('size: xl');
+            }
+            
+            // File count labels
+            if (files.length > 20) {
+              labels.push('many-files');
+            }
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: labels
+            });
+
+  # Label based on branch name
+  label-branch:
+    name: Label by Branch Name
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+            
+            const branch = pr.head.ref.toLowerCase();
+            const labels = [];
+            
+            // Branch type detection
+            if (branch.startsWith('feature/') || branch.startsWith('feat/')) {
+              labels.push('type: feature');
+            } else if (branch.startsWith('bugfix/') || branch.startsWith('fix/')) {
+              labels.push('type: bug');
+            } else if (branch.startsWith('hotfix/')) {
+              labels.push('type: bug', 'priority: critical');
+            } else if (branch.startsWith('release/')) {
+              labels.push('type: release');
+            } else if (branch.startsWith('docs/')) {
+              labels.push('type: documentation');
+            } else if (branch.startsWith('chore/') || branch.startsWith('maintenance/')) {
+              labels.push('type: maintenance');
+            } else if (branch.startsWith('dependabot/')) {
+              labels.push('type: dependencies', 'automated-pr');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: labels
+              });
+            }
+
+  # Label based on milestone
+  label-milestone:
+    name: Label by Milestone
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const item = context.payload.issue || context.payload.pull_request;
+            if (!item || !item.milestone) return;
+            
+            const milestone = item.milestone.title;
+            const labels = [];
+            
+            if (milestone.includes('sprint')) {
+              labels.push('sprint');
+            }
+            
+            if (milestone.includes('release')) {
+              labels.push('release');
+            }
+            
+            if (milestone.includes('backlog')) {
+              labels.push('backlog');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: item.number,
+                labels: labels
+              });
+            }
+
+  # Label stale issues/PRs
+  label-stale:
+    name: Label Stale Items
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: 'This issue has been automatically marked as stale due to 60 days of inactivity.'
+          stale-pr-message: 'This PR has been automatically marked as stale due to 30 days of inactivity.'
+          stale-issue-label: 'status: stale'
+          stale-pr-label: 'status: stale'
+          exempt-issue-labels: 'priority: critical,priority: high,status: blocked,security'
+          exempt-pr-labels: 'priority: critical,priority: high,status: blocked,security'
+          days-before-issue-stale: 60
+          days-before-pr-stale: 30
+          days-before-issue-close: 7
+          days-before-pr-close: 7
+          operations-per-run: 100
+
+  # Label based on comment mentions
+  label-comment:
+    name: Label by Comment
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment;
+            const issue = context.payload.issue;
+            if (!comment || !issue) return;
+            
+            const body = comment.body.toLowerCase();
+            const labels = [];
+            
+            // Command-like labels
+            if (body.includes('/priority critical')) {
+              labels.push('priority: critical');
+            } else if (body.includes('/priority high')) {
+              labels.push('priority: high');
+            } else if (body.includes('/priority low')) {
+              labels.push('priority: low');
+            }
+            
+            if (body.includes('/blocked')) {
+              labels.push('status: blocked');
+            }
+            
+            if (body.includes('/needs-review')) {
+              labels.push('status: review-needed');
+            }
+            
+            if (body.includes('/good-first-issue')) {
+              labels.push('good first issue');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+            }
+
+  # Auto-label for first-time contributors
+  label-first-time:
+    name: Label First-Time Contributors
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+            
+            const author = pr.user.login;
+            
+            // Check if this is user's first contribution
+            const { data: issues } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} author:${author} is:pr`
+            });
+            
+            if (issues.total_count === 1) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['first-time-contributor']
+              });
+              
+              // Add welcome comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: '👋 Thanks for your first contribution! Welcome to the Parking Management System community!'
+              });
+            }

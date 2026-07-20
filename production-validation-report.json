@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "validate:production": "node src/scripts/validateProduction.js",
+    "validate:dr": "node src/scripts/disasterRecoveryTest.js",
+    "validate:lb": "node src/scripts/configureLoadBalancer.js",
+    "validate:lb-health": "node src/scripts/loadBalancerHealth.js",
+    "validate:all": "npm run validate:production && npm run validate:dr && npm run validate:lb",
+    "monitor:health": "node src/scripts/loadBalancerHealth.js --monitor"
+  }
+}

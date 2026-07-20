@@ -1,0 +1,510 @@
+name: Release Automation
+
+on:
+  push:
+    tags:
+      - 'v*'  # Push events to matching v*, i.e. v1.0, v20.15.10
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.2.3)'
+        required: true
+        type: string
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - prerelease
+      prerelease:
+        description: 'Is this a prerelease?'
+        required: true
+        default: false
+        type: boolean
+      dry_run:
+        description: 'Dry run (no actual release)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ${{ github.repository }}/backend
+  FRONTEND_IMAGE: ${{ github.repository }}/frontend
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Validate release
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Validate version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          
+          # Validate semantic versioning
+          if ! echo "$VERSION" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$'; then
+            echo "❌ Invalid version format: $VERSION"
+            exit 1
+          fi
+          
+          echo "✅ Version $VERSION is valid"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Check changelog
+        run: |
+          VERSION="${{ env.VERSION }}"
+          if [ ! -f CHANGELOG.md ]; then
+            echo "❌ CHANGELOG.md not found"
+            exit 1
+          fi
+          
+          if ! grep -q "## \[$VERSION\]" CHANGELOG.md; then
+            echo "❌ Version $VERSION not found in CHANGELOG.md"
+            exit 1
+          fi
+          
+          echo "✅ Changelog entry found for version $VERSION"
+
+  # Build artifacts
+  build:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: validate
+    outputs:
+      backend_digest: ${{ steps.backend_build.outputs.digest }}
+      frontend_digest: ${{ steps.frontend_build.outputs.digest }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build backend
+      - name: Build and push backend
+        id: backend_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: ${{ !github.event.inputs.dry_run }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:${{ env.VERSION }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.VERSION }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.meta.outputs.build_date }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Build frontend
+      - name: Build and push frontend
+        id: frontend_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: ${{ !github.event.inputs.dry_run }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:${{ env.VERSION }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.VERSION }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Generate SBOM
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+
+  # Create GitHub Release
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ !github.event.inputs.dry_run }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download SBOM
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Extract changelog for this version
+          VERSION="${{ env.VERSION }}"
+          CHANGELOG=$(awk -v ver="## [$VERSION]" '
+            $0 ~ ver {flag=1; next}
+            /## \[/ && flag {flag=0}
+            flag {print}
+          ' CHANGELOG.md)
+          
+          # Generate contributors list
+          CONTRIBUTORS=$(git log $(git describe --tags --abbrev=0)..HEAD --format="%aN" | sort -u | sed 's/^/- @/')
+          
+          # Create release notes
+          cat > release-notes.md << EOF
+          ## What's Changed
+          
+          $CHANGELOG
+          
+          ## Contributors
+          
+          $CONTRIBUTORS
+          
+          ## Docker Images
+          - Backend: \`${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:$VERSION\`
+          - Frontend: \`${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:$VERSION\`
+          
+          ## SBOM
+          Software Bill of Materials attached as \`sbom.spdx.json\`
+          
+          ## Verification
+          - Commit: \`${{ github.sha }}\`
+          - Backend Digest: \`${{ needs.build.outputs.backend_digest }}\`
+          - Frontend Digest: \`${{ needs.build.outputs.frontend_digest }}\`
+          EOF
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+          files: |
+            sbom.spdx.json
+            CHANGELOG.md
+          generate_release_notes: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Deploy to environments
+  deploy:
+    name: Deploy Release
+    runs-on: ubuntu-latest
+    needs: [build, create-release]
+    if: ${{ !github.event.inputs.prerelease && !github.event.inputs.dry_run }}
+    environment:
+      name: production
+      url: https://parking.example.com
+    concurrency: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Deploy to production
+        run: |
+          # Update Kubernetes manifests with new version
+          sed -i "s|image:.*backend:.*|image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:${{ env.VERSION }}|g" deployment/kubernetes/backend-deployment.yaml
+          sed -i "s|image:.*frontend:.*|image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:${{ env.VERSION }}|g" deployment/kubernetes/frontend-deployment.yaml
+          
+          # Apply rolling update
+          kubectl apply -f deployment/kubernetes/
+          kubectl rollout status deployment/backend -n parking-system --timeout=10m
+          kubectl rollout status deployment/frontend -n parking-system --timeout=10m
+
+  # Post-release tasks
+  post-release:
+    name: Post-Release Tasks
+    runs-on: ubuntu-latest
+    needs: [create-release, deploy]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update documentation
+        run: |
+          # Update API documentation
+          cd docs
+          make update-api-docs
+          
+          # Commit documentation updates
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/api/
+          git commit -m "docs: update API documentation for v${{ env.VERSION }}" || true
+          git push
+
+      - name: Create GitHub discussion
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.discussions.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🎉 Release v${{ env.VERSION }} Discussion`,
+              body: `## What's New in v${{ env.VERSION }}\n\nCheck out the [release notes](https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }}) for details.\n\n### Feedback\n\nPlease share your feedback about this release!`,
+              category_id: 'announcements'
+            });
+
+  # Announce release
+  announce:
+    name: Announce Release
+    runs-on: ubuntu-latest
+    needs: post-release
+    if: success()
+
+    steps:
+      # Slack announcement
+      - name: Send Slack notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: good
+          SLACK_TITLE: 🚀 New Release v${{ env.VERSION }}
+          SLACK_MESSAGE: |
+            *Version:* ${{ env.VERSION }}
+            *Released by:* ${{ github.actor }}
+            
+            *Highlights:*
+            ${{ steps.release_notes.outputs.highlights }}
+            
+            *Links:*
+            - 📦 [Release Notes](https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }})
+            - 🐳 [Backend Image](${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:${{ env.VERSION }})
+            - 🐳 [Frontend Image](${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:${{ env.VERSION }})
+          SLACK_FOOTER: Parking Management System
+
+      # Twitter announcement
+      - name: Send Twitter tweet
+        uses: ethomson/send-tweet-action@v1
+        with:
+          status: |
+            🚀 Just released v${{ env.VERSION }} of Parking Management System!
+            
+            Check out what's new: https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }}
+            
+            #ParkingTech #OpenSource #Release
+          consumer-key: ${{ secrets.TWITTER_CONSUMER_KEY }}
+          consumer-secret: ${{ secrets.TWITTER_CONSUMER_SECRET }}
+          access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+
+      # Email announcement
+      - name: Send email announcement
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🚀 Parking Management System v${{ env.VERSION }} Released"
+          to: ${{ secrets.ANNOUNCE_EMAIL }}
+          from: Release Bot
+          body: |
+            We're excited to announce the release of version ${{ env.VERSION }}!
+            
+            ## What's New
+            Check out the full release notes: https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }}
+            
+            ## Docker Images
+            - Backend: `${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:${{ env.VERSION }}`
+            - Frontend: `${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:${{ env.VERSION }}`
+            
+            ## Documentation
+            https://docs.parking.example.com
+            
+            Thank you to all contributors!
+
+  # Version bump for next development cycle
+  version-bump:
+    name: Bump Version for Next Cycle
+    runs-on: ubuntu-latest
+    needs: announce
+    if: success() && !github.event.inputs.prerelease
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Calculate next version
+        id: next_version
+        run: |
+          VERSION="${{ env.VERSION }}"
+          IFS='.' read -ra PARTS <<< "$VERSION"
+          MAJOR="${PARTS[0]}"
+          MINOR="${PARTS[1]}"
+          PATCH="${PARTS[2]%%-*}"  # Remove any suffix
+          
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VERSION="$MAJOR.$MINOR.$NEXT_PATCH-dev"
+          
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update version files
+        run: |
+          # Update backend version
+          sed -i "s/__version__ = .*/__version__ = \"${{ steps.next_version.outputs.next_version }}\"/" backend/__init__.py
+          
+          # Update frontend version
+          sed -i "s/\"version\": .*/\"version\": \"${{ steps.next_version.outputs.next_version }}\",/" frontend/package.json
+          
+          # Commit changes
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backend/__init__.py frontend/package.json
+          git commit -m "chore: bump version to ${{ steps.next_version.outputs.next_version }} for next development cycle"
+          git push
+
+  # Metrics and monitoring
+  metrics:
+    name: Release Metrics
+    runs-on: ubuntu-latest
+    needs: [create-release, deploy]
+    if: always()
+
+    steps:
+      - name: Calculate release metrics
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "none")
+          
+          if [ "$PREV_TAG" != "none" ]; then
+            # Calculate changes since last release
+            COMMITS=$(git rev-list --count $PREV_TAG..HEAD)
+            FILES_CHANGED=$(git diff --name-only $PREV_TAG..HEAD | wc -l)
+            AUTHORS=$(git log $PREV_TAG..HEAD --format="%aN" | sort -u | wc -l)
+            
+            echo "📊 Release Metrics:" >> metrics.txt
+            echo "- Commits: $COMMITS" >> metrics.txt
+            echo "- Files changed: $FILES_CHANGED" >> metrics.txt
+            echo "- Contributors: $AUTHORS" >> metrics.txt
+          fi
+
+      - name: Send metrics to Datadog
+        if: secrets.DATADOG_API_KEY
+        run: |
+          curl -X POST "https://api.datadoghq.com/api/v1/series" \
+          -H "Content-Type: application/json" \
+          -H "DD-API-KEY: ${{ secrets.DATADOG_API_KEY }}" \
+          -d '{
+            "series": [{
+              "metric": "parking.release.count",
+              "points": [[${{ github.event.repository.pushed_at }}, 1]],
+              "type": "count",
+              "tags": ["version:${{ env.VERSION }}", "environment:production"]
+            }]
+          }'
+
+  # Failure handling
+  on-failure:
+    name: Handle Failure
+    runs-on: ubuntu-latest
+    needs: [validate, build, create-release, deploy]
+    if: failure()
+
+    steps:
+      - name: Send failure notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          SLACK_COLOR: danger
+          SLACK_TITLE: ❌ Release v${{ env.VERSION }} Failed
+          SLACK_MESSAGE: |
+            *Version:* ${{ env.VERSION }}
+            *Failed at:* ${{ github.workflow }} / ${{ github.job }}
+            *Triggered by:* ${{ github.actor }}
+            
+            Check the logs for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Create GitHub issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Release v${{ env.VERSION }} failed`,
+              body: `## Release Failure Report\n\n**Version:** v${{ env.VERSION }}\n**Workflow:** ${{ github.workflow }}\n**Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n### Failure Details\n- Job: ${{ github.job }}\n- Status: ${{ job.status }}\n\n### Next Steps\n1. Check the workflow logs\n2. Fix the issue\n3. Retry the release`,
+              labels: ['release', 'failure', 'critical']
+            });

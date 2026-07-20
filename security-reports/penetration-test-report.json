@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "test:coverage": "vitest --coverage",
+    "test:coverage:report": "node src/scripts/generateCoverageReport.js",
+    "test:coverage:badge": "node src/scripts/generateCoverageBadge.js",
+    "test:performance": "node backend/src/scripts/validatePerformance.js",
+    "test:performance:full": "npm run test:performance && node backend/src/scripts/validateLoadTest.js",
+    "test:security": "node backend/src/scripts/penetration-test.js",
+    "test:security:full": "npm run test:security && node backend/src/scripts/run-security-scan.js",
+    "test:all": "npm run test:coverage && npm run test:performance && npm run test:security",
+    "test:ci": "npm run test:coverage && npm run test:performance:full && npm run test:security:full"
+  }
+}

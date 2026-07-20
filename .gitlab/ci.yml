@@ -1,0 +1,671 @@
+# ============================================
+# GitLab CI/CD Configuration for Parking Management System
+# ============================================
+
+# Define stages of the pipeline
+stages:
+  - validate         # Code validation and linting
+  - test            # Unit and integration tests
+  - security        # Security scanning
+  - build           # Build artifacts and images
+  - deploy-staging  # Deploy to staging
+  - test-e2e        # End-to-end tests
+  - deploy-prod     # Deploy to production
+  - post-deploy     # Post-deployment tasks
+
+# ============================================
+# Variables
+# ============================================
+
+variables:
+  # Docker configuration
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: tcp://docker:2375
+  
+  # Docker image tags
+  BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+  FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
+  BACKEND_IMAGE_LATEST: $CI_REGISTRY_IMAGE/backend:latest
+  FRONTEND_IMAGE_LATEST: $CI_REGISTRY_IMAGE/frontend:latest
+  
+  # Python configuration
+  PYTHON_VERSION: "3.11"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  
+  # Node configuration
+  NODE_VERSION: "18-alpine"
+  
+  # Database configuration for tests
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_NAME: parking_test
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  
+  # Redis configuration for tests
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: ""
+  
+  # Test configuration
+  TEST_REPORT_PATH: "test-reports"
+  COVERAGE_REPORT_PATH: "coverage-reports"
+  
+  # Deployment configuration
+  STAGING_URL: "staging.parking.example.com"
+  PRODUCTION_URL: "parking.example.com"
+
+# ============================================
+# Cache Configuration
+# ============================================
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .cache/pip
+    - backend/.venv
+    - frontend/node_modules
+    - .npm/
+
+# ============================================
+# Default Settings
+# ============================================
+
+default:
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache bash curl jq
+  interruptible: true
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+
+# ============================================
+# Services
+# ============================================
+
+services:
+  - docker:dind
+
+# ============================================
+# Templates
+# ============================================
+
+# Backend test template
+.backend_test_template: &backend_test_template
+  image: python:${PYTHON_VERSION}
+  before_script:
+    - cd backend
+    - python -m venv .venv
+    - source .venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements-dev.txt
+    - pip install -r requirements.txt
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - backend/.venv/
+      - backend/.cache/
+
+# Frontend test template
+.frontend_test_template: &frontend_test_template
+  image: node:${NODE_VERSION}
+  before_script:
+    - cd frontend
+    - npm ci --cache .npm --prefer-offline
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - frontend/node_modules/
+      - frontend/.npm/
+
+# Docker build template
+.docker_build_template: &docker_build_template
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $IMAGE_TAG -f $DOCKERFILE .
+    - docker push $IMAGE_TAG
+
+# Deployment template
+.deploy_template: &deploy_template
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client bash curl
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
+        cd $DEPLOY_PATH &&
+        docker-compose pull &&
+        docker-compose up -d --remove-orphans &&
+        docker system prune -f
+      "
+
+# ============================================
+# Validation Stage
+# ============================================
+
+validate-backend:
+  <<: *backend_test_template
+  stage: validate
+  script:
+    - source .venv/bin/activate
+    - flake8 . --count --statistics --show-source
+    - black . --check --diff
+    - isort . --check-only --diff
+    - mypy . --ignore-missing-imports
+    - pylint **/*.py --fail-under=8.0
+  artifacts:
+    reports:
+      codequality: backend/coverage-reports/flake8.json
+    paths:
+      - backend/coverage-reports/
+    expire_in: 1 week
+
+validate-frontend:
+  <<: *frontend_test_template
+  stage: validate
+  script:
+    - npm run lint
+    - npm run format:check
+    - npm run type-check
+  artifacts:
+    reports:
+      codequality: frontend/coverage-reports/eslint.json
+    paths:
+      - frontend/coverage-reports/
+    expire_in: 1 week
+
+validate-docker:
+  stage: validate
+  image: hadolint/hadolint:latest
+  script:
+    - hadolint backend/Dockerfile
+    - hadolint frontend/Dockerfile
+    - hadolint docker-compose.yml
+
+validate-compose:
+  stage: validate
+  image: docker/compose:latest
+  script:
+    - docker-compose config
+
+# ============================================
+# Test Stage
+# ============================================
+
+test-backend-unit:
+  <<: *backend_test_template
+  stage: test
+  services:
+    - name: postgres:15-alpine
+      alias: postgres
+    - name: redis:7-alpine
+      alias: redis
+  variables:
+    POSTGRES_DB: parking_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    REDIS_PASSWORD: ""
+  script:
+    - source .venv/bin/activate
+    - pytest tests/unit/ 
+        --junitxml=$TEST_REPORT_PATH/unit-test-results.xml 
+        --cov=. 
+        --cov-report=xml:$COVERAGE_REPORT_PATH/unit-coverage.xml 
+        --cov-report=html:$COVERAGE_REPORT_PATH/unit-html
+    - coverage report
+  artifacts:
+    reports:
+      junit: backend/$TEST_REPORT_PATH/unit-test-results.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/$COVERAGE_REPORT_PATH/unit-coverage.xml
+    paths:
+      - backend/$COVERAGE_REPORT_PATH/
+      - backend/$TEST_REPORT_PATH/
+    expire_in: 2 weeks
+  coverage: '/TOTAL.*\s+(\d+\%)/'
+
+test-backend-integration:
+  <<: *backend_test_template
+  stage: test
+  services:
+    - name: postgres:15-alpine
+      alias: postgres
+    - name: redis:7-alpine
+      alias: redis
+    - name: rabbitmq:3-management-alpine
+      alias: rabbitmq
+  variables:
+    POSTGRES_DB: parking_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  script:
+    - source .venv/bin/activate
+    - pytest tests/integration/ 
+        --junitxml=$TEST_REPORT_PATH/integration-test-results.xml
+  artifacts:
+    reports:
+      junit: backend/$TEST_REPORT_PATH/integration-test-results.xml
+    paths:
+      - backend/$TEST_REPORT_PATH/
+    expire_in: 2 weeks
+
+test-frontend-unit:
+  <<: *frontend_test_template
+  stage: test
+  script:
+    - npm run test:ci -- --coverage --coverageDirectory=$COVERAGE_REPORT_PATH
+    - npm run test -- --watchAll=false --testResultsProcessor=jest-junit
+  artifacts:
+    reports:
+      junit: frontend/$TEST_REPORT_PATH/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: frontend/$COVERAGE_REPORT_PATH/cobertura-coverage.xml
+    paths:
+      - frontend/$COVERAGE_REPORT_PATH/
+      - frontend/$TEST_REPORT_PATH/
+    expire_in: 2 weeks
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
+test-api-contract:
+  stage: test
+  image: python:${PYTHON_VERSION}
+  services:
+    - name: postgres:15-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: parking_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  before_script:
+    - cd backend
+    - pip install -r requirements.txt
+    - pip install pytest schemathesis
+  script:
+    - pytest tests/contract/ --junitxml=$TEST_REPORT_PATH/contract-test-results.xml
+  artifacts:
+    reports:
+      junit: backend/$TEST_REPORT_PATH/contract-test-results.xml
+    expire_in: 1 week
+
+# ============================================
+# Security Stage
+# ============================================
+
+security-sast:
+  stage: security
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install bandit safety
+    - bandit -r backend/ -f json -o security-reports/bandit.json
+    - safety check -r backend/requirements.txt --json > security-reports/safety.json
+  artifacts:
+    paths:
+      - security-reports/
+    reports:
+      security: security-reports/bandit.json
+    expire_in: 1 month
+
+security-dependency-scan:
+  stage: security
+  image: node:${NODE_VERSION}
+  script:
+    - cd frontend
+    - npm audit --json > ../security-reports/npm-audit.json
+    - npx snyk test --json > ../security-reports/snyk.json || true
+  artifacts:
+    paths:
+      - security-reports/
+    expire_in: 1 month
+
+security-container-scan:
+  stage: security
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t backend-scan -f backend/Dockerfile backend/
+    - docker build -t frontend-scan -f frontend/Dockerfile frontend/
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --exit-code 0 --severity HIGH,CRITICAL backend-scan
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --exit-code 0 --severity HIGH,CRITICAL frontend-scan
+
+security-secrets-scan:
+  stage: security
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git
+    - wget -O gitleaks.tar.gz https://github.com/zricethezav/gitleaks/releases/download/v8.16.1/gitleaks_8.16.1_linux_x64.tar.gz
+    - tar -xzf gitleaks.tar.gz
+  script:
+    - ./gitleaks detect --source . --report-path security-reports/gitleaks.json --report-format json
+  artifacts:
+    paths:
+      - security-reports/
+    expire_in: 1 month
+
+# ============================================
+# Build Stage
+# ============================================
+
+build-backend:
+  <<: *docker_build_template
+  stage: build
+  variables:
+    DOCKERFILE: backend/Dockerfile
+    IMAGE_TAG: $BACKEND_IMAGE_TAG
+  only:
+    - main
+    - develop
+    - tags
+
+build-frontend:
+  <<: *docker_build_template
+  stage: build
+  variables:
+    DOCKERFILE: frontend/Dockerfile
+    IMAGE_TAG: $FRONTEND_IMAGE_TAG
+  only:
+    - main
+    - develop
+    - tags
+
+build-docs:
+  stage: build
+  image: python:${PYTHON_VERSION}
+  script:
+    - cd docs
+    - pip install -r requirements-docs.txt
+    - make html
+  artifacts:
+    paths:
+      - docs/_build/html/
+    expire_in: 1 week
+  only:
+    - main
+
+# ============================================
+# Staging Deployment
+# ============================================
+
+deploy-staging-backend:
+  <<: *deploy_template
+  stage: deploy-staging
+  variables:
+    DEPLOY_USER: $STAGING_USER
+    DEPLOY_HOST: $STAGING_HOST
+    DEPLOY_PATH: /opt/parking/backend
+  script:
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "docker pull $BACKEND_IMAGE_TAG"
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "cd $DEPLOY_PATH && docker-compose up -d backend"
+  environment:
+    name: staging/backend
+    url: https://$STAGING_URL
+  only:
+    - develop
+  when: manual
+
+deploy-staging-frontend:
+  <<: *deploy_template
+  stage: deploy-staging
+  variables:
+    DEPLOY_USER: $STAGING_USER
+    DEPLOY_HOST: $STAGING_HOST
+    DEPLOY_PATH: /opt/parking/frontend
+  script:
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "docker pull $FRONTEND_IMAGE_TAG"
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "cd $DEPLOY_PATH && docker-compose up -d frontend"
+  environment:
+    name: staging/frontend
+    url: https://$STAGING_URL
+  only:
+    - develop
+  when: manual
+
+# ============================================
+# End-to-End Tests
+# ============================================
+
+test-e2e:
+  stage: test-e2e
+  image: cypress/browsers:node-18
+  variables:
+    CYPRESS_BASE_URL: "https://$STAGING_URL"
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run test:e2e:ci -- --reporter junit --reporter-options "mochaFile=test-reports/e2e/junit.xml"
+  artifacts:
+    reports:
+      junit: frontend/test-reports/e2e/junit.xml
+    paths:
+      - frontend/cypress/videos/
+      - frontend/cypress/screenshots/
+    expire_in: 1 week
+  only:
+    - develop
+  when: manual
+
+test-performance:
+  stage: test-e2e
+  image: python:${PYTHON_VERSION}
+  before_script:
+    - pip install locust
+  script:
+    - locust -f backend/tests/performance/locustfile.py --headless -u 100 -r 10 --run-time 5m --host=https://$STAGING_URL --csv=performance-reports/results
+  artifacts:
+    paths:
+      - performance-reports/
+    expire_in: 1 week
+  only:
+    - main
+  when: manual
+
+# ============================================
+# Production Deployment
+# ============================================
+
+deploy-prod-backend:
+  <<: *deploy_template
+  stage: deploy-prod
+  variables:
+    DEPLOY_USER: $PROD_USER
+    DEPLOY_HOST: $PROD_HOST
+    DEPLOY_PATH: /opt/parking/backend
+  script:
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "docker pull $BACKEND_IMAGE_TAG"
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "docker tag $BACKEND_IMAGE_TAG $BACKEND_IMAGE_LATEST"
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "cd $DEPLOY_PATH && docker-compose up -d backend"
+  environment:
+    name: production/backend
+    url: https://$PRODUCTION_URL
+  only:
+    - main
+    - tags
+  when: manual
+
+deploy-prod-frontend:
+  <<: *deploy_template
+  stage: deploy-prod
+  variables:
+    DEPLOY_USER: $PROD_USER
+    DEPLOY_HOST: $PROD_HOST
+    DEPLOY_PATH: /opt/parking/frontend
+  script:
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "docker pull $FRONTEND_IMAGE_TAG"
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "docker tag $FRONTEND_IMAGE_TAG $FRONTEND_IMAGE_LATEST"
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "cd $DEPLOY_PATH && docker-compose up -d frontend"
+  environment:
+    name: production/frontend
+    url: https://$PRODUCTION_URL
+  only:
+    - main
+    - tags
+  when: manual
+
+# ============================================
+# Post-Deployment
+# ============================================
+
+post-deploy-smoke-tests:
+  stage: post-deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - |
+      endpoints=(
+        "/api/v1/health"
+        "/api/v1/metrics"
+        "/"
+      )
+      for endpoint in "${endpoints[@]}"; do
+        curl -f "https://$PRODUCTION_URL$endpoint" || exit 1
+      done
+  environment:
+    name: production
+    action: verify
+  only:
+    - main
+    - tags
+
+post-deploy-database-migration:
+  stage: post-deploy
+  image: python:${PYTHON_VERSION}
+  before_script:
+    - cd backend
+    - pip install alembic
+    - apk add --no-cache postgresql-client
+  script:
+    - alembic upgrade head
+  environment:
+    name: production
+  only:
+    - main
+    - tags
+  when: manual
+
+post-deploy-notify:
+  stage: post-deploy
+  script:
+    - |
+      curl -X POST -H 'Content-type: application/json' \
+        --data '{
+          "text": "🚀 Deployment successful: $CI_COMMIT_REF_NAME to production",
+          "attachments": [
+            {
+              "fields": [
+                {"title": "Commit", "value": "'"$CI_COMMIT_SHORT_SHA"'", "short": true},
+                {"title": "Author", "value": "'"$CI_COMMIT_AUTHOR"'", "short": true},
+                {"title": "Environment", "value": "production", "short": true}
+              ]
+            }
+          ]
+        }' \
+        $SLACK_WEBHOOK_URL
+  only:
+    - main
+  when: always
+
+# ============================================
+# Cleanup Jobs
+# ============================================
+
+cleanup-old-images:
+  stage: post-deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - |
+      # Keep only last 10 images
+      images=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep $CI_REGISTRY_IMAGE | sort -r | tail -n +11)
+      for image in $images; do
+        docker rmi $image || true
+      done
+  only:
+    - main
+  when: manual
+
+# ============================================
+# Pipeline Triggers
+# ============================================
+
+trigger-backend-pipeline:
+  stage: deploy-staging
+  trigger:
+    project: parking-management/backend
+    branch: $CI_COMMIT_BRANCH
+    strategy: depend
+  only:
+    - develop
+
+trigger-frontend-pipeline:
+  stage: deploy-staging
+  trigger:
+    project: parking-management/frontend
+    branch: $CI_COMMIT_BRANCH
+    strategy: depend
+  only:
+    - develop
+
+# ============================================
+# Review Apps (for merge requests)
+# ============================================
+
+review-app:
+  stage: deploy-staging
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - curl -X POST https://$KUBERNETES_API/deployments -d "branch=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+  environment:
+    name: review/$CI_MERGE_REQUEST_IID
+    url: https://review-$CI_MERGE_REQUEST_IID.parking.example.com
+    on_stop: stop-review-app
+  only:
+    - merge_requests
+
+stop-review-app:
+  stage: deploy-staging
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - curl -X DELETE https://$KUBERNETES_API/deployments -d "branch=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+  environment:
+    name: review/$CI_MERGE_REQUEST_IID
+    action: stop
+  only:
+    - merge_requests
+  when: manual
+
+# ============================================
+# Pages (Documentation)
+# ============================================
+
+pages:
+  stage: post-deploy
+  script:
+    - mv docs/_build/html/ public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

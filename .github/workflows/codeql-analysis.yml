@@ -1,0 +1,406 @@
+name: "CodeQL Advanced Security Analysis"
+
+on:
+  push:
+    branches: [main, develop, release/**]
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - 'docs/**'
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sundays at midnight
+  workflow_dispatch:
+    inputs:
+      languages:
+        description: 'Languages to analyze (comma-separated)'
+        required: false
+        default: 'python,javascript'
+        type: string
+      depth:
+        description: 'Analysis depth (basic/lite/full)'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - basic
+          - lite
+          - full
+      upload-sarif:
+        description: 'Upload SARIF results'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  CODEQL_THREADS: 4
+  CODEQL_RAM: 8192
+  CODEQL_EXTRACTOR_PYTHON_OPTION: "--max-resources=4096"
+  CODEQL_EXTRACTOR_JAVASCRIPT_OPTION: "--max-resources=4096"
+
+jobs:
+  analyze:
+    name: CodeQL Analysis (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      packages: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - python
+          - javascript
+        config:
+          - path: backend
+            language: python
+          - path: frontend
+            language: javascript
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+          source-root: ${{ matrix.config.path }}
+          config-file: .github/codeql/codeql-config.yml
+          ram: ${{ env.CODEQL_RAM }}
+          threads: ${{ env.CODEQL_THREADS }}
+          external-repository-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Python-specific setup
+      - name: Setup Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: ${{ matrix.config.path }}/requirements*.txt
+
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        working-directory: ${{ matrix.config.path }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      # JavaScript-specific setup
+      - name: Setup Node.js
+        if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.config.path }}/package-lock.json
+
+      - name: Install Node.js dependencies
+        if: matrix.language == 'javascript'
+        working-directory: ${{ matrix.config.path }}
+        run: npm ci
+
+      # Custom build steps if needed
+      - name: Build Python application
+        if: matrix.language == 'python'
+        working-directory: ${{ matrix.config.path }}
+        run: |
+          # Custom build steps if any
+          echo "Building Python application..."
+
+      - name: Build JavaScript application
+        if: matrix.language == 'javascript'
+        working-directory: ${{ matrix.config.path }}
+        run: |
+          npm run build
+
+      # Run CodeQL analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          upload: ${{ github.event.inputs.upload-sarif || 'true' == 'true' && 'always' || 'never' }}
+          output: sarif-results
+          ram: ${{ env.CODEQL_RAM }}
+          threads: ${{ env.CODEQL_THREADS }}
+          add-snippets: true
+          checkout_path: ${{ matrix.config.path }}
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && github.event.inputs.upload-sarif != 'false'
+        with:
+          sarif_file: sarif-results
+          checkout_path: ${{ matrix.config.path }}
+          category: ${{ matrix.language }}
+
+  # Advanced configuration analysis
+  advanced-analysis:
+    name: Advanced Security Analysis
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: github.event.inputs.depth == 'full'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install analysis tools
+        run: |
+          pip install semgrep
+          npm install -g eslint
+
+      # Semgrep additional analysis
+      - name: Run Semgrep
+        run: |
+          semgrep --config=p/security-audit \
+                  --config=p/owasp-top-ten \
+                  --config=p/command-injection \
+                  --config=p/xss \
+                  --json -o semgrep-results.json \
+                  backend/ frontend/
+
+      - name: Upload Semgrep results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep-results.json
+
+  # Security alerts summary
+  security-summary:
+    name: Security Alerts Summary
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Download all analysis results
+        uses: actions/download-artifact@v4
+        with:
+          path: results/
+
+      - name: Generate security summary
+        run: |
+          echo "# CodeQL Security Analysis Report" > security-summary.md
+          echo "" >> security-summary.md
+          echo "## Overview" >> security-summary.md
+          echo "" >> security-summary.md
+          echo "- **Repository:** ${{ github.repository }}" >> security-summary.md
+          echo "- **Branch:** ${{ github.ref_name }}" >> security-summary.md
+          echo "- **Commit:** ${{ github.sha }}" >> security-summary.md
+          echo "- **Analysis Time:** $(date -u)" >> security-summary.md
+          echo "" >> security-summary.md
+
+          # Parse and summarize results
+          for result in results/*/sarif.json; do
+            if [ -f "$result" ]; then
+              language=$(basename $(dirname "$result"))
+              echo "## $language Results" >> security-summary.md
+              echo "" >> security-summary.md
+              
+              # Extract statistics
+              critical=$(jq '[.runs[].results[] | select(.properties.severity == "critical")] | length' "$result")
+              high=$(jq '[.runs[].results[] | select(.properties.severity == "high")] | length' "$result")
+              medium=$(jq '[.runs[].results[] | select(.properties.severity == "medium")] | length' "$result")
+              low=$(jq '[.runs[].results[] | select(.properties.severity == "low")] | length' "$result")
+              
+              echo "- **Critical:** $critical" >> security-summary.md
+              echo "- **High:** $high" >> security-summary.md
+              echo "- **Medium:** $medium" >> security-summary.md
+              echo "- **Low:** $low" >> security-summary.md
+              echo "" >> security-summary.md
+              
+              # List top issues
+              echo "### Critical Issues" >> security-summary.md
+              echo "" >> security-summary.md
+              jq -r '.runs[].results[] | select(.properties.severity == "critical") | "- **\(.ruleId):** \(.message.text) in `\(.locations[0].physicalLocation.artifactLocation.uri)`"' "$result" | head -5 >> security-summary.md
+              echo "" >> security-summary.md
+            fi
+          done
+
+      - name: Upload security summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-summary
+          path: security-summary.md
+
+      - name: Send security report
+        if: github.event_name == 'schedule'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🔒 Weekly CodeQL Security Report - ${{ github.repository }}"
+          to: ${{ secrets.SECURITY_TEAM_EMAIL }}
+          from: CodeQL Bot
+          body: file://security-summary.md
+
+  # Dependency scanning
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install safety
+        run: pip install safety
+
+      # Python dependency scanning
+      - name: Scan Python dependencies
+        working-directory: ./backend
+        run: |
+          safety check -r requirements.txt --json > python-deps.json || true
+          
+          # Count vulnerabilities
+          critical=$(jq '[.[] | select(.severity == "critical")] | length' python-deps.json)
+          high=$(jq '[.[] | select(.severity == "high")] | length' python-deps.json)
+          
+          echo "PYTHON_CRITICAL=$critical" >> $GITHUB_ENV
+          echo "PYTHON_HIGH=$high" >> $GITHUB_ENV
+
+      - name: Upload Python dependency results
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-dependency-scan
+          path: backend/python-deps.json
+
+      # JavaScript dependency scanning
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Scan Node.js dependencies
+        working-directory: ./frontend
+        run: |
+          npm audit --json > node-deps.json || true
+          
+          # Count vulnerabilities
+          critical=$(jq '.metadata.vulnerabilities.critical // 0' node-deps.json)
+          high=$(jq '.metadata.vulnerabilities.high // 0' node-deps.json)
+          
+          echo "NODE_CRITICAL=$critical" >> $GITHUB_ENV
+          echo "NODE_HIGH=$high" >> $GITHUB_ENV
+
+      - name: Upload Node.js dependency results
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-dependency-scan
+          path: frontend/node-deps.json
+
+      # Create dependency issues for critical vulnerabilities
+      - name: Create dependency issues
+        if: env.PYTHON_CRITICAL > 0 || env.NODE_CRITICAL > 0
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const createIssue = async (title, body, labels) => {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: labels
+              });
+            };
+            
+            // Python critical issues
+            if (${{ env.PYTHON_CRITICAL }} > 0) {
+              await createIssue(
+                '🚨 Critical Python dependency vulnerabilities detected',
+                'The weekly CodeQL scan found critical vulnerabilities in Python dependencies:\n\n' +
+                '- **Critical:** ${{ env.PYTHON_CRITICAL }}\n' +
+                '- **High:** ${{ env.PYTHON_HIGH }}\n\n' +
+                'Please review the dependency scan artifact for details.',
+                ['security', 'critical', 'dependencies', 'python']
+              );
+            }
+            
+            // Node.js critical issues
+            if (${{ env.NODE_CRITICAL }} > 0) {
+              await createIssue(
+                '🚨 Critical Node.js dependency vulnerabilities detected',
+                'The weekly CodeQL scan found critical vulnerabilities in Node.js dependencies:\n\n' +
+                '- **Critical:** ${{ env.NODE_CRITICAL }}\n' +
+                '- **High:** ${{ env.NODE_HIGH }}\n\n' +
+                'Please review the dependency scan artifact for details.',
+                ['security', 'critical', 'dependencies', 'javascript']
+              );
+            }
+
+  # Compliance check
+  compliance-check:
+    name: Security Compliance Check
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download analysis results
+        uses: actions/download-artifact@v4
+        with:
+          path: results/
+
+      - name: Check security compliance
+        run: |
+          # Check for critical issues
+          critical_found=0
+          
+          for result in results/*/sarif.json; do
+            if [ -f "$result" ]; then
+              critical=$(jq '[.runs[].results[] | select(.properties.severity == "critical")] | length' "$result")
+              critical_found=$((critical_found + critical))
+            fi
+          done
+          
+          if [ $critical_found -gt 0 ]; then
+            echo "❌ Security compliance failed: $critical_found critical issues found"
+            exit 1
+          else
+            echo "✅ Security compliance passed"
+          fi
+
+      - name: Add PR comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const success = ${{ job.status == 'success' }};
+            const message = success 
+              ? '✅ **Security Compliance Check Passed**\n\nNo critical security issues detected.'
+              : '❌ **Security Compliance Check Failed**\n\nCritical security issues detected. Please review the CodeQL analysis results.';
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

@@ -1,0 +1,507 @@
+name: Dependency Update Automation
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      ecosystem:
+        description: 'Ecosystem to update (all/pip/npm/github-actions)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - pip
+          - npm
+          - github-actions
+      auto-merge:
+        description: 'Auto-merge safe updates'
+        required: true
+        default: false
+        type: boolean
+  # Triggered by Dependabot
+  pull_request:
+    paths:
+      - 'backend/requirements*.txt'
+      - 'frontend/package*.json'
+      - '.github/workflows/*.yml'
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # Check for outdated dependencies
+  check-outdated:
+    name: Check Outdated Dependencies
+    runs-on: ubuntu-latest
+    outputs:
+      has_python_updates: ${{ steps.python-check.outputs.has_updates }}
+      has_node_updates: ${{ steps.node-check.outputs.has_updates }}
+      has_actions_updates: ${{ steps.actions-check.outputs.has_updates }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Python dependencies check
+      - name: Check Python dependencies
+        id: python-check
+        if: github.event.inputs.ecosystem == 'all' || github.event.inputs.ecosystem == 'pip'
+        working-directory: ./backend
+        run: |
+          pip install pip-upgrader pip-list-outdated
+          outdated=$(pip-list-outdated --format=json || true)
+          count=$(echo "$outdated" | jq '. | length')
+          
+          if [ "$count" -gt 0 ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "outdated_count=$count" >> $GITHUB_OUTPUT
+            echo "$outdated" > outdated-python.json
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Python outdated report
+        if: steps.python-check.outputs.has_updates == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: outdated-python
+          path: backend/outdated-python.json
+
+      # Node.js dependencies check
+      - name: Check Node.js dependencies
+        id: node-check
+        if: github.event.inputs.ecosystem == 'all' || github.event.inputs.ecosystem == 'npm'
+        working-directory: ./frontend
+        run: |
+          npm install -g npm-check-updates
+          outdated=$(ncu --format json || true)
+          count=$(echo "$outdated" | jq '. | length')
+          
+          if [ "$count" -gt 0 ] && [ "$outdated" != "{}" ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "outdated_count=$count" >> $GITHUB_OUTPUT
+            echo "$outdated" > outdated-node.json
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Node.js outdated report
+        if: steps.node-check.outputs.has_updates == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: outdated-node
+          path: frontend/outdated-node.json
+
+      # GitHub Actions dependencies check
+      - name: Check GitHub Actions dependencies
+        id: actions-check
+        if: github.event.inputs.ecosystem == 'all' || github.event.inputs.ecosystem == 'github-actions'
+        run: |
+          # Use GitHub's API to check for action updates
+          actions=$(grep -r "uses:" .github/workflows/ | awk '{print $3}' | sort -u)
+          outdated=0
+          
+          while IFS= read -r action; do
+            if [[ $action == *"@"* ]]; then
+              name=${action%@*}
+              version=${action#*@}
+              latest=$(curl -s "https://api.github.com/repos/$name/releases/latest" | jq -r .tag_name)
+              
+              if [ "$latest" != "null" ] && [ "$latest" != "$version" ]; then
+                echo "Action $name can be updated from $version to $latest"
+                outdated=$((outdated + 1))
+              fi
+            fi
+          done <<< "$actions"
+          
+          if [ "$outdated" -gt 0 ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "outdated_count=$outdated" >> $GITHUB_OUTPUT
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Create dependency update PRs
+  create-update-prs:
+    name: Create Update PRs
+    runs-on: ubuntu-latest
+    needs: check-outdated
+    if: |
+      needs.check-outdated.outputs.has_python_updates == 'true' ||
+      needs.check-outdated.outputs.has_node_updates == 'true' ||
+      needs.check-outdated.outputs.has_actions_updates == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        ecosystem: ${{ fromJSON(format('[{0}]', 
+          needs.check-outdated.outputs.has_python_updates == 'true' && needs.check-outdated.outputs.has_node_updates == 'true' 
+          ? '"pip","npm"' : 
+          needs.check-outdated.outputs.has_python_updates == 'true' 
+          ? '"pip"' : 
+          needs.check-outdated.outputs.has_node_updates == 'true' 
+          ? '"npm"' : 
+          needs.check-outdated.outputs.has_actions_updates == 'true'
+          ? '"github-actions"' : '""'
+        )) }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        if: matrix.ecosystem == 'pip'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Node.js
+        if: matrix.ecosystem == 'npm'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Update Python dependencies
+      - name: Update Python dependencies
+        if: matrix.ecosystem == 'pip'
+        working-directory: ./backend
+        run: |
+          pip install pip-upgrader
+          pip-upgrade requirements.txt --skip-virtualenv-check --dry-run > update-report.txt || true
+          
+          # Create branch and update
+          branch_name="deps/python-update-$(date +'%Y%m%d')"
+          git checkout -b $branch_name
+          
+          # Update dependencies
+          pip-upgrade requirements.txt --skip-virtualenv-check
+          
+          # Commit changes
+          git add requirements.txt requirements-dev.txt
+          git commit -m "chore(deps): update Python dependencies" -m "Automated dependency update" || true
+
+      # Update Node.js dependencies
+      - name: Update Node.js dependencies
+        if: matrix.ecosystem == 'npm'
+        working-directory: ./frontend
+        run: |
+          npm install -g npm-check-updates
+          
+          # Create branch
+          branch_name="deps/node-update-$(date +'%Y%m%d')"
+          git checkout -b $branch_name
+          
+          # Update dependencies
+          ncu -u
+          npm install --package-lock-only
+          
+          # Commit changes
+          git add package.json package-lock.json
+          git commit -m "chore(deps): update Node.js dependencies" -m "Automated dependency update" || true
+
+      # Update GitHub Actions
+      - name: Update GitHub Actions
+        if: matrix.ecosystem == 'github-actions'
+        run: |
+          branch_name="deps/actions-update-$(date +'%Y%m%d')"
+          git checkout -b $branch_name
+          
+          # Update action versions
+          find .github/workflows -name "*.yml" -type f | while read -r file; do
+            while IFS= read -r line; do
+              if [[ $line =~ uses:\ ([^@]+)@(.+) ]]; then
+                action="${BASH_REMATCH[1]}"
+                current="${BASH_REMATCH[2]}"
+                latest=$(curl -s "https://api.github.com/repos/$action/releases/latest" | jq -r .tag_name)
+                
+                if [ "$latest" != "null" ] && [ "$latest" != "$current" ]; then
+                  sed -i "s|uses: $action@$current|uses: $action@$latest|g" "$file"
+                fi
+              fi
+            done < "$file"
+          done
+          
+          git add .github/workflows/*.yml
+          git commit -m "ci: update GitHub Actions versions" -m "Automated action version update" || true
+
+      # Create Pull Request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: deps/${{ matrix.ecosystem }}-update-${{ github.run_id }}
+          title: |
+            chore(deps): update ${{ matrix.ecosystem }} dependencies
+          body: |
+            ## Automated Dependency Update
+            
+            This PR updates ${{ matrix.ecosystem }} dependencies to their latest versions.
+            
+            ### Changes
+            ${{ matrix.ecosystem == 'pip' && '- Updated Python packages to latest compatible versions' || '' }}
+            ${{ matrix.ecosystem == 'npm' && '- Updated Node.js packages to latest compatible versions' || '' }}
+            ${{ matrix.ecosystem == 'github-actions' && '- Updated GitHub Actions to latest versions' || '' }}
+            
+            ### Testing
+            - [ ] All tests pass
+            - [ ] No breaking changes introduced
+            - [ ] Manual verification if needed
+            
+            ### Auto-merge
+            ${{ github.event.inputs.auto-merge == 'true' && 'This PR will be auto-merged if checks pass.' || 'Manual review required.' }}
+            
+            ### Related Issues
+            None
+            
+            ### Checklist
+            - [ ] Dependencies updated
+            - [ ] Lock files updated
+            - [ ] Tests passing
+          labels: |
+            dependencies
+            automated-pr
+            ${{ matrix.ecosystem }}
+          assignees: ${{ github.repository_owner }}
+          reviewers: |
+            backend-team
+            frontend-team
+            devops-team
+          draft: false
+
+  # Security updates (critical/high severity)
+  security-updates:
+    name: Security Updates
+    runs-on: ubuntu-latest
+    if: github.event.schedule || github.event.inputs.ecosystem == 'all'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Check Python security updates
+      - name: Check Python security updates
+        working-directory: ./backend
+        run: |
+          pip install safety
+          safety check -r requirements.txt --json > safety-report.json || true
+          
+          critical=$(jq '[.[] | select(.severity == "critical")] | length' safety-report.json)
+          high=$(jq '[.[] | select(.severity == "high")] | length' safety-report.json)
+          
+          echo "Critical: $critical, High: $high"
+          
+          if [ "$critical" -gt 0 ] || [ "$high" -gt 0 ]; then
+            echo "security_issues=true" >> $GITHUB_ENV
+            echo "python_security=true" >> $GITHUB_ENV
+          fi
+
+      # Check Node.js security updates
+      - name: Check Node.js security updates
+        working-directory: ./frontend
+        run: |
+          npm audit --json > npm-audit.json || true
+          
+          critical=$(jq '.metadata.vulnerabilities.critical // 0' npm-audit.json)
+          high=$(jq '.metadata.vulnerabilities.high // 0' npm-audit.json)
+          
+          echo "Critical: $critical, High: $high"
+          
+          if [ "$critical" -gt 0 ] || [ "$high" -gt 0 ]; then
+            echo "security_issues=true" >> $GITHUB_ENV
+            echo "node_security=true" >> $GITHUB_ENV
+          fi
+
+      # Create security update branch
+      - name: Create security update branch
+        if: env.security_issues == 'true'
+        run: |
+          git checkout -b security/updates-$(date +'%Y%m%d-%H%M%S')
+
+      # Fix Python security issues
+      - name: Fix Python security issues
+        if: env.python_security == 'true'
+        working-directory: ./backend
+        run: |
+          pip install pip-upgrader
+          
+          # Get vulnerable packages
+          vulnerable=$(safety check -r requirements.txt --json | jq -r '.[].package')
+          
+          for package in $vulnerable; do
+            pip-upgrade $package requirements.txt --skip-virtualenv-check
+          done
+          
+          git add requirements.txt requirements-dev.txt
+          git commit -m "fix(security): update vulnerable Python packages" || true
+
+      # Fix Node.js security issues
+      - name: Fix Node.js security issues
+        if: env.node_security == 'true'
+        working-directory: ./frontend
+        run: |
+          npm audit fix --force
+          git add package.json package-lock.json
+          git commit -m "fix(security): update vulnerable Node.js packages" || true
+
+      # Create security PR
+      - name: Create Security PR
+        if: env.security_issues == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: security/updates-${{ github.run_id }}
+          title: |
+            fix(security): critical and high severity vulnerabilities
+          body: |
+            ## 🚨 Security Update
+            
+            This PR addresses critical and high severity security vulnerabilities.
+            
+            ### Vulnerabilities Fixed
+            ${{ env.python_security == 'true' && '- Python packages with security issues' || '' }}
+            ${{ env.node_security == 'true' && '- Node.js packages with security issues' || '' }}
+            
+            ### Severity Levels
+            - Critical vulnerabilities requiring immediate attention
+            - High severity vulnerabilities that should be prioritized
+            
+            ### Testing Required
+            - [ ] Verify application still functions correctly
+            - [ ] Run all test suites
+            - [ ] Manual testing of critical paths
+            
+            ### Timeline
+            These updates should be reviewed and merged within 24 hours.
+            
+            ### Labels
+            - security
+            - critical
+            - automated-pr
+            
+            ### Related
+            See security reports in workflow artifacts.
+          labels: |
+            security
+            critical
+            automated-pr
+            priority: critical
+          assignees: ${{ github.repository_owner }}
+          reviewers: |
+            security-team
+            backend-team
+            frontend-team
+          draft: false
+
+  # Auto-merge safe updates
+  auto-merge:
+    name: Auto-merge Safe Updates
+    runs-on: ubuntu-latest
+    needs: create-update-prs
+    if: github.event.inputs.auto-merge == 'true'
+    
+    steps:
+      - name: Auto-merge Dependabot PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: 'dependabot'
+            });
+            
+            for (const pull of pulls) {
+              // Check if it's a patch/minor update
+              const title = pull.title.toLowerCase();
+              const isMinor = title.includes('bump') && 
+                !title.includes('major') && 
+                !title.includes('breaking');
+              
+              if (isMinor) {
+                // Enable auto-merge
+                await github.rest.pulls.createReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pull.number,
+                  event: 'APPROVE'
+                });
+                
+                await github.rest.pulls.merge({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pull.number,
+                  merge_method: 'squash'
+                }).catch(err => {
+                  console.log(`Failed to merge PR #${pull.number}: ${err.message}`);
+                });
+              }
+            }
+
+  # Notify about updates
+  notify:
+    name: Send Notification
+    runs-on: ubuntu-latest
+    needs: [create-update-prs, security-updates]
+    if: always()
+    
+    steps:
+      - name: Get PR details
+        id: pr-details
+        run: |
+          # Get list of created PRs
+          prs=$(gh pr list --author "github-actions[bot]" --state open --json number,title,url)
+          count=$(echo "$prs" | jq length)
+          
+          echo "pr_count=$count" >> $GITHUB_OUTPUT
+          echo "pr_list=$(echo "$prs" | jq -r '.[] | "- [#\(.number)](\(.url)): \(.title)"')" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send Slack notification
+        if: steps.pr-details.outputs.pr_count > 0
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: 📦 Dependency Updates Available
+          SLACK_MESSAGE: |
+            *${{ steps.pr-details.outputs.pr_count }}* dependency update PR(s) created:
+            ${{ steps.pr-details.outputs.pr_list }}
+            
+            ${{ github.event.inputs.auto-merge == 'true' && '✅ Auto-merge enabled for safe updates' || '🔍 Manual review required' }}
+          SLACK_FOOTER: Parking Management System
+
+      - name: Send email notification
+        if: steps.pr-details.outputs.pr_count > 0
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: 🚀 Dependency Updates Available
+          to: ${{ secrets.DEV_EMAIL }}
+          from: CI Bot
+          body: |
+            New dependency updates are available:
+            
+            ${{ steps.pr-details.outputs.pr_list }}
+            
+            Review and merge: ${{ github.server_url }}/${{ github.repository }}/pulls

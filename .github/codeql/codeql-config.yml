@@ -1,0 +1,48 @@
+name: "Parking Management System CodeQL Config"
+
+paths:
+  - backend
+  - frontend
+  - parking-api
+  - notification-service
+  - payment-service
+
+paths-ignore:
+  - '**/node_modules'
+  - '**/__pycache__'
+  - '**/*.test.js'
+  - '**/*.spec.js'
+  - '**/tests'
+  - '**/test_*.py'
+  - '**/migrations'
+  - '**/static'
+  - '**/media'
+
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+
+query-filters:
+  - exclude:
+      id: py/import-and-import-from
+  - exclude:
+      id: js/trivial-conditional
+
+packs:
+  - codeql/python-queries
+  - codeql/javascript-queries
+
+# Custom queries (optional - create your own queries directory)
+# queries:
+#   - ./custom-queries
+
+# Query overrides
+query-suites:
+  - suite: security-and-quality
+    queries:
+      - include:
+          tags: security
+      - include:
+          tags: correctness
+      - exclude:
+          tags: maintainability

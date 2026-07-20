@@ -1,0 +1,785 @@
+# ============================================
+# Dependabot Configuration File
+# ============================================
+# This file configures automated dependency updates for the parking management system
+# Documentation: https://docs.github.com/en/code-security/dependabot
+
+version: 2
+
+# ============================================
+# Update Configurations
+# ============================================
+
+updates:
+  # ==========================================
+  # Backend Python Dependencies
+  # ==========================================
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "UTC"
+    target-branch: "develop"
+    versioning-strategy: "auto"
+    open-pull-requests-limit: 20
+    pull-request-branch-name:
+      separator: "-"
+    labels:
+      - "dependencies"
+      - "python"
+      - "automated-pr"
+      - "area: backend"
+    assignees:
+      - "backend-team"
+    reviewers:
+      - "parking-management/backend-team"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    milestone: 5
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    ignore:
+      - dependency-name: "pytest"
+        versions: ["7.x"]
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "black"
+        versions: ["24.x"]
+    rebase-strategy: "auto"
+    insecure-external-code-execution: "deny"
+    registries:
+      - pypi
+    groups:
+      production-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "pytest*"
+          - "black"
+          - "flake8*"
+          - "mypy"
+        update-types:
+          - "minor"
+          - "patch"
+      development-dependencies:
+        patterns:
+          - "pytest*"
+          - "black"
+          - "flake8*"
+          - "mypy"
+          - "coverage"
+          - "tox"
+        update-types:
+          - "minor"
+          - "patch"
+      critical-security-updates:
+        dependency-type: "all"
+        update-types:
+          - "version-update:semver-major"
+
+  # ==========================================
+  # Backend Python Dependencies (Production Only)
+  # ==========================================
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+    labels:
+      - "dependencies"
+      - "python"
+      - "production"
+      - "security"
+    allow:
+      - dependency-type: "all"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    reviewers:
+      - "parking-management/security-team"
+    commit-message:
+      prefix: "fix(security)"
+
+  # ==========================================
+  # Frontend Node.js Dependencies
+  # ==========================================
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "daily"
+      time: "10:00"
+      timezone: "UTC"
+    target-branch: "develop"
+    versioning-strategy: "auto"
+    open-pull-requests-limit: 20
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "npm"
+      - "automated-pr"
+      - "area: frontend"
+    assignees:
+      - "frontend-team"
+    reviewers:
+      - "parking-management/frontend-team"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "react"
+        versions: ["19.x"]
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        versions: ["19.x"]
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        versions: ["5.x"]
+    rebase-strategy: "auto"
+    insecure-external-code-execution: "allow"
+    groups:
+      react-core:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      babel:
+        patterns:
+          - "@babel/*"
+          - "babel-*"
+        update-types:
+          - "minor"
+          - "patch"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@typescript-eslint/*"
+          - "eslint-*"
+        update-types:
+          - "minor"
+          - "patch"
+      jest:
+        patterns:
+          - "jest"
+          - "@types/jest"
+          - "jest-*"
+          - "ts-jest"
+        update-types:
+          - "minor"
+          - "patch"
+      security-critical:
+        dependency-type: "all"
+        update-types:
+          - "version-update:semver-major"
+
+  # ==========================================
+  # GitHub Actions
+  # ==========================================
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+      - "automated-pr"
+    reviewers:
+      - "parking-management/devops-team"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions-major:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ==========================================
+  # Docker Images
+  # ==========================================
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "backend"
+    reviewers:
+      - "parking-management/devops-team"
+    commit-message:
+      prefix: "docker(backend)"
+    ignore:
+      - dependency-name: "python"
+        versions: ["4.x"]
+    registries:
+      - docker-hub
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "frontend"
+    reviewers:
+      - "parking-management/devops-team"
+    commit-message:
+      prefix: "docker(frontend)"
+    ignore:
+      - dependency-name: "node"
+        versions: ["19.x", "20.x"]
+
+  # ==========================================
+  # Terraform Modules
+  # ==========================================
+  - package-ecosystem: "terraform"
+    directory: "/deployment/terraform"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "10:00"
+    labels:
+      - "dependencies"
+      - "terraform"
+      - "infrastructure"
+    reviewers:
+      - "parking-management/devops-team"
+    commit-message:
+      prefix: "infra"
+    groups:
+      aws-modules:
+        patterns:
+          - "terraform-aws-modules/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ==========================================
+  # Composer (PHP - if needed)
+  # ==========================================
+  # - package-ecosystem: "composer"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+
+  # ==========================================
+  # Gradle (if needed)
+  # ==========================================
+  # - package-ecosystem: "gradle"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+
+  # ==========================================
+  # Maven (if needed)
+  # ==========================================
+  # - package-ecosystem: "maven"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+
+  # ==========================================
+  # Bundler (Ruby - if needed)
+  # ==========================================
+  # - package-ecosystem: "bundler"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+
+  # ==========================================
+  # Cargo (Rust - if needed)
+  # ==========================================
+  # - package-ecosystem: "cargo"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+
+  # ==========================================
+  # Go Modules
+  # ==========================================
+  # - package-ecosystem: "gomod"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+
+# ============================================
+# Security Updates Configuration
+# ============================================
+
+# Enable security updates for all ecosystems
+security_updates:
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-type: "all"
+    ignore:
+      - dependency-name: "*"
+    labels:
+      - "security"
+      - "critical"
+      - "dependencies"
+    reviewers:
+      - "parking-management/security-team"
+    commit-message:
+      prefix: "fix(security)"
+
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-type: "all"
+    labels:
+      - "security"
+      - "critical"
+      - "dependencies"
+    reviewers:
+      - "parking-management/security-team"
+    commit-message:
+      prefix: "fix(security)"
+
+# ============================================
+# Registries Configuration
+# ============================================
+
+registries:
+  docker-hub:
+    type: "docker-registry"
+    url: "https://registry.hub.docker.com"
+    username: ${{ secrets.DOCKER_USERNAME }}
+    password: ${{ secrets.DOCKER_PASSWORD }}
+  
+  pypi:
+    type: "python-index"
+    url: "https://pypi.org/simple"
+    
+  npm-registry:
+    type: "npm-registry"
+    url: "https://registry.npmjs.org"
+    
+  github-packages:
+    type: "npm-registry"
+    url: "https://npm.pkg.github.com"
+    token: ${{ secrets.GITHUB_TOKEN }}
+
+  private-pypi:
+    type: "python-index"
+    url: "https://private.pypi.example.com/simple"
+    username: ${{ secrets.PRIVATE_PYPI_USERNAME }}
+    password: ${{ secrets.PRIVATE_PYPI_PASSWORD }}
+
+  private-npm:
+    type: "npm-registry"
+    url: "https://private.npm.example.com"
+    token: ${{ secrets.PRIVATE_NPM_TOKEN }}
+
+# ============================================
+# Versioning Strategy
+# ============================================
+
+versioning-strategy:
+  pip: "auto"  # or "lockfile-only" or "increase-if-necessary"
+  npm: "auto"  # or "lockfile-only" or "increase"
+  github-actions: "auto"
+
+# ============================================
+# Pull Request Settings
+# ============================================
+
+pull-request:
+  branch-name:
+    separator: "/"
+  labels:
+    - "dependencies"
+  reviewers:
+    - "parking-management/tech-leads"
+  assignees:
+    - "dependabot"
+  milestone: 5
+
+# ============================================
+# Watch Configuration
+# ============================================
+
+# Directories to watch for dependency files
+watch:
+  - "/backend/requirements.txt"
+  - "/backend/requirements-dev.txt"
+  - "/frontend/package.json"
+  - "/frontend/package-lock.json"
+  - "/.github/workflows/*.yml"
+  - "/deployment/terraform/*.tf"
+
+# ============================================
+# Ignore Conditions
+# ============================================
+
+ignore:
+  - dependency-name: "*"
+    update-types: ["version-update:semver-major"]
+    for:
+      - ecosystem: "pip"
+        directory: "/backend"
+        branch: "main"
+  - dependency-name: "react"
+    versions: [">=18.0.0"]
+    for:
+      - ecosystem: "npm"
+        directory: "/frontend"
+
+# ============================================
+# Commit Message Configuration
+# ============================================
+
+commit-message:
+  prefix: "chore(deps)"
+  prefix-development: "chore(deps-dev)"
+  include: "scope"
+
+# ============================================
+# Milestone Configuration
+# ============================================
+
+milestones:
+  - number: 5  # Dependencies milestone
+  - number: 6  # Security milestone
+
+# ============================================
+# Label Configuration
+# ============================================
+
+labels:
+  - name: "dependencies"
+    color: "0366d6"
+    description: "Pull requests that update dependencies"
+  
+  - name: "security"
+    color: "b60205"
+    description: "Security-related updates"
+  
+  - name: "python"
+    color: "1d76db"
+    description: "Python dependency updates"
+  
+  - name: "javascript"
+    color: "fbca04"
+    description: "JavaScript dependency updates"
+  
+  - name: "github-actions"
+    color: "5319e7"
+    description: "GitHub Actions updates"
+  
+  - name: "docker"
+    color: "0e8a16"
+    description: "Docker image updates"
+  
+  - name: "terraform"
+    color: "0052cc"
+    description: "Terraform module updates"
+  
+  - name: "automated-pr"
+    color: "6f6f6f"
+    description: "Automatically generated pull request"
+  
+  - name: "critical"
+    color: "b60205"
+    description: "Critical security update"
+  
+  - name: "major"
+    color: "d93f0b"
+    description: "Major version update"
+  
+  - name: "minor"
+    color: "fbca04"
+    description: "Minor version update"
+  
+  - name: "patch"
+    color: "0e8a16"
+    description: "Patch version update"
+  
+  - name: "needs-review"
+    color: "5319e7"
+    description: "Needs human review"
+
+# ============================================
+# Rebase Strategy
+# ============================================
+
+rebase-strategy: "auto"  # or "manual"
+
+# ============================================
+# Open Pull Requests Limit
+# ============================================
+
+open-pull-requests-limit: 20
+
+# ============================================
+# Target Branch
+# ============================================
+
+target-branch: "develop"
+
+# ============================================
+# Custom Schedules
+# ============================================
+
+schedules:
+  - name: "Weekly Production Updates"
+    interval: "weekly"
+    day: "monday"
+    time: "08:00"
+    target-branch: "main"
+    
+  - name: "Daily Development Updates"
+    interval: "daily"
+    time: "09:00"
+    target-branch: "develop"
+    
+  - name: "Security Updates"
+    interval: "daily"
+    time: "00:00"
+    priority: "high"
+
+# ============================================
+# Vendor Dependencies
+# ============================================
+
+# Dependencies to vendor (keep in repo)
+vendor:
+  - dependency-name: "critical-lib"
+    versions: ["1.x"]
+    reason: "Critical for offline builds"
+
+# ============================================
+# Private Registry Configuration
+# ============================================
+
+private-registries:
+  - type: "npm"
+    url: "https://npm.pkg.github.com"
+    token: ${{ secrets.GH_PACKAGES_TOKEN }}
+  
+  - type: "pip"
+    url: "https://private.pypi.example.com"
+    username: ${{ secrets.PRIVATE_PYPI_USER }}
+    password: ${{ secrets.PRIVATE_PYPI_PASS }}
+
+# ============================================
+# Ecosystem-Specific Settings
+# ============================================
+
+ecosystem-settings:
+  pip:
+    versioning-strategy: "increase-if-necessary"
+    insecure-external-code-execution: "deny"
+    allow:
+      - dependency-type: "direct"
+    
+  npm:
+    versioning-strategy: "auto"
+    insecure-external-code-execution: "allow"
+    registries:
+      - "npm-registry"
+      - "github-packages"
+    
+  github-actions:
+    versioning-strategy: "auto"
+    
+  docker:
+    versioning-strategy: "auto"
+
+# ============================================
+# Security Advisories
+# ============================================
+
+security-advisories:
+  - ecosystem: "pip"
+    severity-threshold: "high"
+    update-type: "auto"
+    
+  - ecosystem: "npm"
+    severity-threshold: "critical"
+    update-type: "immediate"
+
+# ============================================
+# Assignees Configuration
+# ============================================
+
+assignees:
+  pip:
+    - "backend-team"
+  npm:
+    - "frontend-team"
+  github-actions:
+    - "devops-team"
+  docker:
+    - "devops-team"
+  terraform:
+    - "devops-team"
+
+# ============================================
+# Milestone Assignment
+# ============================================
+
+milestones:
+  pip:
+    number: 5
+  npm:
+    number: 5
+  github-actions:
+    number: 5
+  docker:
+    number: 5
+  security:
+    number: 6
+
+# ============================================
+# Commit Message Configuration
+# ============================================
+
+commit-message:
+  prefix: "chore(deps)"
+  prefix-development: "chore(deps-dev)"
+  include: "scope"
+  
+  custom:
+    pip: "chore(python-deps)"
+    npm: "chore(js-deps)"
+    github-actions: "ci(actions)"
+    docker: "docker(update)"
+    terraform: "infra(terraform)"
+    security: "fix(security)"
+
+# ============================================
+# Reviewer Groups
+# ============================================
+
+reviewers:
+  - name: "backend-team"
+    members:
+      - "@backend-lead"
+      - "@backend-developer"
+    for:
+      - ecosystem: "pip"
+        
+  - name: "frontend-team"
+    members:
+      - "@frontend-lead"
+      - "@frontend-developer"
+    for:
+      - ecosystem: "npm"
+        
+  - name: "devops-team"
+    members:
+      - "@devops-lead"
+      - "@devops-engineer"
+    for:
+      - ecosystem: "github-actions"
+      - ecosystem: "docker"
+      - ecosystem: "terraform"
+        
+  - name: "security-team"
+    members:
+      - "@security-lead"
+      - "@security-engineer"
+    for:
+      - type: "security"
+
+# ============================================
+# Group Rules
+# ============================================
+
+groups:
+  python-production:
+    applies-to:
+      - ecosystem: "pip"
+        directories:
+          - "/backend"
+    patterns:
+      - "*"
+    exclude-patterns:
+      - "pytest*"
+      - "black"
+      - "flake8*"
+    update-types:
+      - "minor"
+      - "patch"
+      
+  python-development:
+    applies-to:
+      - ecosystem: "pip"
+        directories:
+          - "/backend"
+    patterns:
+      - "pytest*"
+      - "black"
+      - "flake8*"
+      - "mypy"
+    update-types:
+      - "minor"
+      - "patch"
+      
+  npm-production:
+    applies-to:
+      - ecosystem: "npm"
+        directories:
+          - "/frontend"
+    patterns:
+      - "*"
+    exclude-patterns:
+      - "jest*"
+      - "eslint*"
+      - "@types/*"
+    update-types:
+      - "minor"
+      - "patch"
+      
+  npm-development:
+    applies-to:
+      - ecosystem: "npm"
+        directories:
+          - "/frontend"
+    patterns:
+      - "jest*"
+      - "eslint*"
+      - "@types/*"
+    update-types:
+      - "minor"
+      - "patch"
+      
+  security-critical:
+    applies-to:
+      - ecosystem: "pip"
+      - ecosystem: "npm"
+    dependency-type: "all"
+    update-types:
+      - "version-update:semver-major"

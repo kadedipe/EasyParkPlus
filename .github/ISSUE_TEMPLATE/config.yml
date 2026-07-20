@@ -1,0 +1,696 @@
+# ============================================
+# GitHub Issue Templates Configuration
+# ============================================
+
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://docs.parking.example.com
+    about: Check our documentation for guides and references
+  
+  - name: 💬 Discussions
+    url: https://github.com/parking-management/discussions
+    about: Ask questions and discuss ideas with the community
+  
+  - name: 🚀 Feature Requests
+    url: https://github.com/parking-management/discussions/categories/ideas
+    about: Share ideas for new features
+  
+  - name: 🤔 Support Questions
+    url: https://stackoverflow.com/questions/tagged/parking-management
+    about: Ask technical questions on Stack Overflow
+  
+  - name: 📧 Email Support
+    url: mailto:support@parking.example.com
+    about: Contact us directly for sensitive issues
+  
+  - name: 🐛 Security Issues
+    url: mailto:security@parking.example.com
+    about: Please report security vulnerabilities via email
+
+# ============================================
+# Issue Template Configuration
+# ============================================
+
+# You can also customize the template chooser
+issue_templates:
+  - name: "🐛 Bug Report"
+    description: "Report a bug or unexpected behavior"
+    labels: ["type: bug", "needs-triage"]
+    title: "[BUG] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for taking the time to fill out this bug report!
+            
+            Before submitting:
+            - Check if this issue has already been reported
+            - Provide as much detail as possible
+            - Include steps to reproduce
+      
+      - type: dropdown
+        id: severity
+        attributes:
+          label: Severity
+          description: How severe is this bug?
+          options:
+            - Critical - System crash, data loss, security issue
+            - High - Major feature broken, no workaround
+            - Medium - Feature broken but has workaround
+            - Low - Minor issue, cosmetic problem
+          default: 2
+        validations:
+          required: true
+      
+      - type: textarea
+        id: description
+        attributes:
+          label: Bug Description
+          description: A clear and concise description of the bug
+          placeholder: When I try to... the system...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: steps
+        attributes:
+          label: Steps to Reproduce
+          description: Step-by-step instructions to reproduce the issue
+          placeholder: |
+            1. Go to '...'
+            2. Click on '....'
+            3. Scroll down to '....'
+            4. See error
+          value: |
+            1. 
+            2. 
+            3. 
+        validations:
+          required: true
+      
+      - type: textarea
+        id: expected
+        attributes:
+          label: Expected Behavior
+          description: What did you expect to happen?
+          placeholder: The system should...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: actual
+        attributes:
+          label: Actual Behavior
+          description: What actually happened?
+          placeholder: Instead, I got...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: logs
+        attributes:
+          label: Relevant Logs/Output
+          description: Please copy and paste any relevant log output
+          render: shell
+      
+      - type: dropdown
+        id: environment
+        attributes:
+          label: Environment
+          description: Where did this occur?
+          options:
+            - Production
+            - Staging
+            - Development
+            - Local
+          default: 0
+        validations:
+          required: true
+      
+      - type: input
+        id: version
+        attributes:
+          label: Version
+          description: What version are you running?
+          placeholder: e.g., v1.2.3, commit hash
+        validations:
+          required: true
+      
+      - type: dropdown
+        id: browser
+        attributes:
+          label: Browser (if applicable)
+          options:
+            - Chrome
+            - Firefox
+            - Safari
+            - Edge
+            - Other
+      
+      - type: input
+        id: browser_version
+        attributes:
+          label: Browser Version
+      
+      - type: dropdown
+        id: os
+        attributes:
+          label: Operating System
+          options:
+            - Windows
+            - macOS
+            - Linux
+            - iOS
+            - Android
+            - Other
+      
+      - type: checkboxes
+        id: checks
+        attributes:
+          label: Self-Check
+          description: Please confirm before submitting
+          options:
+            - label: I have searched for similar issues
+              required: true
+            - label: I have included all relevant information
+              required: true
+            - label: I can reproduce the issue consistently
+              required: true
+            - label: This is not a security vulnerability (report those via email)
+              required: true
+      
+      - type: markdown
+        attributes:
+          value: |
+            ---
+            Thank you for helping improve Parking Management System! 🅿️
+
+  - name: "✨ Feature Request"
+    description: "Suggest a new feature or enhancement"
+    labels: ["type: feature", "needs-triage"]
+    title: "[FEATURE] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for suggesting a new feature!
+            
+            Please describe your idea clearly and explain why it would be valuable.
+      
+      - type: dropdown
+        id: priority
+        attributes:
+          label: Priority
+          description: How important is this feature?
+          options:
+            - Critical - Business critical, blocking users
+            - High - Very important for many users
+            - Medium - Nice to have, would improve UX
+            - Low - Could be useful for some users
+          default: 2
+        validations:
+          required: true
+      
+      - type: textarea
+        id: problem
+        attributes:
+          label: Problem Statement
+          description: What problem does this feature solve?
+          placeholder: I'm always frustrated when...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: solution
+        attributes:
+          label: Proposed Solution
+          description: Describe the solution you'd like
+          placeholder: I would like to see...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: alternatives
+        attributes:
+          label: Alternatives Considered
+          description: Describe alternatives you've considered
+          placeholder: Another approach would be...
+      
+      - type: textarea
+        id: user_story
+        attributes:
+          label: User Story
+          description: As a [type of user], I want [action] so that [benefit]
+          placeholder: |
+            As a parking attendant
+            I want to view real-time occupancy
+            So that I can direct customers efficiently
+          render: markdown
+      
+      - type: textarea
+        id: acceptance
+        attributes:
+          label: Acceptance Criteria
+          description: What needs to be true for this feature to be complete?
+          placeholder: |
+            - [ ] Users can view spot availability
+            - [ ] Data updates in real-time
+            - [ ] Mobile responsive
+          render: markdown
+      
+      - type: textarea
+        id: mockups
+        attributes:
+          label: Mockups/Examples
+          description: Link to mockups, screenshots, or examples from other apps
+      
+      - type: dropdown
+        id: impact
+        attributes:
+          label: Business Impact
+          description: How will this impact the business?
+          options:
+            - Revenue increase
+            - Cost reduction
+            - User satisfaction
+            - Operational efficiency
+            - Security/Compliance
+            - Other
+          multiple: true
+      
+      - type: dropdown
+        id: users
+        attributes:
+          label: Affected Users
+          description: Who will benefit from this?
+          options:
+            - All users
+            - Customers
+            - Parking attendants
+            - Managers
+            - Administrators
+            - API users
+          multiple: true
+      
+      - type: textarea
+        id: dependencies
+        attributes:
+          label: Dependencies
+          description: List any dependencies or prerequisites
+          placeholder: |
+            - [ ] New API endpoint needed
+            - [ ] Database migration required
+            - [ ] Third-party service integration
+      
+      - type: checkboxes
+        id: checks
+        attributes:
+          label: Self-Check
+          options:
+            - label: I have searched for similar feature requests
+              required: true
+            - label: This feature aligns with the product roadmap
+              required: true
+            - label: I have considered the impact on existing functionality
+              required: true
+      
+      - type: markdown
+        attributes:
+          value: |
+            ---
+            Thank you for helping improve Parking Management System! 🅿️
+
+  - name: "📚 Documentation"
+    description: "Report documentation issues or suggest improvements"
+    labels: ["type: documentation"]
+    title: "[DOCS] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for helping improve our documentation!
+      
+      - type: dropdown
+        id: doc_type
+        attributes:
+          label: Documentation Type
+          options:
+            - API Reference
+            - User Guide
+            - Installation Guide
+            - Developer Guide
+            - README
+            - Other
+        validations:
+          required: true
+      
+      - type: input
+        id: location
+        attributes:
+          label: Document Location
+          description: Where is the documentation located?
+          placeholder: https://docs.parking.example.com/api/...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: issue
+        attributes:
+          label: Issue Description
+          description: What's wrong or missing?
+          placeholder: The documentation is unclear about...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: suggestion
+        attributes:
+          label: Suggested Improvement
+          description: How could it be better?
+          placeholder: It should explain...
+      
+      - type: textarea
+        id: additional
+        attributes:
+          label: Additional Context
+      
+      - type: checkboxes
+        id: checks
+        attributes:
+          options:
+            - label: I have checked for existing documentation issues
+              required: true
+
+  - name: "🔧 Maintenance"
+    description: "Technical debt, refactoring, or infrastructure improvements"
+    labels: ["type: maintenance"]
+    title: "[MAINT] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for helping keep the codebase healthy!
+      
+      - type: dropdown
+        id: maint_type
+        attributes:
+          label: Maintenance Type
+          options:
+            - Code Refactoring
+            - Performance Optimization
+            - Dependency Update
+            - Infrastructure
+            - CI/CD Improvement
+            - Database Optimization
+            - Security Hardening
+            - Test Improvement
+            - Other
+        validations:
+          required: true
+      
+      - type: textarea
+        id: description
+        attributes:
+          label: Description
+          description: What needs to be done?
+        validations:
+          required: true
+      
+      - type: textarea
+        id: motivation
+        attributes:
+          label: Motivation
+          description: Why is this needed?
+          placeholder: This will improve...
+        validations:
+          required: true
+      
+      - type: textarea
+        id: impact
+        attributes:
+          label: Impact Assessment
+          description: What areas will this affect?
+      
+      - type: textarea
+        id: risks
+        attributes:
+          label: Risks and Mitigation
+          description: What could go wrong and how to prevent it?
+      
+      - type: checkboxes
+        id: checks
+        attributes:
+          options:
+            - label: I have assessed the impact on existing functionality
+            - label: This does not introduce breaking changes
+            - label: Tests will be updated accordingly
+
+  - name: "🐍 Backend Issue"
+    description: "Report issues specific to the backend"
+    labels: ["area: backend"]
+    title: "[BACKEND] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for reporting a backend issue!
+      
+      - type: dropdown
+        id: component
+        attributes:
+          label: Backend Component
+          options:
+            - API
+            - Database
+            - Authentication
+            - Payment Service
+            - Notification Service
+            - Reservation Service
+            - User Service
+            - Parking Spot Service
+            - Cache
+            - Queue
+            - Other
+        validations:
+          required: true
+      
+      - type: input
+        id: endpoint
+        attributes:
+          label: API Endpoint (if applicable)
+          placeholder: /api/v1/reservations
+      
+      - type: textarea
+        id: description
+        attributes:
+          label: Issue Description
+        validations:
+          required: true
+      
+      - type: textarea
+        id: logs
+        attributes:
+          label: Backend Logs
+          render: shell
+
+  - name: "🎨 Frontend Issue"
+    description: "Report issues specific to the frontend"
+    labels: ["area: frontend"]
+    title: "[FRONTEND] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for reporting a frontend issue!
+      
+      - type: dropdown
+        id: component
+        attributes:
+          label: UI Component
+          options:
+            - Navigation
+            - Dashboard
+            - Reservation Form
+            - Payment Form
+            - Parking Map
+            - User Profile
+            - Admin Panel
+            - Mobile View
+            - Other
+        validations:
+          required: true
+      
+      - type: input
+        id: url
+        attributes:
+          label: Page URL
+          placeholder: /dashboard
+      
+      - type: textarea
+        id: description
+        attributes:
+          label: Issue Description
+        validations:
+          required: true
+      
+      - type: textarea
+        id: screenshot
+        attributes:
+          label: Screenshot
+          description: Drag and drop screenshot here
+
+  - name: "🔐 Security Vulnerability"
+    description: "⚠️ DO NOT report security vulnerabilities here! Use email instead."
+    labels: ["type: security"]
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            ## ⚠️ Important Security Notice
+            
+            Please **DO NOT** report security vulnerabilities in public issues.
+            
+            Instead, email us directly at: **security@parking.example.com**
+            
+            For critical security issues, please use PGP encryption.
+            
+            **PGP Key Fingerprint:** `1234 5678 90AB CDEF 1234 5678 90AB CDEF 1234 5678`
+            
+            We take security seriously and will respond promptly.
+
+  - name: "📦 Performance Issue"
+    description: "Report performance degradation or optimization needs"
+    labels: ["type: performance"]
+    title: "[PERF] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for helping us optimize performance!
+      
+      - type: dropdown
+        id: perf_type
+        attributes:
+          label: Performance Type
+          options:
+            - Slow Response Time
+            - High Memory Usage
+            - High CPU Usage
+            - Database Query Slow
+            - API Latency
+            - UI Lag
+            - Load Time
+            - Other
+        validations:
+          required: true
+      
+      - type: textarea
+        id: description
+        attributes:
+          label: Issue Description
+        validations:
+          required: true
+      
+      - type: textarea
+        id: metrics
+        attributes:
+          label: Performance Metrics
+          description: Response times, resource usage, etc.
+          placeholder: |
+            Response time: 5s (expected < 500ms)
+            Memory: 2GB (expected < 500MB)
+          render: shell
+      
+      - type: textarea
+        id: reproduction
+        attributes:
+          label: Steps to Reproduce
+      
+      - type: textarea
+        id: environment
+        attributes:
+          label: Environment Details
+          placeholder: |
+            - Environment: Production
+            - Scale: 100 concurrent users
+            - Data size: 1M records
+
+  - name: "🧪 Testing Issue"
+    description: "Report test failures or testing improvements"
+    labels: ["area: testing"]
+    title: "[TEST] "
+    body:
+      - type: markdown
+        attributes:
+          value: |
+            Thanks for helping improve test coverage!
+      
+      - type: dropdown
+        id: test_type
+        attributes:
+          label: Test Type
+          options:
+            - Unit Test
+            - Integration Test
+            - E2E Test
+            - Performance Test
+            - Security Test
+            - Test Coverage
+            - Test Infrastructure
+        validations:
+          required: true
+      
+      - type: textarea
+        id: description
+        attributes:
+          label: Issue Description
+        validations:
+          required: true
+      
+      - type: textarea
+        id: logs
+        attributes:
+          label: Test Logs
+          render: shell
+
+# ============================================
+# Issue Template Chooser Customization
+# ============================================
+
+# Customize the template chooser UI
+template_chooser:
+  title: "Choose an issue type"
+  description: "Please select the type of issue you'd like to create"
+  labels:
+    - "needs-triage"
+
+# ============================================
+# Issue Creation Guidelines
+# ============================================
+
+# Guidelines shown when creating a new issue
+guidelines:
+  - "Search existing issues before creating a new one"
+  - "Fill out the template completely"
+  - "Provide as much detail as possible"
+  - "Include steps to reproduce for bugs"
+  - "Upload screenshots if applicable"
+  - "Be respectful and constructive"
+
+# ============================================
+# Auto-Close Configuration
+# ============================================
+
+# Auto-close issues that don't follow templates
+auto_close:
+  enabled: true
+  message: |
+    This issue has been automatically closed because it doesn't follow our issue template.
+    Please create a new issue using one of the provided templates.
+  exempt_labels:
+    - "security"
+    - "critical"
+  exclude_contributors:
+    - "dependabot[bot]"
+    - "github-actions[bot]"

@@ -1,0 +1,31 @@
+# Global owners
+* @parking-management/tech-leads
+
+# Backend ownership
+/backend/ @parking-management/backend-team
+/backend/parking-api/ @parking-management/api-team
+/backend/payment-service/ @parking-management/payment-team
+/backend/notification-service/ @parking-management/notification-team
+/backend/assets/models/ @parking-management/database-team
+/backend/assets/services/ @parking-management/backend-team
+/backend/tests/ @parking-management/qa-team
+
+# Frontend ownership
+/frontend/ @parking-management/frontend-team
+/frontend/src/components/ @parking-management/ui-team
+/frontend/src/pages/ @parking-management/frontend-team
+/frontend/src/services/ @parking-management/frontend-team
+
+# DevOps ownership
+/.github/ @parking-management/devops-team
+/deployment/ @parking-management/devops-team
+/docker-compose.yml @parking-management/devops-team
+
+# Documentation ownership
+/docs/ @parking-management/documentation-team
+/README.md @parking-management/documentation-team
+
+# Configuration files
+/.env.example @parking-management/devops-team
+/.gitignore @parking-management/devops-team
+/.gitlab-ci.yml @parking-management/devops-team

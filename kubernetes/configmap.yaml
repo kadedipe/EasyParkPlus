@@ -1,0 +1,17 @@
+# parking-management/kubernetes/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: parking-config
+  namespace: production
+data:
+  NODE_ENV: production
+  VITE_ENABLE_ANALYTICS: "true"
+  VITE_ENABLE_ERROR_TRACKING: "true"
+  VITE_ENABLE_OFFLINE_MODE: "true"
+  VITE_DEFAULT_PAGE_LIMIT: "10"
+  VITE_MAX_PAGE_LIMIT: "100"
+  VITE_LOG_LEVEL: "info"
+  VITE_API_URL: "https://api.yourdomain.com/api"
+  VITE_WS_URL: "wss://api.yourdomain.com"
+  VITE_CDN_URL: "https://cdn.yourdomain.com"

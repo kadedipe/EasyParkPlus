@@ -1,0 +1,147 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # PR Size Check
+  pr-size:
+    name: PR Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        run: |
+          files_changed=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | wc -l)
+          lines_added=$(git diff --numstat origin/${{ github.base_ref }}..HEAD | awk '{sum+=$1} END {print sum}')
+          lines_deleted=$(git diff --numstat origin/${{ github.base_ref }}..HEAD | awk '{sum+=$2} END {print sum}')
+          
+          echo "Files changed: $files_changed"
+          echo "Lines added: $lines_added"
+          echo "Lines deleted: $lines_deleted"
+          
+          if [ $files_changed -gt 50 ]; then
+            echo "::warning::This PR changes $files_changed files. Consider breaking it down."
+          fi
+          
+          if [ $lines_added -gt 1000 ]; then
+            echo "::warning::This PR adds $lines_added lines. Consider breaking it down."
+          fi
+
+  # PR Title and Description Check
+  pr-metadata:
+    name: PR Metadata Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Check title format (Conventional Commits)
+          if ! echo "$PR_TITLE" | grep -E '^(feat|fix|docs|style|refactor|perf|test|chore|ci)(\(.+\))?: .+$'; then
+            echo "::error::PR title should follow Conventional Commits format (e.g., 'feat: add new feature')"
+            exit 1
+          fi
+          
+          # Check title length
+          if [ ${#PR_TITLE} -gt 72 ]; then
+            echo "::error::PR title should be less than 72 characters"
+            exit 1
+          fi
+
+      - name: Check PR description
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ -z "$PR_BODY" ]; then
+            echo "::error::PR description is required"
+            exit 1
+          fi
+          
+          # Check for required sections
+          required_sections=("## Description" "## Type of Change" "## Testing" "## Checklist")
+          for section in "${required_sections[@]}"; do
+            if ! echo "$PR_BODY" | grep -q "$section"; then
+              echo "::error::Missing required section: $section"
+              exit 1
+            fi
+          done
+
+  # PR Labels Check
+  pr-labels:
+    name: PR Labels Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required labels
+        env:
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
+        run: |
+          required_labels=("type: feature" "type: bug" "type: documentation" "type: maintenance")
+          has_label=false
+          
+          for label in "${required_labels[@]}"; do
+            if echo "$PR_LABELS" | grep -q "$label"; then
+              has_label=true
+              break
+            fi
+          done
+          
+          if [ "$has_label" = false ]; then
+            echo "::error::PR must have a type label (feature, bug, documentation, or maintenance)"
+            exit 1
+          fi
+
+  # PR Branch Name Check
+  pr-branch:
+    name: PR Branch Name Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: |
+          # Branch name should follow pattern: type/description
+          if ! echo "$BRANCH_NAME" | grep -E '^(feature|bugfix|hotfix|release|docs)/[a-z0-9-]+$'; then
+            echo "::error::Branch name should follow pattern: type/description (e.g., feature/add-login)"
+            exit 1
+          fi
+
+  # PR Commit Messages Check
+  pr-commits:
+    name: PR Commit Messages Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages
+        run: |
+          commits=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:%s)
+          while IFS= read -r commit; do
+            if ! echo "$commit" | grep -E '^(feat|fix|docs|style|refactor|perf|test|chore|ci)(\(.+\))?: .+$'; then
+              echo "::error::Commit message should follow Conventional Commits format: $commit"
+              exit 1
+            fi
+          done <<< "$commits"
+
+  # PR Merge Check
+  pr-merge:
+    name: PR Merge Check
+    runs-on: ubuntu-latest
+    needs: [pr-size, pr-metadata, pr-labels, pr-branch, pr-commits]
+    steps:
+      - name: Check mergeability
+        run: |
+          echo "✅ All PR checks passed!"

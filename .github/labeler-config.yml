@@ -1,0 +1,214 @@
+# Label rules for PRs based on file changes
+
+# Backend labels
+area: backend:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/**/*'
+  - head-branch: ['^backend/', '^feature/backend']
+
+area: api:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/parking-api/**/*'
+      - any-glob-to-any-file: 'backend/api/**/*'
+
+area: database:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/assets/models/**/*'
+      - any-glob-to-any-file: 'backend/data/**/*'
+      - any-glob-to-any-file: '**/migrations/**/*'
+
+area: payment:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/payment-service/**/*'
+      - any-glob-to-any-file: 'backend/assets/services/payment_service.py'
+
+area: notification:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/notification-service/**/*'
+      - any-glob-to-any-file: 'backend/assets/services/notification_service.py'
+
+# Frontend labels
+area: frontend:
+  - changed-files:
+      - any-glob-to-any-file: 'frontend/**/*'
+  - head-branch: ['^frontend/', '^feature/frontend']
+
+area: ui:
+  - changed-files:
+      - any-glob-to-any-file: 'frontend/src/components/**/*'
+      - any-glob-to-any-file: 'frontend/src/pages/**/*'
+      - any-glob-to-any-file: 'frontend/src/styles/**/*'
+
+area: ux:
+  - changed-files:
+      - any-glob-to-any-file: 'frontend/src/hooks/**/*'
+      - any-glob-to-any-file: 'frontend/src/context/**/*'
+
+# DevOps labels
+area: devops:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**/*'
+      - any-glob-to-any-file: 'deployment/**/*'
+      - any-glob-to-any-file: 'docker-compose*.yml'
+      - any-glob-to-any-file: '**/Dockerfile'
+      - any-glob-to-any-file: '**/*.tf'
+      - any-glob-to-any-file: '**/*.yaml'
+
+area: ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**/*'
+      - any-glob-to-any-file: '.gitlab-ci.yml'
+      - any-glob-to-any-file: 'Jenkinsfile'
+
+area: monitoring:
+  - changed-files:
+      - any-glob-to-any-file: 'deployment/monitoring/**/*'
+      - any-glob-to-any-file: '**/prometheus.yml'
+      - any-glob-to-any-file: '**/grafana/**/*'
+
+# Testing labels
+area: tests:
+  - changed-files:
+      - any-glob-to-any-file: '**/tests/**/*'
+      - any-glob-to-any-file: '**/*.test.js'
+      - any-glob-to-any-file: '**/*.spec.js'
+      - any-glob-to-any-file: '**/test_*.py'
+
+area: e2e:
+  - changed-files:
+      - any-glob-to-any-file: '**/cypress/**/*'
+      - any-glob-to-any-file: '**/e2e/**/*'
+
+# Documentation labels
+area: docs:
+  - changed-files:
+      - any-glob-to-any-file: 'docs/**/*'
+      - any-glob-to-any-file: '**/*.md'
+      - any-glob-to-any-file: '**/README.md'
+
+# Configuration files
+area: config:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.config.js'
+      - any-glob-to-any-file: '**/.env*'
+      - any-glob-to-any-file: '**/*.conf'
+      - any-glob-to-any-file: '**/*.ini'
+
+# Dependency updates
+type: dependencies:
+  - changed-files:
+      - any-glob-to-any-file: 'backend/requirements*.txt'
+      - any-glob-to-any-file: 'frontend/package*.json'
+      - any-glob-to-any-file: '**/go.mod'
+      - any-glob-to-any-file: '**/go.sum'
+  - head-branch: ['^dependabot/', '^renovate/']
+
+# Security related
+type: security:
+  - changed-files:
+      - any-glob-to-any-file: '**/security/**/*'
+      - any-glob-to-any-file: '**/*auth*.py'
+      - any-glob-to-any-file: '**/*auth*.js'
+  - head-branch: ['^security/', '^hotfix/security']
+
+# Performance related
+type: performance:
+  - changed-files:
+      - any-glob-to-any-file: '**/performance/**/*'
+      - any-glob-to-any-file: '**/*.prof'
+      - any-glob-to-any-file: '**/*.benchmark.js'
+
+# Breaking changes
+breaking-change:
+  - head-branch: ['^breaking/', '^major/']
+  - body:
+      - '/breaking change/i'
+
+# Release related
+type: release:
+  - head-branch: ['^release/']
+  - base-branch: ['main', 'master']
+
+# Automated PRs
+automated-pr:
+  - head-branch: ['^dependabot/', '^renovate/', '^automated/']
+  - author: ['dependabot[bot]', 'renovate[bot]', 'github-actions[bot]']
+
+# Needs review
+needs-review:
+  - head-branch: ['^feature/', '^feat/']
+  - draft: true
+
+# Work in progress
+wip:
+  - title: ['^WIP:', '^wip:', '^Draft:']
+  - draft: true
+
+# Good for beginners
+good first issue:
+  - body:
+      - '/good first issue/i'
+      - '/beginner friendly/i'
+
+# Help wanted
+help wanted:
+  - body:
+      - '/help wanted/i'
+      - '/need help/i'
+
+# Bug severity
+severity: critical:
+  - body:
+      - '/critical/i'
+      - '/crash/i'
+      - '/data loss/i'
+      - '/security/i'
+
+severity: high:
+  - body:
+      - '/high priority/i'
+      - '/major issue/i'
+
+# Environment labels
+environment: production:
+  - body:
+      - '/production/i'
+      - '/prod/i'
+
+environment: staging:
+  - body:
+      - '/staging/i'
+      - '/stage/i'
+
+environment: development:
+  - body:
+      - '/development/i'
+      - '/dev/i'
+
+# Platform labels
+platform: web:
+  - body:
+      - '/web/i'
+      - '/browser/i'
+
+platform: mobile:
+  - body:
+      - '/mobile/i'
+      - '/ios/i'
+      - '/android/i'
+
+# Time estimates
+estimate: small:
+  - body:
+      - '/estimate: small/i'
+      - '/effort: small/i'
+
+estimate: medium:
+  - body:
+      - '/estimate: medium/i'
+      - '/effort: medium/i'
+
+estimate: large:
+  - body:
+      - '/estimate: large/i'
+      - '/effort: large/i'
