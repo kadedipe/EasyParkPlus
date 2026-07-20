@@ -1,0 +1,126 @@
+{
+  "title": "✅ Booking Confirmed!",
+  "body": "Your parking at {{ parking_name }} (Spot {{ spot_number }}) is confirmed for {{ start_time|date("%b %d, %I:%M %p") }}",
+  "data": {
+    "type": "booking_confirmation",
+    "booking_id": "{{ booking_id }}",
+    "booking_reference": "{{ booking_reference }}",
+    "parking_name": "{{ parking_name }}",
+    "parking_id": "{{ parking_id }}",
+    "spot_number": "{{ spot_number }}",
+    "vehicle_plate": "{{ vehicle_plate }}",
+    "start_time": "{{ start_time.isoformat() }}",
+    "end_time": "{{ end_time.isoformat() }}",
+    "duration": "{{ duration }}",
+    "amount": "{{ total_amount }}",
+    "currency": "{{ currency }}",
+    "qr_data": "{{ qr_data }}",
+    "click_action": "OPEN_BOOKING_DETAILS",
+    "deep_link": "{{ app_scheme }}://booking/{{ booking_id }}",
+    "web_url": "{{ app_url }}/bookings/{{ booking_id }}",
+    "timestamp": "{{ current_time.isoformat() }}",
+    "version": "1.0"
+  },
+  "android": {
+    "priority": "high",
+    "notification": {
+      "click_action": "OPEN_BOOKING_DETAILS",
+      "sound": "default",
+      "vibrate": [200, 100, 200],
+      "color": "#059669",
+      "icon": "@drawable/ic_notification",
+      "large_icon": "@drawable/ic_booking_confirmed",
+      "channel_id": "booking_notifications",
+      "sticky": true,
+      "priority": 2,
+      "visibility": 1,
+      "ticker": "Your parking booking is confirmed",
+      "badge_icon_type": "small",
+      "category": "transport",
+      "timeout_after": 86400000,
+      "local_only": false,
+      "default_vibrate_timings": true,
+      "default_sound": true,
+      "default_light_settings": true,
+      "lights": {
+        "argb": 0xff059669,
+        "on_ms": 500,
+        "off_ms": 1000
+      }
+    },
+    "data": {
+      "priority": "high",
+      "content_available": true,
+      "mutable_content": true
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "✅ Booking Confirmed!",
+          "body": "Your parking at {{ parking_name }} (Spot {{ spot_number }}) is confirmed for {{ start_time|date("%b %d, %I:%M %p") }}",
+          "subtitle": "Parking reservation confirmed"
+        },
+        "sound": "default",
+        "badge": 1,
+        "category": "BOOKING_CATEGORY",
+        "thread-id": "booking-{{ booking_id }}",
+        "mutable-content": 1,
+        "content-available": 1,
+        "interruption-level": "time-sensitive",
+        "relevance-score": 1.0,
+        "target-content-id": "booking-{{ booking_id }}"
+      },
+      "data": {
+        "type": "booking_confirmation",
+        "booking_id": "{{ booking_id }}"
+      }
+    },
+    "fcm_options": {
+      "analytics_label": "booking_confirmation",
+      "image": "{{ image_url }}/booking_confirmation.png"
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "✅ Booking Confirmed!",
+      "body": "Your parking at {{ parking_name }} (Spot {{ spot_number }}) is confirmed",
+      "icon": "{{ app_url }}/icons/icon-192.png",
+      "badge": "{{ app_url }}/icons/badge-72.png",
+      "image": "{{ image_url }}/booking_confirmation_banner.png",
+      "vibrate": [200, 100, 200],
+      "dir": "auto",
+      "lang": "en",
+      "renotify": true,
+      "requireInteraction": true,
+      "tag": "booking-{{ booking_id }}",
+      "silent": false,
+      "timestamp": "{{ current_time.timestamp() }}",
+      "data": {
+        "url": "{{ app_url }}/bookings/{{ booking_id }}",
+        "icon": "{{ app_url }}/icons/booking-192.png"
+      },
+      "actions": [
+        {
+          "action": "view",
+          "title": "📱 View Booking",
+          "icon": "{{ app_url }}/icons/view-icon.png"
+        },
+        {
+          "action": "cancel",
+          "title": "❌ Cancel",
+          "icon": "{{ app_url }}/icons/cancel-icon.png"
+        },
+        {
+          "action": "extend",
+          "title": "⏰ Extend",
+          "icon": "{{ app_url }}/icons/extend-icon.png"
+        }
+      ]
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/bookings/{{ booking_id }}"
+    }
+  }
+}

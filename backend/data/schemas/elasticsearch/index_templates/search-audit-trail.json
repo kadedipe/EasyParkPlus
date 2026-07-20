@@ -1,0 +1,83 @@
+{
+  "id": "audit_trail_search",
+  "params": {
+    "user_id": null,
+    "resource_type": null,
+    "resource_id": null,
+    "action": null,
+    "date_from": "now-30d",
+    "date_to": "now",
+    "outcome": null,
+    "size": 100
+  },
+  "template": {
+    "index": "audit-logs-*",
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "range": {
+              "@timestamp": {
+                "gte": "{{date_from}}",
+                "lte": "{{date_to}}"
+              }
+            }
+          }
+        ],
+        "filter": []
+      }
+    },
+    "sort": [
+      {
+        "@timestamp": {
+          "order": "desc"
+        }
+      }
+    ],
+    "size": "{{size}}"
+  },
+  "template_params": {
+    "condition_builder": {
+      "user_id": {
+        "condition": "{{#user_id}}",
+        "query": {
+          "term": {
+            "user.id": "{{user_id}}"
+          }
+        }
+      },
+      "resource_type": {
+        "condition": "{{#resource_type}}",
+        "query": {
+          "term": {
+            "resource.type": "{{resource_type}}"
+          }
+        }
+      },
+      "resource_id": {
+        "condition": "{{#resource_id}}",
+        "query": {
+          "term": {
+            "resource.id": "{{resource_id}}"
+          }
+        }
+      },
+      "action": {
+        "condition": "{{#action}}",
+        "query": {
+          "term": {
+            "event_action": "{{action}}"
+          }
+        }
+      },
+      "outcome": {
+        "condition": "{{#outcome}}",
+        "query": {
+          "term": {
+            "event_outcome": "{{outcome}}"
+          }
+        }
+      }
+    }
+  }
+}

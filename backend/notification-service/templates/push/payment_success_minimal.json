@@ -1,0 +1,41 @@
+{
+  "title": "💰 Payment Success",
+  "body": "{{ amount|currency(currency) }} - {{ payment_method }}",
+  "data": {
+    "type": "payment_success",
+    "payment_id": "{{ payment_id }}",
+    "amount": "{{ amount }}",
+    "currency": "{{ currency }}",
+    "click_action": "OPEN_RECEIPT"
+  },
+  "android": {
+    "priority": "normal",
+    "notification": {
+      "click_action": "OPEN_RECEIPT",
+      "channel_id": "payments"
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "💰 Payment Success",
+          "body": "{{ amount|currency(currency) }} - {{ payment_method }}"
+        },
+        "sound": "default",
+        "badge": 1,
+        "category": "PAYMENT"
+      }
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "💰 Payment Success",
+      "body": "{{ amount|currency(currency) }} - {{ payment_method }}",
+      "icon": "{{ app_url }}/icons/icon-192.png"
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/payments/{{ payment_id }}"
+    }
+  }
+}

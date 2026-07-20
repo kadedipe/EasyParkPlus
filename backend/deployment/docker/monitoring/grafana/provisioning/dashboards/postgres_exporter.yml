@@ -1,0 +1,2 @@
+# In postgres_exporter configuration
+extend.query-path: "/path/to/queries.yaml"

@@ -1,0 +1,39 @@
+{
+  "title": "🎉 Welcome!",
+  "body": "Thanks for joining {{ app_name }}",
+  "data": {
+    "type": "welcome",
+    "user_id": "{{ user_id }}",
+    "click_action": "OPEN_APP"
+  },
+  "android": {
+    "priority": "normal",
+    "notification": {
+      "click_action": "OPEN_APP",
+      "channel_id": "onboarding"
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "🎉 Welcome!",
+          "body": "Thanks for joining {{ app_name }}"
+        },
+        "sound": "default",
+        "badge": 1,
+        "category": "WELCOME"
+      }
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "🎉 Welcome!",
+      "body": "Thanks for joining {{ app_name }}",
+      "icon": "{{ app_url }}/icons/icon-192.png"
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}"
+    }
+  }
+}

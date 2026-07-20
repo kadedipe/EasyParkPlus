@@ -1,0 +1,149 @@
+{
+  "title": "🎉 Welcome to {{ app_name }}!",
+  "body": "Thanks for joining us! Get ready for hassle-free parking",
+  "subtitle": "Your parking journey starts here",
+  "data": {
+    "type": "welcome",
+    "user_id": "{{ user_id }}",
+    "user_name": "{{ user_name }}",
+    "email": "{{ user_email }}",
+    "welcome_bonus": "{{ welcome_bonus }}",
+    "bonus_currency": "{{ currency }}",
+    "onboarding_step": "1",
+    "click_action": "OPEN_ONBOARDING",
+    "deep_link": "{{ app_scheme }}://welcome/onboarding",
+    "web_url": "{{ app_url }}/welcome",
+    "share_text": "I just joined {{ app_name }} for hassle-free parking! Join me at {{ app_url }}",
+    "timestamp": "{{ current_time.isoformat() }}",
+    "version": "1.0"
+  },
+  "android": {
+    "priority": "high",
+    "notification": {
+      "click_action": "OPEN_ONBOARDING",
+      "sound": "default",
+      "vibrate": [200, 100, 200],
+      "color": "#667EEA",
+      "icon": "@drawable/ic_welcome",
+      "large_icon": "@drawable/ic_app_logo",
+      "channel_id": "welcome_notifications",
+      "channel_name": "Welcome & Onboarding",
+      "channel_description": "Welcome and onboarding notifications",
+      "sticky": false,
+      "priority": 2,
+      "visibility": 1,
+      "ticker": "Welcome to {{ app_name }}!",
+      "badge_icon_type": "small",
+      "category": "social",
+      "timeout_after": 86400000,
+      "local_only": false,
+      "default_vibrate_timings": true,
+      "default_sound": true,
+      "default_light_settings": true,
+      "lights": {
+        "argb": 0xff667EEA,
+        "on_ms": 500,
+        "off_ms": 1000
+      },
+      "auto_cancel": true,
+      "ongoing": false,
+      "only_alert_once": false,
+      "when": "{{ current_time.timestamp() }}",
+      "show_when": true,
+      "notification_style": "big_text",
+      "big_text": "Welcome to {{ app_name }}! 🎉 We're excited to have you on board. Complete your profile to get {{ welcome_bonus }} {{ currency }} welcome bonus and start enjoying hassle-free parking."
+    },
+    "data": {
+      "priority": "high",
+      "content_available": true,
+      "mutable_content": true,
+      "delay_while_idle": false,
+      "time_to_live": 86400
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "🎉 Welcome to {{ app_name }}!",
+          "body": "Thanks for joining us! Get ready for hassle-free parking",
+          "subtitle": "Complete your profile to get started",
+          "action-loc-key": "Get Started"
+        },
+        "sound": {
+          "critical": 0,
+          "name": "welcome.caf",
+          "volume": 0.8
+        },
+        "badge": 1,
+        "category": "WELCOME_CATEGORY",
+        "thread-id": "welcome-{{ user_id }}",
+        "mutable-content": 1,
+        "content-available": 1,
+        "interruption-level": "active",
+        "relevance-score": 0.9,
+        "target-content-id": "welcome-{{ user_id }}",
+        "url-args": ["welcome", "onboarding"]
+      },
+      "data": {
+        "type": "welcome",
+        "user_id": "{{ user_id }}",
+        "welcome_bonus": "{{ welcome_bonus }}",
+        "onboarding_url": "{{ app_url }}/onboarding"
+      }
+    },
+    "fcm_options": {
+      "analytics_label": "welcome_ios",
+      "image": "{{ image_url }}/ios/welcome_banner.png"
+    },
+    "headers": {
+      "apns-priority": "10",
+      "apns-push-type": "alert",
+      "apns-topic": "com.parking.app",
+      "apns-expiration": "86400"
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "🎉 Welcome to {{ app_name }}!",
+      "body": "Thanks for joining us! Get ready for hassle-free parking",
+      "icon": "{{ app_url }}/icons/icon-192.png",
+      "badge": "{{ app_url }}/icons/badge-72.png",
+      "image": "{{ image_url }}/welcome_banner.jpg",
+      "vibrate": [200, 100, 200],
+      "dir": "auto",
+      "lang": "en",
+      "renotify": false,
+      "requireInteraction": true,
+      "tag": "welcome-{{ user_id }}",
+      "silent": false,
+      "timestamp": "{{ current_time.timestamp() }}",
+      "data": {
+        "url": "{{ app_url }}/welcome",
+        "onboarding_url": "{{ app_url }}/onboarding",
+        "icon": "{{ app_url }}/icons/logo-192.png"
+      },
+      "actions": [
+        {
+          "action": "get_started",
+          "title": "🚀 Get Started",
+          "icon": "{{ app_url }}/icons/start-icon.png"
+        },
+        {
+          "action": "complete_profile",
+          "title": "👤 Complete Profile",
+          "icon": "{{ app_url }}/icons/profile-icon.png"
+        },
+        {
+          "action": "explore",
+          "title": "🔍 Explore",
+          "icon": "{{ app_url }}/icons/explore-icon.png"
+        }
+      ]
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/welcome",
+      "analytics_label": "welcome_web"
+    }
+  }
+}

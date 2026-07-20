@@ -1,0 +1,68 @@
+{
+  "title": "💰 You've Got a Bonus!",
+  "body": "Claim your {{ welcome_bonus }} {{ currency }} welcome bonus now",
+  "subtitle": "Complete your profile to unlock your bonus",
+  "data": {
+    "type": "welcome_bonus",
+    "user_id": "{{ user_id }}",
+    "welcome_bonus": "{{ welcome_bonus }}",
+    "currency": "{{ currency }}",
+    "bonus_code": "{{ welcome_code }}",
+    "expires_at": "{{ bonus_expiry.isoformat() }}",
+    "requirements": "complete_profile",
+    "click_action": "CLAIM_BONUS",
+    "deep_link": "{{ app_scheme }}://bonus/claim",
+    "web_url": "{{ app_url }}/bonus/claim",
+    "timestamp": "{{ current_time.isoformat() }}"
+  },
+  "android": {
+    "priority": "high",
+    "notification": {
+      "click_action": "CLAIM_BONUS",
+      "color": "#F59E0B",
+      "channel_id": "bonus_notifications",
+      "sticky": true,
+      "lights": {
+        "argb": 0xffF59E0B,
+        "on_ms": 500,
+        "off_ms": 1000
+      }
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "💰 You've Got a Bonus!",
+          "body": "Claim your {{ welcome_bonus }} {{ currency }} welcome bonus",
+          "subtitle": "Complete your profile to unlock"
+        },
+        "sound": "bonus.caf",
+        "badge": 1,
+        "category": "BONUS_CATEGORY"
+      }
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "💰 You've Got a Bonus!",
+      "body": "Claim your {{ welcome_bonus }} {{ currency }} welcome bonus",
+      "icon": "{{ app_url }}/icons/bonus-icon.png",
+      "badge": "{{ app_url }}/icons/badge-72.png",
+      "requireInteraction": true,
+      "actions": [
+        {
+          "action": "claim",
+          "title": "💰 Claim Bonus"
+        },
+        {
+          "action": "later",
+          "title": "⏰ Remind Me Later"
+        }
+      ]
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/bonus/claim"
+    }
+  }
+}

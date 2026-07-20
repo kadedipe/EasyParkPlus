@@ -1,0 +1,66 @@
+{
+  "title": "💡 Pro Tips for {{ app_name }}",
+  "body": "Here are 3 tips to make the most of your parking experience",
+  "data": {
+    "type": "welcome_tips",
+    "user_id": "{{ user_id }}",
+    "tips": [
+      {
+        "title": "Save your favorite spots",
+        "description": "Mark frequently used parking locations for quick booking"
+      },
+      {
+        "title": "Enable notifications",
+        "description": "Get reminders before your session ends"
+      },
+      {
+        "title": "Refer friends",
+        "description": "Earn rewards for every friend who joins"
+      }
+    ],
+    "click_action": "VIEW_TIPS",
+    "deep_link": "{{ app_scheme }}://tips",
+    "web_url": "{{ app_url }}/tips"
+  },
+  "android": {
+    "priority": "normal",
+    "notification": {
+      "click_action": "VIEW_TIPS",
+      "channel_id": "tips",
+      "notification_style": "inbox",
+      "inbox": [
+        "⭐ Save your favorite spots",
+        "🔔 Enable notifications for reminders",
+        "👥 Refer friends and earn rewards"
+      ]
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "💡 Pro Tips",
+          "body": "Here are 3 tips to make the most of your parking experience"
+        },
+        "sound": "default",
+        "badge": 1
+      }
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "💡 Pro Tips for {{ app_name }}",
+      "body": "Save favorites, enable notifications, refer friends",
+      "icon": "{{ app_url }}/icons/tips-icon.png",
+      "actions": [
+        {
+          "action": "view",
+          "title": "View Tips"
+        }
+      ]
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/tips"
+    }
+  }
+}

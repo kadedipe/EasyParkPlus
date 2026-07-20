@@ -1,0 +1,135 @@
+[
+  {
+    "notification_id": 10001,
+    "user_id": 1,
+    "notification_type": "reservation_confirmation",
+    "channel": "email",
+    "priority": "high",
+    "status": "delivered",
+    "subject": "Reservation Confirmed - Spot A102",
+    "content": "Your reservation for spot A102 on March 15, 2024 from 8:00 AM to 5:00 PM has been confirmed.",
+    "data": {
+      "reservation_id": 101,
+      "spot_number": "A102",
+      "start_time": "2024-03-15T08:00:00Z",
+      "end_time": "2024-03-15T17:00:00Z",
+      "amount": 45.00
+    },
+    "scheduled_for": null,
+    "sent_at": "2024-03-14T10:30:01Z",
+    "delivered_at": "2024-03-14T10:30:05Z",
+    "read_at": "2024-03-14T10:35:00Z",
+    "created_at": "2024-03-14T10:30:00Z",
+    "updated_at": "2024-03-14T10:35:00Z",
+    "expires_at": "2024-03-21T10:30:00Z",
+    "actions": [
+      {
+        "text": "View Reservation",
+        "url": "https://parking.example.com/reservations/101"
+      },
+      {
+        "text": "Add to Calendar",
+        "action": "add_to_calendar"
+      }
+    ]
+  },
+  {
+    "notification_id": 10002,
+    "user_id": 1,
+    "notification_type": "payment_receipt",
+    "channel": "email",
+    "priority": "high",
+    "status": "delivered",
+    "subject": "Payment Receipt - $45.00",
+    "content": "Your payment of $45.00 for reservation #101 has been processed successfully.",
+    "data": {
+      "payment_id": 1001,
+      "amount": 45.00,
+      "invoice_number": "INV-202403-001",
+      "reservation_id": 101
+    },
+    "scheduled_for": null,
+    "sent_at": "2024-03-14T10:30:02Z",
+    "delivered_at": "2024-03-14T10:30:06Z",
+    "read_at": "2024-03-14T10:36:00Z",
+    "created_at": "2024-03-14T10:30:00Z",
+    "updated_at": "2024-03-14T10:36:00Z",
+    "expires_at": "2024-03-21T10:30:00Z",
+    "attachments": [
+      {
+        "filename": "receipt_INV-202403-001.pdf",
+        "url": "https://parking.example.com/payments/1001/receipt",
+        "mime_type": "application/pdf",
+        "size": 24576
+      }
+    ]
+  },
+  {
+    "notification_id": 10003,
+    "user_id": 2,
+    "notification_type": "reservation_reminder",
+    "channel": "push",
+    "priority": "normal",
+    "status": "sent",
+    "subject": "Reminder: Parking tomorrow at 9:00 AM",
+    "content": "Your VIP parking reservation starts tomorrow at 9:00 AM. Don't forget to bring your EV charging cable!",
+    "data": {
+      "reservation_id": 102,
+      "spot_number": "B201",
+      "start_time": "2024-03-16T09:00:00Z"
+    },
+    "scheduled_for": "2024-03-15T20:00:00Z",
+    "sent_at": null,
+    "delivered_at": null,
+    "read_at": null,
+    "created_at": "2024-03-14T09:00:00Z",
+    "updated_at": "2024-03-14T09:00:00Z",
+    "expires_at": "2024-03-16T09:00:00Z",
+    "deep_link": "parking://reservations/102"
+  },
+  {
+    "notification_id": 10004,
+    "user_id": 2,
+    "notification_type": "payment_failed",
+    "channel": "email",
+    "priority": "urgent",
+    "status": "failed",
+    "subject": "Payment Failed - Action Required",
+    "content": "Your payment of $55.00 could not be processed. Please update your payment method.",
+    "data": {
+      "payment_id": 1002,
+      "amount": 55.00,
+      "reservation_id": 102,
+      "error_code": "insufficient_funds"
+    },
+    "scheduled_for": null,
+    "sent_at": null,
+    "delivered_at": null,
+    "read_at": null,
+    "created_at": "2024-03-10T14:15:00Z",
+    "updated_at": "2024-03-10T14:15:00Z",
+    "error_message": "SMTP connection timeout",
+    "expires_at": "2024-03-17T14:15:00Z"
+  },
+  {
+    "notification_id": 10005,
+    "user_id": 3,
+    "notification_type": "account_verification",
+    "channel": "email",
+    "priority": "high",
+    "status": "delivered",
+    "subject": "Verify Your Email Address",
+    "content": "Please verify your email address by clicking the link below.",
+    "data": {
+      "verification_code": "abc123def456",
+      "expires_in": 24
+    },
+    "scheduled_for": null,
+    "sent_at": "2024-01-20T09:30:00Z",
+    "delivered_at": "2024-01-20T09:30:05Z",
+    "read_at": "2024-01-20T09:35:00Z",
+    "created_at": "2024-01-20T09:30:00Z",
+    "updated_at": "2024-01-20T09:35:00Z",
+    "expires_at": "2024-01-21T09:30:00Z"
+  }
+]

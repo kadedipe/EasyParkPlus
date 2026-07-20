@@ -1,0 +1,39 @@
+{
+  "title": "✅ Booking Confirmed",
+  "body": "{{ parking_name }} - Spot {{ spot_number }}",
+  "data": {
+    "type": "booking_confirmation",
+    "booking_id": "{{ booking_id }}",
+    "click_action": "OPEN_BOOKING"
+  },
+  "android": {
+    "priority": "high",
+    "notification": {
+      "click_action": "OPEN_BOOKING",
+      "channel_id": "bookings"
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "✅ Booking Confirmed",
+          "body": "{{ parking_name }} - Spot {{ spot_number }}"
+        },
+        "sound": "default",
+        "badge": 1,
+        "category": "BOOKING"
+      }
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "✅ Booking Confirmed",
+      "body": "{{ parking_name }} - Spot {{ spot_number }}",
+      "icon": "{{ app_url }}/icons/icon-192.png"
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/bookings/{{ booking_id }}"
+    }
+  }
+}

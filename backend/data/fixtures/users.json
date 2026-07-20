@@ -1,0 +1,149 @@
+[
+  {
+    "user_id": 1,
+    "email": "john.doe@example.com",
+    "username": "johndoe",
+    "password_hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFXpK2qKxJvZy5O",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "+1234567890",
+    "role": "customer",
+    "status": "active",
+    "email_verified": true,
+    "phone_verified": true,
+    "created_at": "2024-01-01T10:00:00Z",
+    "last_login": "2024-03-15T14:30:00Z",
+    "profile_picture": "https://example.com/avatars/johndoe.jpg",
+    "preferences": {
+      "notifications": {
+        "email": true,
+        "sms": false,
+        "push": true
+      },
+      "theme": "light",
+      "language": "en",
+      "default_payment_method": "credit_card"
+    },
+    "metadata": {
+      "signup_ip": "192.168.1.100",
+      "signup_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    }
+  },
+  {
+    "user_id": 2,
+    "email": "jane.smith@example.com",
+    "username": "janesmith",
+    "password_hash": "$2b$12$KXz5tYqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFXpK2qKxJvZy6P",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "phone": "+1234567891",
+    "role": "vip_customer",
+    "status": "active",
+    "email_verified": true,
+    "phone_verified": true,
+    "created_at": "2024-01-15T11:00:00Z",
+    "last_login": "2024-03-14T09:15:00Z",
+    "profile_picture": null,
+    "preferences": {
+      "notifications": {
+        "email": true,
+        "sms": true,
+        "push": true
+      },
+      "theme": "dark",
+      "language": "en",
+      "default_payment_method": "paypal"
+    },
+    "metadata": {
+      "signup_ip": "192.168.1.101",
+      "signup_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+    }
+  },
+  {
+    "user_id": 3,
+    "email": "robert.johnson@example.com",
+    "username": "robertj",
+    "password_hash": "$2b$12$MYv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFXpK2qKxJvZy7Q",
+    "first_name": "Robert",
+    "last_name": "Johnson",
+    "phone": "+1234567892",
+    "role": "attendant",
+    "status": "active",
+    "email_verified": true,
+    "phone_verified": true,
+    "created_at": "2024-01-20T09:30:00Z",
+    "last_login": "2024-03-15T08:45:00Z",
+    "profile_picture": null,
+    "preferences": {
+      "notifications": {
+        "email": true,
+        "sms": true,
+        "push": false
+      },
+      "theme": "light",
+      "language": "en"
+    },
+    "metadata": {
+      "employee_id": "EMP001",
+      "department": "operations"
+    }
+  },
+  {
+    "user_id": 4,
+    "email": "sarah.williams@example.com",
+    "username": "sarahw",
+    "password_hash": "$2b$12$NZv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFXpK2qKxJvZy8R",
+    "first_name": "Sarah",
+    "last_name": "Williams",
+    "phone": "+1234567893",
+    "role": "manager",
+    "status": "active",
+    "email_verified": true,
+    "phone_verified": true,
+    "created_at": "2024-01-25T14:20:00Z",
+    "last_login": "2024-03-15T10:30:00Z",
+    "profile_picture": null,
+    "preferences": {
+      "notifications": {
+        "email": true,
+        "sms": true,
+        "push": true
+      },
+      "theme": "dark",
+      "language": "en"
+    },
+    "metadata": {
+      "employee_id": "MGR001",
+      "department": "management"
+    }
+  },
+  {
+    "user_id": 5,
+    "email": "michael.brown@example.com",
+    "username": "michaelb",
+    "password_hash": "$2b$12$OZv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewFXpK2qKxJvZy9S",
+    "first_name": "Michael",
+    "last_name": "Brown",
+    "phone": "+1234567894",
+    "role": "admin",
+    "status": "active",
+    "email_verified": true,
+    "phone_verified": true,
+    "created_at": "2024-02-01T08:00:00Z",
+    "last_login": "2024-03-15T09:00:00Z",
+    "profile_picture": null,
+    "preferences": {
+      "notifications": {
+        "email": true,
+        "sms": false,
+        "push": false
+      },
+      "theme": "light",
+      "language": "en"
+    },
+    "metadata": {
+      "employee_id": "ADM001",
+      "department": "administration"
+    }
+  }
+]

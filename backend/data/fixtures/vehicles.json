@@ -1,0 +1,101 @@
+[
+  {
+    "vehicle_id": 1,
+    "user_id": 1,
+    "make": "Toyota",
+    "model": "Camry",
+    "year": 2022,
+    "color": "Silver",
+    "license_plate": "ABC123",
+    "vehicle_type": "sedan",
+    "is_default": true,
+    "is_active": true,
+    "created_at": "2024-01-01T10:30:00Z",
+    "last_used_at": "2024-03-15T14:30:00Z",
+    "metadata": {
+      "vin": "1HGBH41JXMN109186",
+      "insurance_provider": "Geico",
+      "insurance_expiry": "2024-12-31"
+    }
+  },
+  {
+    "vehicle_id": 2,
+    "user_id": 1,
+    "make": "Honda",
+    "model": "CR-V",
+    "year": 2023,
+    "color": "Blue",
+    "license_plate": "XYZ789",
+    "vehicle_type": "suv",
+    "is_default": false,
+    "is_active": true,
+    "created_at": "2024-02-15T09:45:00Z",
+    "last_used_at": "2024-03-10T11:20:00Z",
+    "metadata": {
+      "vin": "2HGBH41JXMN109187",
+      "insurance_provider": "Progressive",
+      "insurance_expiry": "2024-11-30"
+    }
+  },
+  {
+    "vehicle_id": 3,
+    "user_id": 2,
+    "make": "Tesla",
+    "model": "Model 3",
+    "year": 2023,
+    "color": "Red",
+    "license_plate": "EV1234",
+    "vehicle_type": "sedan",
+    "is_default": true,
+    "is_active": true,
+    "created_at": "2024-01-20T14:15:00Z",
+    "last_used_at": "2024-03-14T09:15:00Z",
+    "metadata": {
+      "vin": "3HGBH41JXMN109188",
+      "insurance_provider": "Tesla Insurance",
+      "insurance_expiry": "2024-10-31",
+      "is_electric": true,
+      "battery_capacity": 75
+    }
+  },
+  {
+    "vehicle_id": 4,
+    "user_id": 2,
+    "make": "Ford",
+    "model": "F-150",
+    "year": 2022,
+    "color": "Black",
+    "license_plate": "TRUCK1",
+    "vehicle_type": "truck",
+    "is_default": false,
+    "is_active": true,
+    "created_at": "2024-02-01T16:30:00Z",
+    "last_used_at": "2024-03-05T13:40:00Z",
+    "metadata": {
+      "vin": "4HGBH41JXMN109189",
+      "insurance_provider": "State Farm",
+      "insurance_expiry": "2024-09-30",
+      "height_meters": 2.1,
+      "length_meters": 5.8
+    }
+  },
+  {
+    "vehicle_id": 5,
+    "user_id": 3,
+    "make": "Chevrolet",
+    "model": "Malibu",
+    "year": 2021,
+    "color": "White",
+    "license_plate": "CHEVY1",
+    "vehicle_type": "sedan",
+    "is_default": true,
+    "is_active": true,
+    "created_at": "2024-01-10T11:00:00Z",
+    "last_used_at": "2024-03-15T08:45:00Z",
+    "metadata": {
+      "vin": "5HGBH41JXMN109190",
+      "insurance_provider": "Allstate",
+      "insurance_expiry": "2024-08-31"
+    }
+  }
+]

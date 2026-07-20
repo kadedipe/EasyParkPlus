@@ -1,0 +1,55 @@
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": 2,
+        "number_of_replicas": 1,
+        "refresh_interval": "30s",
+        "max_result_window": 50000,
+        "mapping": {
+          "total_fields": {
+            "limit": 1000
+          }
+        },
+        "analysis": {
+          "analyzer": {
+            "search_query_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "stop", "snowball"]
+            },
+            "search_term_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "stop", "snowball", "edge_ngram_filter"]
+            },
+            "search_term_index_analyzer": {
+              "type": "custom",
+              "tokenizer": "standard",
+              "filter": ["lowercase", "stop", "snowball"]
+            }
+          },
+          "filter": {
+            "edge_ngram_filter": {
+              "type": "edge_ngram",
+              "min_gram": 2,
+              "max_gram": 20
+            }
+          }
+        },
+        "lifecycle": {
+          "name": "search-logs-lifecycle",
+          "rollover_alias": "search-logs"
+        },
+        "sort.field": ["@timestamp"],
+        "sort.order": ["desc"],
+        "codec": "best_compression"
+      }
+    }
+  },
+  "version": 1,
+  "_meta": {
+    "description": "Settings component template for search logs",
+    "managed_by": "parking-management-system"
+  }
+}

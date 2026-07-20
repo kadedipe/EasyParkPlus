@@ -1,0 +1,119 @@
+apiVersion: 1
+
+# List of datasources to create/update
+datasources:
+  # Prometheus datasource
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    
+    jsonData:
+      timeInterval: 15s
+      queryTimeout: 60s
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: "2.45.0"
+      cacheLevel: "High"
+      disableRecordingRules: false
+      incrementalQueryOverlapWindow: "10m"
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          url: "${__value.raw}"
+          datasourceUid: tempo
+          datasourceName: Tempo
+      customQueryParameters: ""
+    
+    secureJsonData:
+      # Uncomment and set if using authentication
+      # basicAuthPassword: "password"
+      # tlsClientCert: ""
+      # tlsClientKey: ""
+    
+    version: 1
+  
+  # PostgreSQL datasource (for direct database queries)
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    url: postgres-primary:5432
+    database: parking_db
+    user: monitoring_user
+    secureJsonData:
+      password: "monitoring_password_here"
+    
+    jsonData:
+      sslmode: "disable"
+      postgresVersion: 1500
+      timescaledb: false
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      tlsConfigurationMethod: "file-path"
+      tlsSkipVerify: true
+    
+    version: 1
+  
+  # Elasticsearch datasource (for logs)
+  - name: Elasticsearch
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    database: "[logs-]YYYY.MM.DD"
+    
+    jsonData:
+      esVersion: "8.10.0"
+      timeField: "@timestamp"
+      interval: "Daily"
+      timeInterval: "1m"
+      logMessageField: "message"
+      logLevelField: "level"
+      maxConcurrentShardRequests: 256
+      includeFrozen: false
+    
+    version: 1
+  
+  # Loki datasource (alternative logs)
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: "prometheus"
+          matcherRegex: "traceId=(\\w+)"
+          name: "TraceID"
+          url: "$${__value.raw}"
+    
+    version: 1
+  
+  # Tempo datasource (for distributed tracing)
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    uid: tempo
+    
+    jsonData:
+      nodeGraph:
+        enabled: true
+      tracesToLogs:
+        datasourceUid: "loki"
+        filterByTraceID: true
+        filterBySpanID: false
+        tags:
+          - "container"
+          - "pod"
+        mappedTags:
+          - key: "service.name"
+            value: "service"
+      serviceMap:
+        datasourceUid: "prometheus"
+      search:
+        hide: false
+    
+    version: 1

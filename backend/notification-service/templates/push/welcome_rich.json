@@ -1,0 +1,225 @@
+{
+  "title": "🎉 Welcome to the Family!",
+  "body": "{{ user_name }}, we're thrilled to have you on board!",
+  "summary": "Your parking journey starts with a {{ welcome_bonus }} {{ currency }} welcome bonus",
+  "image": "{{ image_url }}/welcome/welcome_banner_rich.jpg",
+  "icon": "{{ image_url }}/icons/welcome_rich.png",
+  "data": {
+    "type": "welcome",
+    "user_id": "{{ user_id }}",
+    "user_name": "{{ user_name }}",
+    "user_email": "{{ user_email }}",
+    "welcome_bonus": "{{ welcome_bonus }}",
+    "bonus_currency": "{{ currency }}",
+    "bonus_code": "{{ welcome_code }}",
+    "referral_code": "{{ referral_code }}",
+    "onboarding_completed": "{{ onboarding_completed }}",
+    "next_steps": ["complete_profile", "add_vehicle", "find_parking"],
+    "click_action": "OPEN_WELCOME_HUB",
+    "deep_link": "{{ app_scheme }}://welcome/hub",
+    "web_url": "{{ app_url }}/welcome",
+    "share_text": "I just joined {{ app_name }} and got {{ welcome_bonus }} {{ currency }} bonus! Join me: {{ app_url }}/invite/{{ referral_code }}",
+    "invite_link": "{{ app_url }}/invite/{{ referral_code }}",
+    "whatsapp_share": "https://wa.me/?text={{ share_text|urlencode }}",
+    "twitter_share": "https://twitter.com/intent/tweet?text={{ share_text|urlencode }}",
+    "facebook_share": "https://www.facebook.com/sharer/sharer.php?u={{ app_url|urlencode }}",
+    "timestamp": "{{ current_time.isoformat() }}",
+    "version": "2.0"
+  },
+  "actions": [
+    {
+      "id": "get_started",
+      "title": "🚀 Get Started",
+      "icon": "🚀",
+      "url": "{{ app_url }}/onboarding",
+      "authentication_required": false
+    },
+    {
+      "id": "complete_profile",
+      "title": "👤 Complete Profile",
+      "icon": "👤",
+      "url": "{{ app_url }}/profile/edit",
+      "authentication_required": true
+    },
+    {
+      "id": "add_vehicle",
+      "title": "🚗 Add Vehicle",
+      "icon": "🚗",
+      "url": "{{ app_url }}/vehicles/add",
+      "authentication_required": true
+    },
+    {
+      "id": "find_parking",
+      "title": "🔍 Find Parking",
+      "icon": "🔍",
+      "url": "{{ app_url }}/search",
+      "authentication_required": false
+    },
+    {
+      "id": "invite_friends",
+      "title": "👥 Invite Friends",
+      "icon": "👥",
+      "url": "{{ app_url }}/invite",
+      "authentication_required": true
+    }
+  ],
+  "android": {
+    "priority": "high",
+    "notification": {
+      "click_action": "OPEN_WELCOME_HUB",
+      "sound": "default",
+      "vibrate": [200, 100, 200, 100, 200],
+      "color": "#667EEA",
+      "icon": "@drawable/ic_welcome",
+      "large_icon": "@drawable/ic_app_logo",
+      "channel_id": "welcome_notifications",
+      "channel_name": "Welcome & Onboarding",
+      "channel_description": "Welcome and onboarding notifications with bonus offers",
+      "sticky": false,
+      "priority": 2,
+      "visibility": 1,
+      "ticker": "Welcome bonus: {{ welcome_bonus }} {{ currency }}!",
+      "badge_icon_type": "small",
+      "category": "social",
+      "timeout_after": 86400000,
+      "local_only": false,
+      "default_vibrate_timings": true,
+      "default_sound": true,
+      "default_light_settings": true,
+      "lights": {
+        "argb": 0xff667EEA,
+        "on_ms": 500,
+        "off_ms": 1000
+      },
+      "auto_cancel": true,
+      "ongoing": false,
+      "only_alert_once": false,
+      "when": "{{ current_time.timestamp() }}",
+      "show_when": true,
+      "notification_style": "big_picture",
+      "big_picture": "{{ image_url }}/android/welcome_big_picture.jpg",
+      "big_text": "Welcome to {{ app_name }}! �️\n\nWe're excited to have you on board. Here's what you can do:\n\n✓ Complete your profile\n✓ Add your vehicle\n✓ Find and book parking\n✓ Earn rewards\n\nGet {{ welcome_bonus }} {{ currency }} welcome bonus when you complete your profile!",
+      "inbox": [
+        "🎉 Welcome to {{ app_name }}!",
+        "💰 {{ welcome_bonus }} {{ currency }} welcome bonus",
+        "🚗 Add your vehicle for faster booking",
+        "🔍 Find parking near you",
+        "👥 Invite friends and earn more"
+      ],
+      "progress": {
+        "max": 100,
+        "progress": 0,
+        "indeterminate": false
+      }
+    },
+    "data": {
+      "priority": "high",
+      "content_available": true,
+      "mutable_content": true,
+      "delay_while_idle": false,
+      "time_to_live": 86400
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "🎉 Welcome to the Family!",
+          "body": "{{ user_name }}, we're thrilled to have you!",
+          "subtitle": "Get {{ welcome_bonus }} {{ currency }} welcome bonus",
+          "action-loc-key": "Get Started",
+          "launch-image": "launch_image_welcome"
+        },
+        "sound": {
+          "critical": 1,
+          "name": "welcome_rich.caf",
+          "volume": 0.8
+        },
+        "badge": 1,
+        "category": "WELCOME_RICH_CATEGORY",
+        "thread-id": "welcome-{{ user_id }}",
+        "mutable-content": 1,
+        "content-available": 1,
+        "interruption-level": "time-sensitive",
+        "relevance-score": 1.0,
+        "target-content-id": "welcome-{{ user_id }}",
+        "url-args": ["welcome", "bonus"]
+      },
+      "data": {
+        "type": "welcome",
+        "user_id": "{{ user_id }}",
+        "welcome_bonus": "{{ welcome_bonus }}",
+        "bonus_code": "{{ welcome_code }}",
+        "referral_code": "{{ referral_code }}",
+        "onboarding_url": "{{ app_url }}/onboarding",
+        "invite_url": "{{ app_url }}/invite/{{ referral_code }}"
+      },
+      "fcm_options": {
+        "analytics_label": "welcome_ios_rich",
+        "image": "{{ image_url }}/ios/welcome_rich_banner.png"
+      }
+    },
+    "headers": {
+      "apns-priority": "10",
+      "apns-push-type": "alert",
+      "apns-topic": "com.parking.app",
+      "apns-expiration": "86400",
+      "apns-collapse-id": "welcome-{{ user_id }}"
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "🎉 Welcome to the Family!",
+      "body": "{{ user_name }}, get {{ welcome_bonus }} {{ currency }} welcome bonus!",
+      "icon": "{{ app_url }}/icons/icon-192.png",
+      "badge": "{{ app_url }}/icons/badge-72.png",
+      "image": "{{ image_url }}/welcome_rich_banner.jpg",
+      "vibrate": [200, 100, 200, 100, 200],
+      "dir": "auto",
+      "lang": "en",
+      "renotify": false,
+      "requireInteraction": true,
+      "tag": "welcome-{{ user_id }}",
+      "silent": false,
+      "timestamp": "{{ current_time.timestamp() }}",
+      "data": {
+        "url": "{{ app_url }}/welcome",
+        "onboarding_url": "{{ app_url }}/onboarding",
+        "profile_url": "{{ app_url }}/profile",
+        "invite_url": "{{ app_url }}/invite/{{ referral_code }}",
+        "icon": "{{ app_url }}/icons/logo-192.png"
+      },
+      "actions": [
+        {
+          "action": "get_bonus",
+          "title": "💰 Claim {{ welcome_bonus }} {{ currency }}",
+          "icon": "{{ app_url }}/icons/bonus-icon.png"
+        },
+        {
+          "action": "complete_profile",
+          "title": "👤 Complete Profile",
+          "icon": "{{ app_url }}/icons/profile-icon.png"
+        },
+        {
+          "action": "add_vehicle",
+          "title": "🚗 Add Vehicle",
+          "icon": "{{ app_url }}/icons/car-icon.png"
+        },
+        {
+          "action": "invite_friends",
+          "title": "👥 Invite Friends",
+          "icon": "{{ app_url }}/icons/invite-icon.png"
+        },
+        {
+          "action": "explore",
+          "title": "🔍 Explore Parking",
+          "icon": "{{ app_url }}/icons/explore-icon.png"
+        }
+      ]
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/welcome",
+      "analytics_label": "welcome_web_rich"
+    }
+  }
+}

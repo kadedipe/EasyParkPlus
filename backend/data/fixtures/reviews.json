@@ -1,0 +1,65 @@
+[
+  {
+    "review_id": 501,
+    "user_id": 1,
+    "reservation_id": 101,
+    "spot_id": 2,
+    "rating": 5,
+    "title": "Great parking spot!",
+    "content": "Very convenient location, clean spot, and easy access to the elevator. Will definitely use again.",
+    "pros": ["clean", "convenient", "well-lit"],
+    "cons": [],
+    "verified_purchase": true,
+    "helpful_count": 12,
+    "created_at": "2024-03-15T18:30:00Z",
+    "updated_at": "2024-03-15T18:30:00Z",
+    "metadata": {
+      "ip_address": "192.168.1.100"
+    }
+  },
+  {
+    "review_id": 502,
+    "user_id": 3,
+    "reservation_id": 104,
+    "spot_id": 5,
+    "rating": 4,
+    "title": "Good spot, tight for larger vehicles",
+    "content": "The spot was clean and close to the entrance, but it was a bit tight for my sedan. The disabled access was good though.",
+    "pros": ["close to entrance", "clean", "good lighting"],
+    "cons": ["a bit narrow"],
+    "verified_purchase": true,
+    "helpful_count": 5,
+    "created_at": "2024-03-14T15:45:00Z",
+    "updated_at": "2024-03-14T15:45:00Z"
+  },
+  {
+    "review_id": 503,
+    "user_id": 2,
+    "reservation_id": 105,
+    "spot_id": 6,
+    "rating": 5,
+    "title": "Perfect for trucks!",
+    "content": "Finally a spot that accommodates my F-150. Plenty of room, easy to maneuver. Highly recommended for truck owners.",
+    "pros": ["spacious", "easy access", "good for trucks"],
+    "cons": [],
+    "verified_purchase": true,
+    "helpful_count": 8,
+    "created_at": "2024-03-13T19:00:00Z",
+    "updated_at": "2024-03-13T19:00:00Z"
+  },
+  {
+    "review_id": 504,
+    "user_id": 4,
+    "reservation_id": 106,
+    "spot_id": 4,
+    "rating": 3,
+    "title": "EV charger was slow",
+    "content": "The spot was fine but the EV charger was slower than expected. Only got about 15 miles of range in 2 hours.",
+    "pros": ["dedicated EV spot", "covered"],
+    "cons": ["slow charging", "charger sometimes unavailable"],
+    "verified_purchase": true,
+    "helpful_count": 3,
+    "created_at": "2024-03-12T20:15:00Z",
+    "updated_at": "2024-03-12T20:15:00Z"
+  }
+]

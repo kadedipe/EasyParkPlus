@@ -1,0 +1,55 @@
+[
+  {
+    "waitlist_id": 201,
+    "user_id": 2,
+    "spot_id": 3,
+    "requested_at": "2024-03-15T09:00:00Z",
+    "status": "active",
+    "priority": 1,
+    "expires_at": "2024-03-16T09:00:00Z",
+    "notified_at": null,
+    "metadata": {
+      "preferred_time": "morning",
+      "max_wait_hours": 2
+    }
+  },
+  {
+    "waitlist_id": 202,
+    "user_id": 1,
+    "spot_id": 1,
+    "requested_at": "2024-03-15T10:30:00Z",
+    "status": "active",
+    "priority": 2,
+    "expires_at": "2024-03-16T10:30:00Z",
+    "notified_at": null,
+    "metadata": {}
+  },
+  {
+    "waitlist_id": 203,
+    "user_id": 5,
+    "spot_id": 8,
+    "requested_at": "2024-03-14T14:00:00Z",
+    "status": "notified",
+    "priority": 3,
+    "expires_at": "2024-03-15T14:00:00Z",
+    "notified_at": "2024-03-15T08:00:00Z",
+    "metadata": {
+      "notification_sent": true,
+      "response_deadline": "2024-03-15T09:00:00Z"
+    }
+  },
+  {
+    "waitlist_id": 204,
+    "user_id": 3,
+    "spot_id": 4,
+    "requested_at": "2024-03-13T11:00:00Z",
+    "status": "expired",
+    "priority": 4,
+    "expires_at": "2024-03-14T11:00:00Z",
+    "notified_at": "2024-03-14T08:00:00Z",
+    "metadata": {
+      "notification_sent": true,
+      "no_response": true
+    }
+  }
+]

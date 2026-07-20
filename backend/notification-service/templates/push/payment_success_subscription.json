@@ -1,0 +1,61 @@
+{
+  "title": "🔄 Subscription Renewal",
+  "body": "Your {{ plan_name }} subscription payment of {{ amount|currency(currency) }} was successful",
+  "subtitle": "Next billing: {{ next_billing_date|date('%b %d, %Y') }}",
+  "data": {
+    "type": "subscription_renewal",
+    "subscription_id": "{{ subscription_id }}",
+    "plan_name": "{{ plan_name }}",
+    "plan_id": "{{ plan_id }}",
+    "amount": "{{ amount }}",
+    "currency": "{{ currency }}",
+    "billing_cycle": "{{ billing_cycle }}",
+    "next_billing_date": "{{ next_billing_date.isoformat() }}",
+    "payment_method": "{{ payment_method }}",
+    "click_action": "OPEN_SUBSCRIPTION",
+    "deep_link": "{{ app_scheme }}://subscription/{{ subscription_id }}",
+    "web_url": "{{ app_url }}/subscriptions/{{ subscription_id }}"
+  },
+  "android": {
+    "priority": "high",
+    "notification": {
+      "click_action": "OPEN_SUBSCRIPTION",
+      "channel_id": "subscription_notifications",
+      "color": "#10B981"
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "🔄 Subscription Renewal",
+          "body": "Your {{ plan_name }} subscription renewed for {{ amount|currency(currency) }}",
+          "subtitle": "Next billing: {{ next_billing_date|date('%b %d, %Y') }}"
+        },
+        "sound": "default",
+        "badge": 1,
+        "category": "SUBSCRIPTION"
+      }
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "🔄 Subscription Renewal",
+      "body": "Your {{ plan_name }} subscription renewed for {{ amount|currency(currency) }}",
+      "icon": "{{ app_url }}/icons/icon-192.png",
+      "actions": [
+        {
+          "action": "view",
+          "title": "View Subscription"
+        },
+        {
+          "action": "manage",
+          "title": "Manage"
+        }
+      ]
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/subscriptions/{{ subscription_id }}"
+    }
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "title": "💰 Payment Successful!",
+  "body": "Your payment of {{ amount|currency(currency) }} was successful via {{ payment_method }}",
+  "subtitle": "Transaction ID: {{ transaction_short_id }}",
+  "data": {
+    "type": "payment_success",
+    "payment_id": "{{ payment_id }}",
+    "transaction_id": "{{ transaction_id }}",
+    "transaction_short_id": "{{ transaction_short_id }}",
+    "amount": "{{ amount }}",
+    "currency": "{{ currency }}",
+    "payment_method": "{{ payment_method }}",
+    "payment_method_details": "{{ payment_method_details }}",
+    "status": "completed",
+    "timestamp": "{{ payment_date.isoformat() }}",
+    "receipt_url": "{{ receipt_short_url }}",
+    "invoice_url": "{{ invoice_url }}",
+    "click_action": "OPEN_PAYMENT_RECEIPT",
+    "deep_link": "{{ app_scheme }}://payment/{{ payment_id }}",
+    "web_url": "{{ app_url }}/payments/{{ payment_id }}",
+    "share_text": "I just made a payment of {{ amount|currency(currency) }} via {{ app_name }}!",
+    "version": "1.0"
+  },
+  "android": {
+    "priority": "high",
+    "notification": {
+      "click_action": "OPEN_PAYMENT_RECEIPT",
+      "sound": "default",
+      "vibrate": [200, 100, 200],
+      "color": "#10B981",
+      "icon": "@drawable/ic_payment_success",
+      "large_icon": "@drawable/ic_payment_confirmed",
+      "channel_id": "payment_notifications",
+      "channel_name": "Payment Confirmations",
+      "channel_description": "Notifications for payment confirmations",
+      "sticky": false,
+      "priority": 2,
+      "visibility": 1,
+      "ticker": "Payment successful!",
+      "badge_icon_type": "small",
+      "category": "payment",
+      "timeout_after": 86400000,
+      "local_only": false,
+      "default_vibrate_timings": true,
+      "default_sound": true,
+      "default_light_settings": true,
+      "lights": {
+        "argb": 0xff10B981,
+        "on_ms": 500,
+        "off_ms": 1000
+      },
+      "auto_cancel": true,
+      "ongoing": false,
+      "only_alert_once": false,
+      "when": "{{ payment_date.timestamp() }}",
+      "show_when": true,
+      "notification_style": "big_text",
+      "big_text": "Payment of {{ amount|currency(currency) }} successful via {{ payment_method }}. Transaction ID: {{ transaction_short_id }}. Receipt available at {{ receipt_short_url }}"
+    },
+    "data": {
+      "priority": "high",
+      "content_available": true,
+      "mutable_content": false,
+      "delay_while_idle": false,
+      "time_to_live": 86400
+    }
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "alert": {
+          "title": "💰 Payment Successful!",
+          "body": "Your payment of {{ amount|currency(currency) }} was successful",
+          "subtitle": "{{ payment_method }} • Transaction {{ transaction_short_id }}",
+          "action-loc-key": "View Receipt"
+        },
+        "sound": {
+          "critical": 0,
+          "name": "default",
+          "volume": 0.7
+        },
+        "badge": 1,
+        "category": "PAYMENT_CATEGORY",
+        "thread-id": "payment-{{ payment_id }}",
+        "mutable-content": 0,
+        "content-available": 1,
+        "interruption-level": "active",
+        "relevance-score": 0.8,
+        "target-content-id": "payment-{{ payment_id }}",
+        "url-args": ["payment", "{{ payment_id }}"]
+      },
+      "data": {
+        "type": "payment_success",
+        "payment_id": "{{ payment_id }}",
+        "amount": "{{ amount }}",
+        "currency": "{{ currency }}",
+        "payment_method": "{{ payment_method }}",
+        "transaction_id": "{{ transaction_short_id }}",
+        "receipt_url": "{{ receipt_short_url }}"
+      }
+    },
+    "fcm_options": {
+      "analytics_label": "payment_success_ios",
+      "image": "{{ image_url }}/ios/payment_success.png"
+    },
+    "headers": {
+      "apns-priority": "10",
+      "apns-push-type": "alert",
+      "apns-topic": "com.parking.app.payments",
+      "apns-expiration": "86400"
+    }
+  },
+  "webpush": {
+    "notification": {
+      "title": "💰 Payment Successful!",
+      "body": "Your payment of {{ amount|currency(currency) }} was successful",
+      "icon": "{{ app_url }}/icons/icon-192.png",
+      "badge": "{{ app_url }}/icons/badge-72.png",
+      "image": "{{ image_url }}/payment_success_banner.png",
+      "vibrate": [200, 100, 200],
+      "dir": "auto",
+      "lang": "en",
+      "renotify": false,
+      "requireInteraction": false,
+      "tag": "payment-{{ payment_id }}",
+      "silent": false,
+      "timestamp": "{{ payment_date.timestamp() }}",
+      "data": {
+        "url": "{{ app_url }}/payments/{{ payment_id }}",
+        "receipt_url": "{{ receipt_short_url }}",
+        "invoice_url": "{{ invoice_url }}",
+        "icon": "{{ app_url }}/icons/payment-192.png"
+      },
+      "actions": [
+        {
+          "action": "view_receipt",
+          "title": "📄 View Receipt",
+          "icon": "{{ app_url }}/icons/receipt-icon.png"
+        },
+        {
+          "action": "download_receipt",
+          "title": "💾 Download PDF",
+          "icon": "{{ app_url }}/icons/download-icon.png"
+        },
+        {
+          "action": "share",
+          "title": "📤 Share",
+          "icon": "{{ app_url }}/icons/share-icon.png"
+        }
+      ]
+    },
+    "fcm_options": {
+      "link": "{{ app_url }}/payments/{{ payment_id }}",
+      "analytics_label": "payment_success_web"
+    }
+  }
+}

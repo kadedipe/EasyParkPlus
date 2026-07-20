@@ -1,0 +1,50 @@
+[
+  {
+    "loyalty_id": 601,
+    "user_id": 1,
+    "points": 450,
+    "tier": "silver",
+    "joined_at": "2024-01-01T10:00:00Z",
+    "last_activity": "2024-03-15T14:30:00Z",
+    "points_earned_ytd": 450,
+    "points_redeemed_ytd": 0,
+    "visits_this_month": 3,
+    "total_visits": 12,
+    "total_spent": 225.00,
+    "metadata": {
+      "birthday": "1985-05-15",
+      "anniversary": null
+    }
+  },
+  {
+    "loyalty_id": 602,
+    "user_id": 2,
+    "points": 1250,
+    "tier": "gold",
+    "joined_at": "2024-01-15T11:00:00Z",
+    "last_activity": "2024-03-14T09:15:00Z",
+    "points_earned_ytd": 1250,
+    "points_redeemed_ytd": 200,
+    "visits_this_month": 4,
+    "total_visits": 18,
+    "total_spent": 625.00,
+    "metadata": {
+      "birthday": "1990-08-22",
+      "preferred_parking": "covered"
+    }
+  },
+  {
+    "loyalty_id": 603,
+    "user_id": 3,
+    "points": 180,
+    "tier": "bronze",
+    "joined_at": "2024-01-20T09:30:00Z",
+    "last_activity": "2024-03-15T08:45:00Z",
+    "points_earned_ytd": 180,
+    "points_redeemed_ytd": 0,
+    "visits_this_month": 1,
+    "total_visits": 5,
+    "total_spent": 90.00,
+    "metadata": {}
+  }
+]

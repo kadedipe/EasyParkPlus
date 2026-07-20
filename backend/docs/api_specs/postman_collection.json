@@ -1,0 +1,535 @@
+{
+  "info": {
+    "name": "Parking Management System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Parking Management System API",
+    "version": "1.5.0"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticate and obtain JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parking Lots",
+      "item": [
+        {
+          "name": "List Parking Lots",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/parking-lots?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["parking-lots"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Parking Lot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Parking Lot\",\n  \"address\": {\n    \"street\": \"123 Test St\",\n    \"city\": \"Test City\",\n    \"state\": \"TS\",\n    \"postal_code\": \"12345\",\n    \"country\": \"USA\"\n  },\n  \"total_slots\": 100,\n  \"hourly_rate\": 5.0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/parking-lots",
+              "host": ["{{base_url}}"],
+              "path": ["parking-lots"]
+            }
+          }
+        },
+        {
+          "name": "Get Parking Lot Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/parking-lots/:lot_id",
+              "host": ["{{base_url}}"],
+              "path": ["parking-lots", ":lot_id"],
+              "variable": [
+                {
+                  "key": "lot_id",
+                  "value": "lot_123456789"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Occupancy",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/parking-lots/:lot_id/occupancy",
+              "host": ["{{base_url}}"],
+              "path": ["parking-lots", ":lot_id", "occupancy"],
+              "variable": [
+                {
+                  "key": "lot_id",
+                  "value": "lot_123456789"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parking Sessions",
+      "item": [
+        {
+          "name": "Check In Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parking_lot_id\": \"lot_123456789\",\n  \"license_plate\": \"TEST123\",\n  \"vehicle_type\": \"car\",\n  \"slot_type_preference\": \"regular\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/parking-sessions/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["parking-sessions", "check-in"]
+            }
+          }
+        },
+        {
+          "name": "Check Out Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exit_time\": \"2024-01-10T11:45:00Z\",\n  \"payment_method\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/parking-sessions/:session_id/check-out",
+              "host": ["{{base_url}}"],
+              "path": ["parking-sessions", ":session_id", "check-out"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "sess_123456789"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Active Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/parking-sessions/active",
+              "host": ["{{base_url}}"],
+              "path": ["parking-sessions", "active"]
+            }
+          }
+        },
+        {
+          "name": "Search Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/parking-sessions/search?license_plate=TEST123",
+              "host": ["{{base_url}}"],
+              "path": ["parking-sessions", "search"],
+              "query": [
+                {
+                  "key": "license_plate",
+                  "value": "TEST123"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"sess_123456789\",\n  \"amount\": 17.55,\n  \"currency\": \"USD\",\n  \"payment_method\": \"credit_card\",\n  \"payment_details\": {\n    \"card_number\": \"4242424242424242\",\n    \"exp_month\": \"12\",\n    \"exp_year\": \"2025\",\n    \"cvc\": \"123\",\n    \"cardholder_name\": \"John Doe\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/process",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "process"]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/invoices/:invoice_id",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", ":invoice_id"],
+              "variable": [
+                {
+                  "key": "invoice_id",
+                  "value": "INV-20240110-001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payment History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/history?start_date=2024-01-01&end_date=2024-01-10",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "history"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-01-10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get Occupancy Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/occupancy?period=last_7_days&granularity=daily",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "occupancy"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_7_days"
+                },
+                {
+                  "key": "granularity",
+                  "value": "daily"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Revenue Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/revenue?period=last_30_days",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "revenue"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generate Custom Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"report_name\": \"Custom Analysis\",\n  \"metrics\": [\"occupancy_rate\", \"revenue\"],\n  \"filters\": {\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-01-31\"\n  },\n  \"format\": \"json\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reports/generate",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "generate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Create Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Webhook\",\n  \"url\": \"https://webhook.site/test-123\",\n  \"events\": [\"session.created\", \"payment.succeeded\"],\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/webhooks",
+              "host": ["{{base_url}}"],
+              "path": ["webhooks"]
+            }
+          }
+        },
+        {
+          "name": "Test Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"session.created\",\n  \"payload\": {\n    \"session_id\": \"test_123\",\n    \"license_plate\": \"TEST-123\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/webhooks/:webhook_id/test",
+              "host": ["{{base_url}}"],
+              "path": ["webhooks", ":webhook_id", "test"],
+              "variable": [
+                {
+                  "key": "webhook_id",
+                  "value": "wh_123456789"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.sandbox.parking-system.com/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": ["// Pre-request script if needed"]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Test script",
+          "pm.test(\"Status code is 200\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test(\"Response has success flag\", function () {",
+          "    var jsonData = pm.response.json();",
+          "    pm.expect(jsonData.success).to.be.true;",
+          "});"
+        ]
+      }
+    }
+  ]
+}s

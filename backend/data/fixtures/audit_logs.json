@@ -1,0 +1,88 @@
+[
+  {
+    "log_id": 10001,
+    "user_id": 1,
+    "action": "user_login",
+    "resource_type": "user",
+    "resource_id": "1",
+    "details": {
+      "ip_address": "192.168.1.100",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "method": "password"
+    },
+    "status": "success",
+    "timestamp": "2024-03-15T14:30:00Z"
+  },
+  {
+    "log_id": 10002,
+    "user_id": 1,
+    "action": "reservation_created",
+    "resource_type": "reservation",
+    "resource_id": "101",
+    "details": {
+      "spot_id": 2,
+      "start_time": "2024-03-15T08:00:00Z",
+      "end_time": "2024-03-15T17:00:00Z",
+      "amount": 45.00
+    },
+    "status": "success",
+    "timestamp": "2024-03-14T10:30:00Z"
+  },
+  {
+    "log_id": 10003,
+    "user_id": 1,
+    "action": "payment_processed",
+    "resource_type": "payment",
+    "resource_id": "1001",
+    "details": {
+      "amount": 45.00,
+      "method": "credit_card",
+      "provider": "stripe"
+    },
+    "status": "success",
+    "timestamp": "2024-03-14T10:30:00Z"
+  },
+  {
+    "log_id": 10004,
+    "user_id": 2,
+    "action": "user_login",
+    "resource_type": "user",
+    "resource_id": "2",
+    "details": {
+      "ip_address": "192.168.1.101",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+      "method": "oauth_google"
+    },
+    "status": "success",
+    "timestamp": "2024-03-14T09:15:00Z"
+  },
+  {
+    "log_id": 10005,
+    "user_id": 5,
+    "action": "user_created",
+    "resource_type": "user",
+    "resource_id": "5",
+    "details": {
+      "role": "admin",
+      "created_by": "system"
+    },
+    "status": "success",
+    "timestamp": "2024-02-01T08:00:00Z"
+  },
+  {
+    "log_id": 10006,
+    "user_id": 4,
+    "action": "spot_updated",
+    "resource_type": "parking_spot",
+    "resource_id": "8",
+    "details": {
+      "changes": {
+        "is_active": [true, false],
+        "maintenance_mode": [false, true],
+        "maintenance_reason": [null, "surface repair"]
+      }
+    },
+    "status": "success",
+    "timestamp": "2024-03-10T09:00:00Z"
+  }
+]
