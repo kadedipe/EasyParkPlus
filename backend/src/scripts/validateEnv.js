@@ -255,8 +255,9 @@ class EnvironmentValidator {
     console.log('JWT_REFRESH_SECRET=your-super-secret-refresh-key-min-32-chars');
     console.log('');
     console.log('# Stripe');
-    console.log('STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY');
-    console.log('STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET');
+    console.log('STRIPE_SECRET_KEY=<your_stripe_secret_key>');
+    console.log('STRIPE_PUBLISHABLE_KEY=<your_stripe_publishable_key>');
+    console.log('STRIPE_WEBHOOK_SECRET=<your_stripe_webhook_secret>');
     console.log('');
     console.log('# Security');
     console.log('CORS_ORIGIN=https://yourdomain.com');
